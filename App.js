@@ -1,18 +1,19 @@
-import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
-import RegisterScreen from './src/screens/Auth/RegisterScreen';
-
+import OnboardingScreen from './src/screens/Auth/OnboardingScreen';
 export default function App() {
   return (
-    <RegisterScreen />
+    <>
+      <OnboardingScreen />
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#3f813f9b',
     alignItems: 'center',
     justifyContent: 'center',
+
   },
 });
