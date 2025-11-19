@@ -11,8 +11,10 @@ import {
 
 // Humara naya banaya hua asset manager import karo
 import images from '../../assets/images'; 
+import { useNavigation } from '@react-navigation/native';
 
 const OnboardingScreen = () => {
+  const Navigator = useNavigation();
   return (
     <SafeAreaView style={styles.root}>
       <StatusBar barStyle="dark-content" />
@@ -76,9 +78,10 @@ const OnboardingScreen = () => {
       </View>
 
       {/* Bottom Button */}
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={()=>{Navigator.navigate("Register")}}>
         <Text style={styles.buttonText}>Getting Started</Text>
       </TouchableOpacity>
+      
     </SafeAreaView>
   );
 };

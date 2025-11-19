@@ -8,21 +8,24 @@ import {
   TouchableOpacity,
   StatusBar,
   ScrollView,
+  Image, Platform
 } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import images from '../../assets/images';
+import AntDesign from '@expo/vector-icons/AntDesign'
+import Entypo from '@expo/vector-icons/Entypo';
 
 const LoginScreen = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   return (
-    <SafeAreaView style={styles.root}>
+    <>
       <StatusBar barStyle="dark-content" />
-      
+
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        
+
         {/* 1. Logo Placeholder */}
         <View style={styles.logoPlaceholder}>
-          <Text style={styles.logoText}>LOGO</Text>
+          <Image style={styles.mainLogoImage} source={images.mainLogo} resizeMode="contain" />
         </View>
 
         {/* 2. Heading */}
@@ -31,13 +34,13 @@ const LoginScreen = () => {
         {/* 3. Username Input */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Username</Text>
-          <TextInput 
-            style={styles.input} 
-            placeholder="" 
+          <TextInput
+            style={styles.input}
+            placeholder=""
           />
         </View>
 
-        {/* 4. Password Input (with Eye Icon) */}
+        {/* 4. Password Input (with Eye Image) */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Password</Text>
           <View style={styles.passwordContainer}>
@@ -45,14 +48,14 @@ const LoginScreen = () => {
               style={styles.passwordInput}
               secureTextEntry={!isPasswordVisible}
             />
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-              style={styles.eyeIcon}
+              style={styles.eyeImage}
             >
-              <Icon 
-                name={isPasswordVisible ? "eye-off-outline" : "eye-outline"} 
-                size={24} 
-                color="#000" 
+              <Entypo
+                name={isPasswordVisible ? "eye-with-line" : "eye"}
+                size={24}
+                color="#000"
               />
             </TouchableOpacity>
           </View>
@@ -71,27 +74,29 @@ const LoginScreen = () => {
         {/* 7. Footer (Socials) */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>Sign In? or continue with</Text>
-          
+
           <View style={styles.socialRow}>
             {/* Google */}
             <TouchableOpacity>
-              <Icon name="google" size={30} color="#333" style={styles.socialIcon} />
+              <AntDesign name="google" size={30} color="#333" style={styles.socialImage} />
             </TouchableOpacity>
-            
+
             {/* Apple */}
-            <TouchableOpacity>
-              <Icon name="apple" size={30} color="#333" style={styles.socialIcon} />
-            </TouchableOpacity>
-            
+            {Platform.OS === 'ios' && (
+              <TouchableOpacity>
+                <AntDesign name="apple1" size={30} color="#000" style={styles.socialImage} />
+              </TouchableOpacity>
+            )}
+
             {/* Facebook */}
             <TouchableOpacity>
-              <Icon name="facebook" size={30} color="#333" style={styles.socialIcon} />
+              <Entypo name="facebook" size={30} color="#333" style={styles.socialImage} />
             </TouchableOpacity>
           </View>
         </View>
 
       </ScrollView>
-    </SafeAreaView>
+    </>
   );
 };
 
@@ -105,29 +110,29 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
   },
-  // Logo Box
   logoPlaceholder: {
     height: 150,
-    backgroundColor: '#D9D9D9', // Light grey
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 20,
+  },
+  mainLogoImage: {
+    width: "100%",
+    height: "100%",
   },
   logoText: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#000',
   },
-  // Heading
   pageTitle: {
     fontSize: 32,
     fontWeight: 'bold',
     color: '#000',
     marginBottom: 30,
   },
-  // Inputs
   inputGroup: {
-    marginBottom: 20,
+    marginBottom: 10,
   },
   label: {
     fontSize: 16,
@@ -144,7 +149,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#000',
   },
-  // Password Specifics
   passwordContainer: {
     height: 50,
     borderWidth: 1.5,
@@ -160,13 +164,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#000',
   },
-  eyeIcon: {
+  eyeImage: {
     marginLeft: 10,
   },
   // Forgot Password
   forgotContainer: {
     alignSelf: 'flex-end',
-    marginBottom: 30,
+    marginBottom: 20,
   },
   forgotText: {
     color: '#555',
@@ -175,11 +179,11 @@ const styles = StyleSheet.create({
   // Button
   loginButton: {
     height: 55,
-    backgroundColor: '#5B75FF', // Matches the blue in your image
-    borderRadius: 28, // Rounded pill shape
+    backgroundColor: '#5B75FF',
+    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 20,
   },
   loginButtonText: {
     color: '#FFF',
@@ -194,14 +198,16 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 14,
     color: '#333',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   socialRow: {
     flexDirection: 'row',
-    width: 150,
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 25,
+    marginTop: 0,
   },
-  socialIcon: {
+  socialImage: {
     // Optional: Add spacing if not using justify 'space-between'
   }
 });
