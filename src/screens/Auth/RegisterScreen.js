@@ -20,7 +20,7 @@ import OTPPopup from '../../components/Auth/OTPPopup';
 import { useNavigation } from '@react-navigation/native';
 
 const RegisterScreen = () => {
-const Navigator = useNavigation();
+  const Navigator = useNavigation();
 
   // --- STATE: FORM ---
   const [username, setUsername] = useState('');

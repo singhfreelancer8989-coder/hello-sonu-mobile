@@ -1,33 +1,21 @@
-import { StyleSheet, Text, View } from 'react-native';
-import LoginScreen from './src/screens/Auth/LoginScreen';
-import RegisterScreen from './src/screens/Auth/RegisterScreen';
-import HomePageScreen from './src/screens/Home/HomePageScreen';
-import OnboardingScreen from './src/screens/Auth/OnboardingScreen'
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import { StyleSheet, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import AuthStack from './src/navigation/AuthStack';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-const Stack = createNativeStackNavigator();
 export default function App() {
   return (
-    <>
+    <SafeAreaView style={styles.container}>
     <NavigationContainer>
-     <Stack.Navigator screenOptions={{headerShown: false}}>
-      <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-      <Stack.Screen name="Register" component={RegisterScreen} />
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Home"  component={HomePageScreen} />
-    </Stack.Navigator>
+      <AuthStack />
     </NavigationContainer>
-    </>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#3f813f9b',
-    alignItems: 'center',
-    justifyContent: 'center',
-
+    backgroundColor: '#fff',
   },
 });
