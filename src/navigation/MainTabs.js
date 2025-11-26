@@ -7,7 +7,8 @@ import SettingsScreen from '../screens/Settings/SettingsScreen';
 import AIChat from '../screens/AIChat/AIChatScreen';
 import SavedScreen from '../screens/Saved/SavedScreen';
 import SalesFormScreen from '../screens/Sales/SalesFormScreen';
-
+import HomeStack from './HomeStacks';
+import SettingsStack from './SettingsStack';
 const Tab = createBottomTabNavigator();
 
 const MainTabs = () => {
@@ -40,7 +41,7 @@ const MainTabs = () => {
     >
       <Tab.Screen
         name="Home"
-        component={HomePageScreen}
+        component={HomeStack}
         options={{
           tabBarIcon: ({ focused, color, size }) => (
             <View
@@ -140,7 +141,7 @@ const MainTabs = () => {
 
       <Tab.Screen
         name="Settings"
-        component={SettingsScreen}
+        component={SettingsStack}
         options={{
           tabBarIcon: ({ focused, color, size }) => (
             <View

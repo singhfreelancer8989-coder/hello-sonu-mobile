@@ -1,7 +1,6 @@
 import { StyleSheet, Text, View, SafeAreaView, ScrollView } from 'react-native'
 import SearchFiltersHeader from '../../components/Home/Layout/SearchFiltersHeader'
 import SavedCard from '../../components/Saved/SavedCard'
-
 const SavedScreen = () => {
   return (
     // Fix: Yahan style={styles.root} add kiya

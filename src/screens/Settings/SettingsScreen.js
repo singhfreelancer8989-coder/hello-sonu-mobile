@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
-import { Ionicons, FontAwesome5, Entypo, MaterialIcons, Feather } from "@expo/vector-icons";
+import { Ionicons, FontAwesome5, Entypo, MaterialIcons, Feather, AntDesign } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 const SettingsItem = ({ icon, label, onPress }) => (
   <TouchableOpacity style={styles.itemRow} onPress={onPress}>
@@ -10,6 +11,7 @@ const SettingsItem = ({ icon, label, onPress }) => (
 );
 
 const SettingsScreen = () => {
+  const Navigator = useNavigation();
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -22,16 +24,14 @@ const SettingsScreen = () => {
       <ScrollView style={{ marginTop: 20 }}>
         
         <SettingsItem
+          onPress={()=>Navigator.navigate("AboutUsScreen")}
           label="About Us"
           icon={<Entypo name="info-with-circle" size={20} color="#000" />}
         />
+
         <SettingsItem
-          label="Best Investment Property"
-          icon={<Entypo name="info-with-circle" size={20} color="#000" />}
-        />
-        <SettingsItem
-          label="Your Property View"
-          icon={<Entypo name="info-with-circle" size={20} color="#000" />}
+          label="Join with us?"
+          icon={<AntDesign name="user-add" size={20} color="#000" />}
         />
 
         <SettingsItem
@@ -47,11 +47,6 @@ const SettingsScreen = () => {
         <SettingsItem
           label="Contact Us"
           icon={<Feather name="user" size={22} color="#000" />}
-        />
-
-        <SettingsItem
-          label="Refer & Earn"
-          icon={<MaterialIcons name="help-outline" size={22} color="#000" />}
         />
 
         <SettingsItem

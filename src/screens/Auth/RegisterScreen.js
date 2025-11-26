@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  SafeAreaView,
   StyleSheet,
   View,
   Text,
@@ -17,11 +16,13 @@ import {
 import Entypo from '@expo/vector-icons/Entypo';
 import images from '../../assets/images';
 import OTPPopup from '../../components/Auth/OTPPopup';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-const RegisterScreen = () => {
+const RegisterScreen = ({}) => {
   const Navigator = useNavigation();
-
+  const route = useRoute();
+  const {setIsLogin} = route.params || {};
   // --- STATE: FORM ---
   const [username, setUsername] = useState('');
   const [mobile, setMobile] = useState('');
@@ -54,7 +55,7 @@ const RegisterScreen = () => {
     setOtpVisible(false);
     console.log("User Verified & Registered:", { username, mobile, email, city });
     Alert.alert("Mubarak ho!", "Welcome to the App!");
-    Navigator.navigate("Home")
+    setIsLogin(1);
   };
 
   return (

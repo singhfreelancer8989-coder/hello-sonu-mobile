@@ -10,151 +10,208 @@ import {
   Modal,
   FlatList,
   TouchableWithoutFeedback,
-  Alert, Image
+  Alert,
+  Image
 } from 'react-native';
 import Entypo from '@expo/vector-icons/Entypo';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { pickImage } from '../../utility/imagePicker';
 import images from '../../assets/images';
 
 const SalesFormScreen = () => {
 
-  // --- STATE: FORM FIELDS ---
-  const [propertyType, setPropertyType] = useState('');
-  const [size, setSize] = useState('');
-  const [dimension, setDimension] = useState('');
-  const [location, setLocation] = useState('');
-  const [landmark, setLandmark] = useState('');
-  const [city, setCity] = useState('');
-  const [mapLink, setMapLink] = useState('');
-  const [demandPrice, setDemandPrice] = useState('');
-  const [sellingPreference, setSellingPreference] = useState('Normal'); // Default to Normal or empty
-  const [name, setName] = useState('');
-  const [mobile, setMobile] = useState('');
-  const [whatsapp, setWhatsapp] = useState('');
+  // -------------------------
+  // SINGLE STATE OBJECT
+  // -------------------------
+  const [formData, setFormData] = useState({
+    propertyType: '',
+    propertyRelation: '',
+    size: '',
+    length: '',
+    width: '',
+    location: '',
+    landmark: '',
+    city: '',
+    mapLink: '',
+    demandPrice: '',
+    sellingPreference: 'Normal',
+    name: '',
+    mobile: '',
+    whatsapp: '',
+    imageUris: []
+  });
 
-  // --- STATE: MODALS ---
-  const [activeModalField, setActiveModalField] = useState(null); // To track which dropdown is open
-
-  // --- DATA LISTS ---
-  const citiesList = ['Hyderabad', 'Bangalore', 'Mumbai', 'Pune', 'Delhi'];
-  const propertyTypes = ['Apartment', 'Villa', 'Plot', 'Commercial'];
-  const sizesList = ['1 BHK', '2 BHK', '3 BHK', '4 BHK', 'Plot (Sq.yd)'];
-
-  // --- HANDLERS ---
-  const handleSubmit = () => {
-    // Basic Validation
-    if (!propertyType || !city || !name || !mobile) {
-      Alert.alert("Missing Details", "Please fill all mandatory fields.");
-      return;
-    }
-    console.log("Form Submitted:", {
-      propertyType, size, dimension, location, city, mapLink,
-      demandPrice, sellingPreference, name, mobile, whatsapp
-    });
-    Alert.alert("Success", "Sales form submitted successfully!");
+  // Helper to update any field
+  const updateField = (key, value) => {
+    setFormData(prev => ({ ...prev, [key]: value }));
   };
+
+  // MODAL HANDLERS
+  const [activeModalField, setActiveModalField] = useState(null);
 
   const openModal = (field) => setActiveModalField(field);
   const closeModal = () => setActiveModalField(null);
 
-  const handleSelection = (item) => {
-    if (activeModalField === 'city') setCity(item);
-    if (activeModalField === 'propertyType') setPropertyType(item);
-    if (activeModalField === 'size') setSize(item);
-    closeModal();
-  };
+  const citiesList = ['Hyderabad', 'Bangalore', 'Mumbai', 'Pune', 'Delhi'];
+  const propertyTypes = ['House/Apartment/Flats', 'Plots', 'Shop/Godown/Office', 'Agriculture Land/Farm House'];
+  const relationList = ['Owner', 'Relative', 'Friend', 'Broker'];
 
-  // Helper to get data for the active modal
   const getModalData = () => {
     if (activeModalField === 'city') return citiesList;
     if (activeModalField === 'propertyType') return propertyTypes;
-    if (activeModalField === 'size') return sizesList;
+    if (activeModalField === 'propertyRelation') return relationList;
     return [];
+  };
+
+  const handleSelection = (item) => {
+    updateField(activeModalField, item);
+    closeModal();
+  };
+
+  const handleImagePick = async () => {
+    if (formData.imageUris.length >= 5) {
+      Alert.alert("Limit Reached", "You can upload maximum 5 images.");
+      return;
+    }
+    const uri = await pickImage();
+    if (uri) {
+      updateField("imageUris", [...formData.imageUris, uri]);
+    }
+  };
+
+  // SUBMIT
+  const handleSubmit = () => {
+    const requiredFields = ["propertyType", "city", "name", "mobile", "propertyRelation"];
+    for (let key of requiredFields) {
+      if (!formData[key]) {
+        Alert.alert("Missing Details", "Please fill all mandatory fields.");
+        return;
+      }
+    }
+    console.log("FORM DATA → ", formData);
+    Alert.alert("Success", "Sales form submitted successfully!");
   };
 
   return (
     <SafeAreaView style={styles.root}>
       <StatusBar barStyle="dark-content" backgroundColor="#E5E5E5" />
 
-      {/* HEADER (LOGO AREA) */}
       <View style={styles.headerBar}>
         <View style={styles.logoPlaceholder}>
-                  <Image style={styles.mainLogoImage} source={images.mainLogo} resizeMode="contain" />
+          <Image style={styles.mainLogoImage} source={images.mainLogo} resizeMode="contain" />
         </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-
         <Text style={styles.pageTitle}>SALES FORM</Text>
 
-        {/* 1. Property Details (Dropdown) */}
+        {/* PROPERTY TYPE */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Property Details</Text>
+          <Text style={styles.label}>Property Type</Text>
           <TouchableOpacity style={styles.dropdownInput} onPress={() => openModal('propertyType')}>
-            <Text style={[styles.inputText, !propertyType && styles.placeholderColor]}>
-              {propertyType || "Select"}
+            <Text style={[styles.inputText, !formData.propertyType && styles.placeholderColor]}>
+              {formData.propertyType || "Select"}
             </Text>
             <Entypo name="chevron-down" size={24} color="#000" />
           </TouchableOpacity>
         </View>
 
-        {/* 2. Size (Dropdown) */}
+        {/* PROPERTY RELATION */}
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Property Relation</Text>
+          <TouchableOpacity style={styles.dropdownInput} onPress={() => openModal('propertyRelation')}>
+            <Text style={[styles.inputText, !formData.propertyRelation && styles.placeholderColor]}>
+              {formData.propertyRelation || "Select"}
+            </Text>
+            <Entypo name="chevron-down" size={24} color="#000" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Size */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Size</Text>
-          <TouchableOpacity style={styles.dropdownInput} onPress={() => openModal('size')}>
-            <Text style={[styles.inputText, !size && styles.placeholderColor]}>
-              {size || "Select"}
-            </Text>
-            <Entypo name="chevron-down" size={24} color="#000" />
-          </TouchableOpacity>
-        </View>
-
-        {/* 3. Dimension */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Dimension</Text>
           <TextInput
-            style={styles.input} placeholder="enter" placeholderTextColor="#999"
-            value={dimension} onChangeText={setDimension}
+            style={styles.input}
+            placeholder="enter"
+            placeholderTextColor="#999"
+            value={formData.size}
+            onChangeText={(v) => updateField("size", v)}
           />
         </View>
 
-        {/* 4. Location/Address */}
+        {/* Length + Width */}
+        <View style={styles.dimensionContainer}>
+          <View style={styles.dimensionInputWrapper}>
+            <Text style={styles.label}>Length (ft)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter length"
+              placeholderTextColor="#999"
+              value={formData.length}
+              onChangeText={(v) => updateField("length", v)}
+              keyboardType="numeric"
+            />
+          </View>
+
+          <View style={styles.dimensionInputWrapper}>
+            <Text style={styles.label}>Width (ft)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter width"
+              placeholderTextColor="#999"
+              value={formData.width}
+              onChangeText={(v) => updateField("width", v)}
+              keyboardType="numeric"
+            />
+          </View>
+        </View>
+
+        {/* Location */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Location/Address</Text>
           <TextInput
-            style={styles.input} placeholder="enter" placeholderTextColor="#999"
-            value={location} onChangeText={setLocation}
+            style={styles.input}
+            placeholder="enter"
+            placeholderTextColor="#999"
+            value={formData.location}
+            onChangeText={(v) => updateField("location", v)}
           />
         </View>
 
-        {/* 5. Landmark */}
+        {/* Landmark */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Landmark</Text>
           <TextInput
-            style={styles.input} placeholder="enter" placeholderTextColor="#999"
-            value={landmark} onChangeText={setLandmark}
+            style={styles.input}
+            placeholder="enter"
+            placeholderTextColor="#999"
+            value={formData.landmark}
+            onChangeText={(v) => updateField("landmark", v)}
           />
         </View>
 
-        {/* 6. City (Dropdown) */}
+        {/* CITY */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>City</Text>
           <TouchableOpacity style={styles.dropdownInput} onPress={() => openModal('city')}>
-            <Text style={[styles.inputText, !city && styles.placeholderColor]}>
-              {city || "Select"}
+            <Text style={[styles.inputText, !formData.city && styles.placeholderColor]}>
+              {formData.city || "Select"}
             </Text>
             <Entypo name="chevron-down" size={24} color="#000" />
           </TouchableOpacity>
         </View>
 
-        {/* 7. Google Map Location (With Icon) */}
+        {/* MAP */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Google Map Location</Text>
           <View style={styles.mapInputContainer}>
             <TextInput
-              style={styles.mapInput} placeholder="Select" placeholderTextColor="#999"
-              value={mapLink} onChangeText={setMapLink}
+              style={styles.mapInput}
+              placeholder="Select"
+              placeholderTextColor="#999"
+              value={formData.mapLink}
+              onChangeText={(v) => updateField("mapLink", v)}
             />
             <TouchableOpacity style={styles.mapIconBox}>
               <Entypo name="location-pin" size={24} color="#000" />
@@ -162,25 +219,35 @@ const SalesFormScreen = () => {
           </View>
         </View>
 
-        {/* 8. Image Upload */}
+        {/* IMAGES */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Image Upload</Text>
-          <TouchableOpacity style={styles.uploadButton}>
+          <Text style={styles.label}>Upload Images (Max 5)</Text>
+          <TouchableOpacity style={styles.uploadButton} onPress={handleImagePick}>
             <MaterialIcons name="file-upload" size={20} color="#FFF" style={{ marginRight: 8 }} />
             <Text style={styles.uploadButtonText}>Upload</Text>
           </TouchableOpacity>
+
+          <ScrollView horizontal style={{ marginTop: 8 }}>
+            {formData.imageUris.map((uri, idx) => (
+              <Image key={idx} source={{ uri }} style={styles.uploadedImage} />
+            ))}
+          </ScrollView>
         </View>
 
-        {/* 9. Demand / Expected Price */}
+        {/* PRICE */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Demand / Expected Price</Text>
           <TextInput
-            style={styles.input} placeholder="enter" placeholderTextColor="#999"
-            value={demandPrice} onChangeText={setDemandPrice} keyboardType="numeric"
+            style={styles.input}
+            placeholder="enter"
+            placeholderTextColor="#999"
+            value={formData.demandPrice}
+            onChangeText={(v) => updateField("demandPrice", v)}
+            keyboardType="numeric"
           />
         </View>
 
-        {/* 10. Selling Preference (Radio Buttons) */}
+        {/* SELLING PREF */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Selling Preference</Text>
           <View style={styles.radioGroup}>
@@ -188,10 +255,10 @@ const SalesFormScreen = () => {
               <TouchableOpacity
                 key={pref}
                 style={styles.radioButtonContainer}
-                onPress={() => setSellingPreference(pref)}
+                onPress={() => updateField("sellingPreference", pref)}
               >
                 <View style={styles.radioCircle}>
-                  {sellingPreference === pref && <View style={styles.radioFill} />}
+                  {formData.sellingPreference === pref && <View style={styles.radioFill} />}
                 </View>
                 <Text style={styles.radioLabel}>{pref}</Text>
               </TouchableOpacity>
@@ -199,16 +266,19 @@ const SalesFormScreen = () => {
           </View>
         </View>
 
-        {/* 11. Name */}
+        {/* NAME */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Name</Text>
           <TextInput
-            style={styles.input} placeholder="enter" placeholderTextColor="#999"
-            value={name} onChangeText={setName}
+            style={styles.input}
+            placeholder="enter"
+            placeholderTextColor="#999"
+            value={formData.name}
+            onChangeText={(v) => updateField("name", v)}
           />
         </View>
 
-        {/* 12. Mobile Number */}
+        {/* MOBILE */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Mobile Number</Text>
           <View style={styles.mobileContainer}>
@@ -218,13 +288,16 @@ const SalesFormScreen = () => {
             </View>
             <View style={styles.verticalDivider} />
             <TextInput
-              style={styles.phoneInput} keyboardType="phone-pad" placeholder=""
-              value={mobile} onChangeText={setMobile} maxLength={10}
+              style={styles.phoneInput}
+              keyboardType="phone-pad"
+              maxLength={10}
+              value={formData.mobile}
+              onChangeText={(v) => updateField("mobile", v)}
             />
           </View>
         </View>
 
-        {/* 13. WhatsApp Number */}
+        {/* WHATSAPP */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>WhatsApp Number</Text>
           <View style={styles.mobileContainer}>
@@ -234,36 +307,35 @@ const SalesFormScreen = () => {
             </View>
             <View style={styles.verticalDivider} />
             <TextInput
-              style={styles.phoneInput} keyboardType="phone-pad" placeholder=""
-              value={whatsapp} onChangeText={setWhatsapp} maxLength={10}
+              style={styles.phoneInput}
+              keyboardType="phone-pad"
+              maxLength={10}
+              value={formData.whatsapp}
+              onChangeText={(v) => updateField("whatsapp", v)}
             />
           </View>
         </View>
 
-        {/* SUBMIT BUTTON */}
+        {/* SUBMIT */}
         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
           <Text style={styles.submitButtonText}>SUBMIT</Text>
         </TouchableOpacity>
-
       </ScrollView>
 
-      {/* --- REUSABLE MODAL --- */}
+      {/* MODAL */}
       <Modal
         visible={!!activeModalField}
         transparent={true}
         animationType="fade"
         onRequestClose={closeModal}
       >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPressOut={closeModal}
-        >
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPressOut={closeModal}>
           <TouchableWithoutFeedback>
             <View style={styles.modalContainer}>
               <Text style={styles.modalTitle}>
-                Select {activeModalField === 'city' ? 'City' : activeModalField === 'propertyType' ? 'Property Type' : 'Size'}
+                Select {activeModalField}
               </Text>
+
               <FlatList
                 data={getModalData()}
                 keyExtractor={(item) => item}
@@ -273,6 +345,7 @@ const SalesFormScreen = () => {
                   </TouchableOpacity>
                 )}
               />
+
               <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
                 <Text style={styles.closeButtonText}>Close</Text>
               </TouchableOpacity>
@@ -286,69 +359,73 @@ const SalesFormScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#FFFFFF', },
-  logoPlaceholder: {
-    height: "100%",
-    width: "100%",
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  mainLogoImage: {
-    width: "100%",
-    height: "100%",
-  },
-
-  // Header Styles
-  headerBar: {height: 100, width: "100%", justifyContent: 'center', paddingHorizontal: 10 },
-
-  scrollContainer: { padding: 20, paddingBottom: 50 },
-  pageTitle: { fontSize: 22, fontWeight: 'bold', color: '#3b4bf8', marginBottom: 25, marginTop: 10 },
-
-  // Input Styles
+  root: { flex: 1, backgroundColor: '#fff' },
+  scrollContainer: { padding: 16, paddingBottom: 40 },
+  headerBar: { height: 150, justifyContent: 'center', alignItems: 'center' },
+  logoPlaceholder: { width: "50%" },
+  mainLogoImage: { width: '100%' },
+  pageTitle: { fontSize: 20, fontWeight: 'bold', marginVertical: 16, color: '#000' },
   inputGroup: { marginBottom: 18 },
-  label: { fontSize: 15, fontWeight: '500', color: '#000', marginBottom: 8 },
-  input: { height: 50, borderWidth: 1, borderColor: '#CCC', borderRadius: 8, paddingHorizontal: 12, fontSize: 14, color: '#000' },
+  label: { marginBottom: 6, color: '#333' },
+  input: {
+    borderWidth: 1, borderColor: '#ccc', borderRadius: 6,
+    paddingHorizontal: 12, paddingVertical: 8, color: '#000'
+  },
+  dropdownInput: {
+    flexDirection: 'row', justifyContent: 'space-between',
+    alignItems: 'center', borderWidth: 1, borderColor: '#ccc',
+    borderRadius: 6, paddingHorizontal: 12, paddingVertical: 10
+  },
+  inputText: { fontSize: 16, color: '#000' },
   placeholderColor: { color: '#999' },
-
-  // Dropdown Styles
-  dropdownInput: { height: 50, borderWidth: 1, borderColor: '#CCC', borderRadius: 8, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  inputText: { fontSize: 14, color: '#000' },
-
-  // Map Input Styles
-  mapInputContainer: { flexDirection: 'row', height: 50, borderWidth: 1, borderColor: '#CCC', borderRadius: 8, overflow: 'hidden' },
-  mapInput: { flex: 1, paddingHorizontal: 12, fontSize: 14, color: '#000' },
-  mapIconBox: { width: 50, justifyContent: 'center', alignItems: 'center', borderLeftWidth: 1, borderLeftColor: '#CCC' },
-
-  // Upload Button
-  uploadButton: { backgroundColor: '#5B5DFF', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 6, alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center' },
-  uploadButtonText: { color: '#FFF', fontWeight: 'bold', fontSize: 14 },
-
-  // Radio Button Styles
-  radioGroup: { flexDirection: 'row', alignItems: 'center' },
-  radioButtonContainer: { flexDirection: 'row', alignItems: 'center', marginRight: 20 },
-  radioCircle: { height: 20, width: 20, borderRadius: 10, borderWidth: 2, borderColor: '#555', alignItems: 'center', justifyContent: 'center', marginRight: 6 },
-  radioFill: { height: 10, width: 10, borderRadius: 5, backgroundColor: '#000' },
-  radioLabel: { fontSize: 14, color: '#000' },
-
-  // Mobile Input Styles (Reused logic)
-  mobileContainer: { height: 50, borderWidth: 1, borderColor: '#CCC', borderRadius: 8, flexDirection: 'row', alignItems: 'center', overflow: 'hidden' },
-  countryCode: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, height: '100%', backgroundColor: '#F9F9F9' },
-  countryText: { fontSize: 14, color: '#555', fontWeight: '500' },
-  verticalDivider: { width: 1, height: '100%', backgroundColor: '#CCC' },
-  phoneInput: { flex: 1, height: '100%', paddingHorizontal: 12, fontSize: 14, color: '#000' },
-
-  // Submit Button
-  submitButton: { height: 55, backgroundColor: '#5B75FF', borderRadius: 28, justifyContent: 'center', alignItems: 'center', marginTop: 30, elevation: 5 },
-  submitButtonText: { color: '#FFF', fontSize: 18, fontWeight: 'bold', textTransform: 'uppercase' },
-
-  // Modal Styles (Reused)
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
-  modalContainer: { width: '80%', backgroundColor: '#FFF', borderRadius: 12, padding: 20, maxHeight: '50%' },
-  modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15, textAlign: 'center' },
+  dimensionContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 18 },
+  dimensionInputWrapper: { flex: 0.48 },
+  mapInputContainer: {
+    flexDirection: 'row', borderWidth: 1,
+    borderColor: '#ccc', borderRadius: 6, alignItems: 'center'
+  },
+  mapInput: { flex: 1, paddingHorizontal: 12, paddingVertical: 8, color: '#000' },
+  mapIconBox: { padding: 8 },
+  uploadButton: {
+    width: "30%", flexDirection: 'row', alignItems: 'center',
+    backgroundColor: '#007BFF', padding: 10, borderRadius: 6
+  },
+  uploadButtonText: { color: '#FFF', fontSize: 16 },
+  uploadedImage: { width: 60, height: 60, borderRadius: 6, marginRight: 8 },
+  radioGroup: { flexDirection: 'row', marginTop: 6 },
+  radioButtonContainer: { flexDirection: 'row', alignItems: 'center', marginRight: 16 },
+  radioCircle: {
+    height: 20, width: 20, borderRadius: 10,
+    borderWidth: 1, borderColor: '#333', justifyContent: 'center', alignItems: 'center'
+  },
+  radioFill: { height: 12, width: 12, borderRadius: 6, backgroundColor: '#333' },
+  radioLabel: { marginLeft: 6 },
+  mobileContainer: {
+    flexDirection: 'row', borderWidth: 1,
+    borderColor: '#ccc', borderRadius: 6, alignItems: 'center'
+  },
+  countryCode: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8 },
+  verticalDivider: { width: 1, backgroundColor: '#ccc', height: '100%' },
+  countryText: { color: '#000' },
+  phoneInput: { flex: 1, paddingHorizontal: 12, paddingVertical: 8, color: '#000' },
+  submitButton: {
+    backgroundColor: '#007BFF', padding: 14,
+    borderRadius: 6, alignItems: 'center', marginTop: 20
+  },
+  submitButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  modalOverlay: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center', padding: 20
+  },
+  modalContainer: { backgroundColor: '#fff', borderRadius: 6, maxHeight: '70%', padding: 16 },
+  modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 12 },
   modalItem: { paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#eee' },
-  modalItemText: { fontSize: 16, textAlign: 'center', color: '#333' },
-  closeButton: { marginTop: 15, backgroundColor: '#000', padding: 10, borderRadius: 8, alignItems: 'center' },
-  closeButtonText: { color: '#FFF', fontWeight: 'bold' }
+  modalItemText: { fontSize: 16 },
+  closeButton: {
+    marginTop: 12, backgroundColor: '#ccc',
+    padding: 10, borderRadius: 6, alignItems: 'center'
+  },
+  closeButtonText: { fontSize: 16, color: '#000' }
 });
 
 export default SalesFormScreen;

@@ -1,24 +1,56 @@
 import React from "react";
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
+// Assuming PropertyCard is in the same directory and is correctly implemented
 import PropertyCard from "./PropertyCard";
+const MAX_SLIDER_CARDS = 5;
+const handleSeeAllPress = (title, allData) => {
+  console.log(`Navigating to "See All ${title}" page with ${allData.length} properties.`);
+};
 
-const PropertySlider = ({ title, data }) => {
+
+const PropertySlider = ({ title = "Properties", data = [] }) => {
+
+  // 1. Slice the data to show only the first 5 cards
+  const displayedData = data.slice(0, MAX_SLIDER_CARDS);
+
+  // Determine if the "See All" button should be visible
+  const shouldShowSeeAll = data.length > MAX_SLIDER_CARDS;
+
   return (
     <View style={styles.section}>
       {/* Header */}
       <View style={styles.headerRow}>
         <Text style={styles.sectionTitle}>{title}</Text>
-        <TouchableOpacity>
-          <Text style={styles.seeAll}>See All →</Text>
-        </TouchableOpacity>
+
+        {/* 2. Conditionally render the "See All" button */}
+        {shouldShowSeeAll && (
+          <TouchableOpacity onPress={() => handleSeeAllPress(title, data)}>
+            <Text style={styles.seeAll}>See All →</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Horizontal List */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scroller}>
-        {data.map((item, index) => (
-          <PropertyCard key={index}/>
-        ))}
-      </ScrollView>
+      {displayedData.length > 0 ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {/* 3. Map over the limited 'displayedData' */}
+          {displayedData.map((item, index) => (
+            <PropertyCard key={item.id || index} item={item} />
+          ))}
+        </ScrollView>
+      ) : (
+        <Text style={styles.emptyText}>No properties available.</Text>
+      )}
     </View>
   );
 };
@@ -26,56 +58,37 @@ const PropertySlider = ({ title, data }) => {
 export default PropertySlider;
 
 const styles = StyleSheet.create({
-  section: { marginTop: 15 },
+  section: {
+    marginTop: 15,
+  },
+
   headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: 15,
     marginBottom: 10,
-    paddingVertical:10
+    paddingVertical: 10,
   },
+
   sectionTitle: {
     fontSize: 18,
     fontWeight: "700",
     color: "#000",
   },
+
   seeAll: {
     fontSize: 14,
     color: "#32CD32",
     fontWeight: "600",
   },
 
-  card: {
-    width: 200,
-    marginLeft: 15,
-    backgroundColor: "#fff",
-    borderRadius: 14,
+  scrollContent: {
+    paddingHorizontal: 10,
     paddingBottom: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 2,
   },
-  image: {
-    width: "100%",
-    height: 130,
-    borderTopLeftRadius: 14,
-    borderTopRightRadius: 14,
-  },
-  cardBody: { paddingHorizontal: 10, paddingTop: 8 },
-  type: { fontSize: 14, color: "#555" },
-  price: { fontSize: 16, color: "#8A2BE2", fontWeight: "700", marginVertical: 3 },
 
-  featuresRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 8,
+  emptyText: {
+    paddingHorizontal: 15,
+    color: "#555",
   },
-  feature: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 3,
-  },
-  featureText: { fontSize: 12, color: "#555" },
-  scroller:{padding:5}
 });

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  SafeAreaView,
   StyleSheet,
   View,
   Text,
@@ -13,9 +12,11 @@ import {
 import images from '../../assets/images';
 import AntDesign from '@expo/vector-icons/AntDesign'
 import Entypo from '@expo/vector-icons/Entypo';
-
+import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 const LoginScreen = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const Navigator = useNavigation();
 
   return (
     <>
@@ -73,7 +74,7 @@ const LoginScreen = () => {
 
         {/* 7. Footer (Socials) */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Sign In? or continue with</Text>
+          <Text style={styles.footerText}><TouchableOpacity onPress={() => { Navigator.navigate("Register") }}><Text style={{ color: "blue" }}>Sign Up ?</Text></TouchableOpacity> or continue with</Text>
 
           <View style={styles.socialRow}>
             {/* Google */}

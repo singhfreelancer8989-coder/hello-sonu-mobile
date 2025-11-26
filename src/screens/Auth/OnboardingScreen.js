@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  SafeAreaView,
   StyleSheet,
   View,
   Text,
@@ -8,10 +7,9 @@ import {
   StatusBar,
   Image, // Image component import karna mat bhoolna
 } from 'react-native';
-
-// Humara naya banaya hua asset manager import karo
 import images from '../../assets/images'; 
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const OnboardingScreen = () => {
   const Navigator = useNavigation();
@@ -20,7 +18,6 @@ const OnboardingScreen = () => {
       <StatusBar barStyle="dark-content" />
 
       <View style={styles.container}>
-        <View style={styles.circleContainer}>
           
           {/* --- Central Logo --- */}
           {/* View hata ke seedha Image use kar rahe, taaki transparent look aaye */}
@@ -31,54 +28,13 @@ const OnboardingScreen = () => {
                 resizeMode="contain" 
              />
           </View>
-
-          {/* --- Surrounding Icons --- */}
-
-          {/* Icon 1: Top-Left */}
-          <View style={[styles.iconBox, { top: 50, left: 30 }]}>
-            <Image source={images.building} style={styles.iconImage} />
-          </View>
-
-          {/* Icon 2: Top */}
-          <View style={[styles.iconBox, { top: 0, alignSelf: 'center' }]}>
-            <Image source={images.checklist} style={styles.iconImage} />
-          </View>
-
-          {/* Icon 3: Top-Right */}
-          <View style={[styles.iconBox1, { top: 50, right: 30}]}>
-            <Image source={images.fileEye} style={styles.iconImage} />
-          </View>
-
-          {/* Icon 4: Right */}
-          <View style={[styles.iconBox, { top: '45%', right: 0 }]}>
-            <Image source={images.houseRight} style={styles.iconImage} />
-          </View>
-
-          {/* Icon 5: Bottom-Right */}
-          <View style={[styles.iconBox, { bottom: 40, right: 35 }]}>
-            <Image source={images.rCircle} style={styles.iconImage} />
-          </View>
-
-          {/* Icon 6: Bottom */}
-          <View style={[styles.iconBox, { bottom: -5, alignSelf: 'center' }]}>
-            <Image source={images.houseMoney} style={styles.iconImage} />
-          </View>
-
-          {/* Icon 7: Bottom-Left */}
-          <View style={[styles.iconBox, { bottom: 40, left: 35 }]}>
-            <Image source={images.houseAnalytics} style={styles.iconImage} />
-          </View>
-
-          {/* Icon 8: Left */}
-          <View style={[styles.iconBox, { top: '45%', left: 0 }]}>
-            <Image source={images.houseLeft} style={styles.iconImage} />
-          </View>
-
+          <Text style={styles.tagline}>
+            "Sahi Property Ki Sahi Jagah"
+          </Text>
         </View>
-      </View>
 
       {/* Bottom Button */}
-      <TouchableOpacity style={styles.button} onPress={()=>{Navigator.navigate("Register")}}>
+      <TouchableOpacity style={styles.button} onPress={()=>{Navigator.navigate("Login")}}>
         <Text style={styles.buttonText}>Getting Started</Text>
       </TouchableOpacity>
       
@@ -96,25 +52,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  circleContainer: {
-    width: 320,
-    height: 320,
-    justifyContent: 'center',
-    alignItems: 'center',
-    // Debugging ke liye border laga ke dekh sakte ho
-    // borderWidth: 1, borderColor: 'red', 
-  },
   logoWrapper: {
-    width: 180,
-    height: 180,
-    borderRadius: 100,
-    backgroundColor: '#ddf3f1ff', // Grey circle background
+    width: "90%",
+    height: "40%",
     justifyContent: 'center',
     alignItems: 'center',
   },
   mainLogoImage: {
-    width: 130, // Logo size adjust kar lena
-    height: 100,
+    width: "100%", // Logo size adjust kar lena
   },
   iconBox: {
     width: 50,
@@ -158,6 +103,16 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
   },
+ tagline: {
+  fontSize: 28,
+  fontFamily: "Poppins-SemiBold",
+  color: '#5b0f0fff',
+  maxWidth: '80%',
+  letterSpacing: 0.5,
+  opacity: 0.9,
+  marginBottom: 20,
+  marginTop: 0,
+}
 });
 
 export default OnboardingScreen;

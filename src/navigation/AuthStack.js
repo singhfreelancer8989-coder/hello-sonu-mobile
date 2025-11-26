@@ -20,8 +20,8 @@ const AuthStack = () => {
         // User is not logged in - show auth screens
         <>
           <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Register" component={RegisterScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} initialParams={{setIsLogin}} />
+          <Stack.Screen name="Register" component={RegisterScreen} initialParams={{setIsLogin}} />
         </>
       )}
     </Stack.Navigator>
