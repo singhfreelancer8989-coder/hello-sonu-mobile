@@ -1,27 +1,60 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import images from '../../../assets/images';
 
-const SPACING = 16;
-const AVATAR_SIZE = 50;
 const screenWidth = Dimensions.get('window').width;
 
-const AppHeader = ({ userName, avatarUrl }) => {
+const AppHeader = ({ userName, profileImage }) => {
     const insets = useSafeAreaInsets();
 
     return (
         <View style={[styles.container, { paddingTop: insets.top + 10 }]}>
-            <View style={styles.textContainer}>
-                <Text style={styles.greetingText}>Hello!</Text>
-                <Text style={styles.userNameText}>{userName}</Text>
-            </View>
+            <View style={styles.contentWrapper}>
 
-            <View style={styles.avatarWrapper}>
-                <Image
-                    source={{ uri: avatarUrl }}   // ← FIXED HERE
-                    style={styles.avatarImage}
-                    resizeMode="cover"
-                />
+                {/* Text Section - Left Side */}
+                <View style={styles.textContainer}>
+                    <Text style={styles.greetingText}>Hello!</Text>
+                    <Text
+                        minimumFontScale={0.8}
+                        style={styles.userNameText}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                    >
+                        {userName || "Sapana chechani"}
+                    </Text>
+                </View>
+
+                {/* Rectangular Logo Section - Right Side */}
+                <View style={styles.logoWrapper}>
+                    <Image
+                        source={profileImage ? { uri: profileImage } : images.mainLogo} 
+                        style={styles.logoImage}
+                        // 'cover' fills the rectangle, 'contain' shows full logo without crop
+                        resizeMode="cover" 
+                    />
+                </View>
+{/* 
+                <View style={{
+                    width: 50,
+                    height: 50,
+                    borderRadius: 45,
+                    backgroundColor: "#007AFF20",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    alignSelf: "center",
+                }}>
+                    <Text style={{
+                        fontSize: 20,
+                        fontFamily: "Poppins-Medium",
+                        color: "#007AFF",
+                    }}>
+                        MV
+                    </Text>
+                </View> */}
+
+
+
             </View>
         </View>
     );
@@ -30,45 +63,49 @@ const AppHeader = ({ userName, avatarUrl }) => {
 const styles = StyleSheet.create({
     container: {
         width: screenWidth,
+        backgroundColor: '#ffffff',
+        paddingHorizontal: 24,       // Thoda breathing space zyada diya
+        paddingBottom: 15,
+        borderBottomWidth: 1,        // Optional: Ek halki line separation ke liye
+        borderBottomColor: '#f0f0f0',
+    },
+
+    contentWrapper: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'flex-end',
-        paddingHorizontal: SPACING,
-        paddingBottom: 10,
-        backgroundColor: '#ffffff',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
-        elevation: 2,
+        alignItems: 'center',        // Text aur Logo ko vertically center kiya
     },
+
     textContainer: {
-        paddingTop: 10,
         flex: 1,
-        marginRight: 10,
+        marginRight: 20,             // Text logo se chipke nahi
+        justifyContent: 'center',
+
     },
+
     greetingText: {
-        fontSize: 20,
-        color: '#888',
-        fontWeight: '500',
-        marginBottom: 2,
+        fontSize: 16,
+        color: '#636e72',            // Thoda sophisticated grey
+        fontFamily: 'Poppins-SemiBold',
+        letterSpacing: 0.5,
+        textTransform: 'uppercase',  // Modern app feel ke liye
     },
+
     userNameText: {
-        fontSize: 40,
-        color: '#333',
-        fontWeight: '700',
+        fontSize: 26,
+        color: '#2d3436',            // Dark Bold color
+        fontFamily: 'Poppins-Bold',  // Naam bold hona chahiye
+        lineHeight: 32,
     },
-    avatarWrapper: {
-        width: AVATAR_SIZE,
-        height: AVATAR_SIZE,
-        borderRadius: AVATAR_SIZE / 2,
-        overflow: 'hidden',
-        borderWidth: 1.5,
-        borderColor: '#eee',
+
+    logoWrapper: {
+        // Logo ke liye ek container banaya taaki shape perfect rahe
+        backgroundColor: '#fff',
     },
-    avatarImage: {
-        width: '100%',
-        height: '100%',
+
+    logoImage: {
+        width: 100,                   // Rectangular Width
+        height: 55,                   // Rectangular Height
     },
 });
 

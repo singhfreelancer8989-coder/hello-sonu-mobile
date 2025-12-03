@@ -6,16 +6,14 @@ import {
   ScrollView,
   StatusBar,
   Dimensions,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 
-
-
-// Use Dimensions to create a responsive padding scale
 const { width } = Dimensions.get('window');
 const PADDING = width * 0.05;
 
-// Define the key features and their descriptions
 const features = [
   {
     icon: '✅',
@@ -35,7 +33,7 @@ const features = [
   {
     icon: '🔍',
     title: 'Advanced Search & Categories',
-    description: 'Intelligent filtration and category-wise listing to help you find Residential, Commercial, or Land properties faster.',
+    description: 'Filter and browse by Residential, Commercial or Land properties with intelligent categorization.',
   },
   {
     icon: '🗺️',
@@ -45,7 +43,7 @@ const features = [
   {
     icon: '🤖',
     title: 'AI Assistant Chat',
-    description: 'Instant support and expert guidance from our AI Chat Assistant (powered by a third-party API) for all your real estate queries.',
+    description: 'Instant support from our AI Chat Assistant (powered by a third-party API) for real estate queries.',
   },
   {
     icon: '📈',
@@ -55,25 +53,32 @@ const features = [
   {
     icon: '🔔',
     title: 'Real-Time Updates',
-    description: 'Stay ahead with Push Notification services for alerts on new listings and price changes.',
+    description: 'Push Notification alerts for new listings, offers, and price changes.',
   },
   {
     icon: '⚙️',
     title: 'CMS Integration',
-    description: 'Backed by robust CMS Integration to ensure data accuracy and timely updates across the platform.',
+    description: 'Managed by a robust CMS backend ensuring data accuracy and reliable updates across the platform.',
   },
 ];
 
-/**
- * Renders the About Us Screen, detailing the app's mission and key features.
- */
-const AboutUsScreen = () => {
+const AboutUsScreen = ({ navigation }) => {
+  const handleGoBack = () => {
+    if (navigation?.goBack) navigation.goBack();
+  };
+
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#f0f4f8" />
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        
-        {/* Header and Mission */}
+    <>
+        {/* HEADER */}
+        <View style={styles.customHeader}>
+          <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
+            <Ionicons name="chevron-back" size={28} color="#000" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>About Us</Text>
+        </View>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.container}>
+
+        {/* HERO */}
         <View style={styles.headerContainer}>
           <Text style={styles.title}>👋 Welcome to Hello-Sonu Mobile</Text>
           <Text style={styles.tagline}>
@@ -81,15 +86,18 @@ const AboutUsScreen = () => {
           </Text>
         </View>
 
-        {/* Core Value Proposition */}
+        {/* MISSION */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Our Mission</Text>
           <Text style={styles.paragraph}>
-            Hello-Sonu Mobile is designed to revolutionize your real estate experience. We combine powerful listing tools with cutting-edge technology—from AI assistance to detailed analytics—to put the power of property search and sale directly in your hands. Whether you are looking for your next home or selling a commercial space, we make the process clear, fast, and intelligent.
+            Hello-Sonu Mobile is designed to revolutionize your real estate journey. We combine powerful
+            listing tools with cutting-edge technology—from AI assistance to detailed analytics—to put the
+            power of property search and sale directly in your hands. Whether you are looking for a home
+            or selling commercial space, we make the process smart, fast, and simple.
           </Text>
         </View>
 
-        {/* Key Features Spotlight */}
+        {/* FEATURES */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Powerful Features at Your Fingertips</Text>
           {features.map((feature, index) => (
@@ -103,65 +111,100 @@ const AboutUsScreen = () => {
           ))}
         </View>
 
-        {/* Concluding Commitment */}
+        {/* PROMISE */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Our Commitment</Text>
           <Text style={styles.paragraph}>
-            We are committed to providing you with the most comprehensive, secure, and user-friendly real estate platform. We continuously innovate to ensure your property journey is successful and stress-free.
+            We are committed to providing you with the most secure, intuitive, and comprehensive real estate
+            experience. Your success is our mission, and we continuously improve our platform to deliver
+            the best results.
           </Text>
         </View>
 
-        <Text style={styles.footerText}>© {new Date().getFullYear()} Hello-Sonu Mobile. All rights reserved.</Text>
+        {/* FOOTER */}
+        <Text style={styles.footerText}>
+          © {new Date().getFullYear()} Hello-Sonu Mobile. All rights reserved.
+        </Text>
 
       </ScrollView>
-    </SafeAreaView>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f0f4f8', // Light background for the screen
+    backgroundColor: '#f0f4f8',
   },
   container: {
     padding: PADDING,
-    paddingTop: 20,
+    paddingBottom: 20,
     backgroundColor: '#f0f4f8',
   },
+
+  /** TOP HEADER **/
+  customHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    paddingVertical: 15,
+    paddingHorizontal: PADDING,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 2 },
+    marginBottom: 20,
+    width: '100%',
+  },
+  backButton: {
+    paddingRight: 15,
+    paddingVertical: 6,
+  },
+  headerTitle: {
+    fontSize: 24,
+    color: '#000',
+    fontFamily: 'Poppins-SemiBold',
+  },
+
+  /** HERO SECTION **/
   headerContainer: {
-    marginBottom: PADDING * 1.5,
     backgroundColor: '#ffffff',
     borderRadius: 12,
     padding: PADDING,
+    marginBottom: PADDING * 1.5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
     elevation: 3,
   },
   title: {
     fontSize: 26,
-    fontWeight: '700',
-    color: '#1e3a8a', // Dark blue
+    color: '#1e3a8a',
     marginBottom: 8,
+    fontFamily: 'Poppins-Bold',
   },
   tagline: {
     fontSize: 16,
-    color: '#374151', // Gray
+    color: '#374151',
     lineHeight: 24,
-    fontStyle: 'italic',
+    fontFamily: 'Poppins-Regular',
   },
+
+  /** CONTENT BLOCKS **/
   section: {
     marginBottom: PADDING * 1.5,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#1f2937', // Slightly darker text for titles
+    color: '#1f2937',
     marginBottom: 10,
     borderBottomWidth: 2,
     borderBottomColor: '#d1d5db',
     paddingBottom: 5,
+    fontFamily: 'Poppins-SemiBold',
   },
   paragraph: {
     fontSize: 14,
@@ -171,46 +214,51 @@ const styles = StyleSheet.create({
     padding: PADDING,
     borderRadius: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
+    shadowOffset: { width: 0, height: 1 },
     elevation: 1,
+    fontFamily: 'Poppins-Regular',
   },
+
+  /** FEATURE BLOCK **/
   featureItem: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
     marginBottom: 15,
-    padding: 15,
     backgroundColor: '#ffffff',
     borderRadius: 8,
+    padding: 15,
     borderLeftWidth: 4,
-    borderLeftColor: '#3b82f6', // Accent blue
+    borderLeftColor: '#3b82f6',
+    elevation: 1,
   },
   featureIcon: {
-    fontSize: 20,
+    fontSize: 22,
     marginRight: 10,
-    marginTop: 2,
   },
   featureTextContainer: {
     flex: 1,
   },
   featureTitle: {
     fontSize: 16,
-    fontWeight: '600',
     color: '#1f2937',
-    marginBottom: 2,
+    marginBottom: 3,
+    fontFamily: 'Poppins-Medium',
   },
   featureDescription: {
     fontSize: 13,
     color: '#6b7280',
     lineHeight: 18,
+    fontFamily: 'Poppins-Regular',
   },
+
+  /** FOOTER **/
   footerText: {
     textAlign: 'center',
     fontSize: 12,
     color: '#9ca3af',
-    marginTop: 10,
     marginBottom: 20,
+    fontFamily: 'Poppins-Regular',
   },
 });
 

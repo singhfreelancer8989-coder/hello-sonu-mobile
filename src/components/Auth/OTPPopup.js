@@ -159,15 +159,16 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 28,
-        fontWeight: 'bold',
         color: '#000',
         marginBottom: 10,
+        fontFamily: 'Poppins-Bold',
     },
     subtitle: {
         fontSize: 14,
         color: '#666',
         textAlign: 'center',
         paddingHorizontal: 10,
+        fontFamily: 'Poppins-Regular',
     },
     otpContainer: {
         flexDirection: 'row',
@@ -181,9 +182,14 @@ const styles = StyleSheet.create({
         borderWidth: 1.5,
         borderRadius: 8,
         fontSize: 20,
-        fontWeight: 'bold',
         color: '#000',
         backgroundColor: '#fff',
+        fontFamily: 'Poppins-Medium',
+        flex: 1,
+        marginHorizontal: 5,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingTop: 10,
     },
     verifyButton: {
         width: '100%',
@@ -197,7 +203,7 @@ const styles = StyleSheet.create({
     verifyButtonText: {
         color: '#FFF',
         fontSize: 18,
-        fontWeight: 'bold',
+        fontFamily: 'Poppins-Medium',
     },
     footer: {
         flexDirection: 'row',
@@ -206,12 +212,13 @@ const styles = StyleSheet.create({
     footerText: {
         fontSize: 14,
         color: '#666',
+        fontFamily: 'Poppins-Regular',
     },
     linkText: {
         fontSize: 14,
         color: '#5B75FF',
-        fontWeight: 'bold',
         textDecorationLine: 'underline',
+        fontFamily: 'Poppins-Medium',
     },
 });
 

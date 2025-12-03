@@ -7,22 +7,36 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
+      "image": "./src/assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mohit-56.hellosonumobile"
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "softwareKeyboardLayoutMode": "pan"
+      "softwareKeyboardLayoutMode": "pan",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ],
+      "package": "com.mohit_56.hellosonumobile"
     },
     "web": {},
     "plugins": [
-      "expo-font"
-    ]
+      "expo-font",
+      "expo-video",
+      "expo-audio"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "00a9d97f-dfdd-43fd-824c-31fc0d3eab23"
+      }
+    }
   }
 }

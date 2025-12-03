@@ -73,8 +73,8 @@ const styles = StyleSheet.create({
   },
 
   type: {
-    fontSize: 15,
-    fontWeight: "600",
+    fontSize: 13,
+    fontFamily : "Poppins-Medium",
     color: "#111",
     maxWidth: 110,
   },
@@ -92,20 +92,19 @@ const styles = StyleSheet.create({
     fontSize: 11,
     marginLeft: 2,
     color: "#2E7D32",
-    fontWeight: "500",
+    fontFamily : "Poppins-Regular"
   },
 
   city: {
     fontSize: 13,
+    fontFamily: "Poppins-Regular",
     color: "#777",
-    marginTop: 2,
   },
 
   price: {
     fontSize: 17,
-    fontWeight: "700",
+    fontFamily: "Poppins-Bold",
     color: "#5D5FEF",
-    marginVertical: 4,
   },
 
   metaRow: {
@@ -117,5 +116,6 @@ const styles = StyleSheet.create({
   meta: {
     fontSize: 12,
     color: "#555",
+    fontFamily: "Poppins-Regular",
   },
 });

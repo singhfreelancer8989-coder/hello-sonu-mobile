@@ -9,7 +9,7 @@ import MainTabs from './MainTabs';
 const Stack = createNativeStackNavigator();
 
 const AuthStack = () => {
-  const [isLogin, setIsLogin] = useState(1);
+  const [isLogin, setIsLogin] = useState(0);
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>

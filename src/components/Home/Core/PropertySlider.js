@@ -59,27 +59,26 @@ export default PropertySlider;
 
 const styles = StyleSheet.create({
   section: {
-    marginTop: 15,
   },
 
   headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: 15,
-    marginBottom: 10,
+    marginBottom: 0,
     paddingVertical: 10,
   },
 
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "700",
+    fontFamily: "Poppins-Bold",
     color: "#000",
   },
 
   seeAll: {
     fontSize: 14,
     color: "#32CD32",
-    fontWeight: "600",
+    fontFamily: "Poppins-Medium",
   },
 
   scrollContent: {
@@ -90,5 +89,6 @@ const styles = StyleSheet.create({
   emptyText: {
     paddingHorizontal: 15,
     color: "#555",
+    fontFamily: "Poppins-Regular",
   },
 });

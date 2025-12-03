@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, StatusBar, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import AuthStack from './src/navigation/AuthStack';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,16 +18,25 @@ export default function App() {
 
   return (
     <Provider store={store}>
-      <NavigationContainer>
-        <SafeAreaView style={styles.container}>
-          <AuthStack />
-        </SafeAreaView>
-      </NavigationContainer>
+      {/* For Android + iOS, actual background support */}
+      <StatusBar barStyle="light-content" backgroundColor="#3a75cdff" />
+      <View style={styles.root}>
+        <NavigationContainer>
+          <SafeAreaView style={styles.container}>
+            <AuthStack />
+          </SafeAreaView>
+        </NavigationContainer>
+      </View>
     </Provider>
   );
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: '#ffffffff',
+    Bottom:10
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',

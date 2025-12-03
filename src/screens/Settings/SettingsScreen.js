@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
-import { Ionicons, FontAwesome5, Entypo, MaterialIcons, Feather, AntDesign } from "@expo/vector-icons";
+import { Entypo, MaterialIcons, Feather, AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
 const SettingsItem = ({ icon, label, onPress }) => (
@@ -12,44 +12,72 @@ const SettingsItem = ({ icon, label, onPress }) => (
 
 const SettingsScreen = () => {
   const Navigator = useNavigation();
+
+  // You can fetch these from user state
+  const firstName = "Hello";
+  const lastName = "Sonu";
+
+  const initials = `${firstName?.charAt(0) ?? ""}${lastName?.charAt(0) ?? ""}`.toUpperCase();
+
   return (
     <View style={styles.container}>
       {/* Header */}
-       <View style={styles.header}>
-              <MaterialIcons name="arrow-back" size={24} color="#007AFF" />
-              <Text style={styles.headerTitle}>Settings</Text>
-            </View>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => Navigator.navigate("Home")}>
+          <MaterialIcons name="arrow-back" size={24} color="#007AFF" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Settings</Text>
+      </View>
 
-      {/* List */}
-      <ScrollView style={{ marginTop: 20 }}>
-        
+      {/* Profile Section */}
+      <TouchableOpacity
+        style={styles.profileSection}
+        onPress={() => Navigator.navigate("UpdateProfileScreen")}
+        activeOpacity={0.8}
+      >
+        <View style={styles.profileCircle}>
+          <Text style={styles.profileInitials}>{initials}</Text>
+        </View>
+
+        <View>
+          <Text style={styles.profileName}>{firstName} {lastName}</Text>
+          <Text style={styles.profileSubText}>View & Edit Profile</Text>
+        </View>
+      </TouchableOpacity>
+
+      {/* Settings List */}
+      <ScrollView style={{ marginTop: 25 }}>
         <SettingsItem
-          onPress={()=>Navigator.navigate("AboutUsScreen")}
+          onPress={() => Navigator.navigate("AboutUsScreen")}
           label="About Us"
-          icon={<Entypo name="info-with-circle" size={20} color="#000" />}
+          icon={<Entypo name="info-with-circle" size={22} color="#000" />}
         />
 
         <SettingsItem
+          onPress={() => Navigator.navigate("RegisterBrokerScreen")}
           label="Join with us?"
-          icon={<AntDesign name="user-add" size={20} color="#000" />}
+          icon={<AntDesign name="user-add" size={22} color="#000" />}
         />
 
         <SettingsItem
           label="Map at Hello Sonu"
-          icon={<Entypo name="location-pin" size={20} color="#000" />}
+          icon={<Entypo name="location-pin" size={22} color="#000" />}
         />
 
         <SettingsItem
+          onPress={() => Navigator.navigate("PrivacyPolicyScreen")}
           label="Privacy Policy"
           icon={<MaterialIcons name="privacy-tip" size={22} color="#000" />}
         />
 
         <SettingsItem
+          onPress={() => Navigator.navigate("ContactUsScreen")}
           label="Contact Us"
           icon={<Feather name="user" size={22} color="#000" />}
         />
 
         <SettingsItem
+          onPress={() => console.log("Logout")}
           label="Logout"
           icon={<MaterialIcons name="logout" size={22} color="#000" />}
         />
@@ -67,37 +95,69 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
   },
 
-    // Header Styles
+  /* Header */
   header: {
-    flexDirection: 'row',
-    gap:"35%",
-    alignItems: 'center',
-    padding: 15,
-    backgroundColor: '#FFFFFF',
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 14,
+    gap: 18,
     borderBottomWidth: 1,
-    borderBottomColor: '#EAEAEA',
+    borderBottomColor: "#EAEAEA",
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    color: "#333",
+    fontFamily: 'Poppins-Medium',
   },
 
-  // Items
+  /* Profile Section */
+  profileSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 15,
+    borderBottomColor: "#EAEAEA",
+    gap: 14,
+  },
+  profileCircle: {
+    height: 64,
+    width: 64,
+    borderRadius: 32,
+    backgroundColor: "#007AFF20",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  profileInitials: {
+    fontSize: 22,
+    color: "#007AFF",
+    fontFamily: 'Poppins-SemiBold',
+  },
+  profileName: {
+    fontSize: 17,
+    fontFamily: 'Poppins-SemiBold',
+    color: "#222",
+  },
+  profileSubText: {
+    fontSize: 13,
+    color: "#666",
+    fontFamily: 'Poppins-Regular',
+  },
+
+  /* List Items */
   itemRow: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 18,
-    borderBottomWidth:1
+    borderBottomWidth: 1,
+    borderBottomColor: "#EAEAEA",
   },
   iconWrapper: {
-    width: 30,
+    width: 32,
     alignItems: "center",
   },
   itemLabel: {
-    fontSize: 16,
-    fontWeight: "500",
-    marginLeft: 10,
-    color: "#000",
+    fontSize: 15.5,
+    marginLeft: 12,
+    color: "#222",
+    fontFamily: 'Poppins-Medium',
   },
 });

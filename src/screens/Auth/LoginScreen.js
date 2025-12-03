@@ -10,17 +10,13 @@ import {
   Image, Platform
 } from 'react-native';
 import images from '../../assets/images';
-import AntDesign from '@expo/vector-icons/AntDesign'
 import Entypo from '@expo/vector-icons/Entypo';
 import { useNavigation } from '@react-navigation/native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 const LoginScreen = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const Navigator = useNavigation();
-
   return (
     <>
-      <StatusBar barStyle="dark-content" />
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
 
@@ -68,32 +64,13 @@ const LoginScreen = () => {
         </TouchableOpacity>
 
         {/* 6. Login Button */}
-        <TouchableOpacity style={styles.loginButton}>
+        <TouchableOpacity onPress={()=>{}} style={styles.loginButton}>
           <Text style={styles.loginButtonText}>LOGIN</Text>
         </TouchableOpacity>
 
         {/* 7. Footer (Socials) */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}><TouchableOpacity onPress={() => { Navigator.navigate("Register") }}><Text style={{ color: "blue" }}>Sign Up ?</Text></TouchableOpacity> or continue with</Text>
-
-          <View style={styles.socialRow}>
-            {/* Google */}
-            <TouchableOpacity>
-              <AntDesign name="google" size={30} color="#333" style={styles.socialImage} />
-            </TouchableOpacity>
-
-            {/* Apple */}
-            {Platform.OS === 'ios' && (
-              <TouchableOpacity>
-                <AntDesign name="apple1" size={30} color="#000" style={styles.socialImage} />
-              </TouchableOpacity>
-            )}
-
-            {/* Facebook */}
-            <TouchableOpacity>
-              <Entypo name="facebook" size={30} color="#333" style={styles.socialImage} />
-            </TouchableOpacity>
-          </View>
+          <Text style={styles.footerText}><TouchableOpacity onPress={() => { Navigator.navigate("Register") }}><Text style={{ color: "blue", fontFamily: "Poppins-Regular", marginTop:20 }}>Sign Up ?  </Text></TouchableOpacity>  if Don't Have an account</Text>
         </View>
 
       </ScrollView>
@@ -128,17 +105,18 @@ const styles = StyleSheet.create({
   },
   pageTitle: {
     fontSize: 32,
-    fontWeight: 'bold',
+    // fontWeight: 'bold',
     color: '#000',
-    marginBottom: 30,
+    fontFamily: Platform.OS === 'android' ? 'Poppins-Bold' : 'Poppins-Bold',
   },
   inputGroup: {
     marginBottom: 10,
   },
   label: {
     fontSize: 16,
-    fontWeight: 'bold',
+    // fontWeight: 'bold',
     color: '#000',
+    fontFamily: Platform.OS === 'android' ? 'Poppins-Bold' : 'Poppins-Bold',
     marginBottom: 8,
   },
   input: {
@@ -149,6 +127,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     fontSize: 16,
     color: '#000',
+    fontFamily: Platform.OS === 'android' ? 'Poppins-Regular' : 'Poppins-Regular',
   },
   passwordContainer: {
     height: 50,
@@ -163,6 +142,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: '100%',
     fontSize: 16,
+    fontFamily: Platform.OS === 'android' ? 'Poppins-Regular' : 'Poppins-Regular',
     color: '#000',
   },
   eyeImage: {
@@ -175,6 +155,7 @@ const styles = StyleSheet.create({
   },
   forgotText: {
     color: '#555',
+    fontFamily: Platform.OS === 'android' ? 'Poppins-Regular' : 'Poppins-Regular',
     fontSize: 14,
   },
   // Button
@@ -184,13 +165,15 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
+    fontFamily: Platform.OS === 'android' ? 'Poppins-Regular' : 'Poppins-Regular',
     marginBottom: 20,
   },
   loginButtonText: {
     color: '#FFF',
     fontSize: 18,
-    fontWeight: 'bold',
+    // fontWeight: 'bold',
     letterSpacing: 1,
+    fontFamily: Platform.OS === 'android' ? 'Poppins-Bold' : 'Poppins-Bold',
   },
   // Footer
   footer: {
@@ -199,18 +182,9 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 14,
     color: '#333',
+    fontFamily: Platform.OS === 'android' ? 'Poppins-Regular' : 'Poppins-Regular',
     marginBottom: 10,
   },
-  socialRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 25,
-    marginTop: 0,
-  },
-  socialImage: {
-    // Optional: Add spacing if not using justify 'space-between'
-  }
 });
 
 export default LoginScreen;

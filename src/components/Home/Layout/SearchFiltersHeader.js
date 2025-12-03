@@ -5,36 +5,62 @@ import {
   TouchableOpacity,
   StyleSheet,
   Pressable,
+  ScrollView,
+  Platform
 } from "react-native";
-import { MaterialIcons, Entypo } from "@expo/vector-icons";
+import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 
 /* PROPERTY TYPE OPTIONS */
 const propertyTypes = [
-  "House / Apartment / Flats",
   "Plots",
-  "Shop / Godown / Office",
-  "Agriculture Land / Farm House",
+  "House / Apartment",
+  "Office / Shop",
+  "Farm House",
 ];
 
-/* WHITE CHIP OPTIONS */
-const budgets = ["10L", "25L", "35L", "50L"];
+/* OPTIONS */
+const budgets = ["10L+", "25L+", "50L+", "1Cr+"];
 const sizes = ["1 BHK", "2 BHK", "3 BHK", "4+ BHK"];
+
+/* THEME COLORS */
+const COLORS = {
+  primary: '#4834d4', // Same Blue as Bottom Tab
+  white: '#ffffff',
+  textDark: '#2d3436',
+  textLight: '#636e72',
+  border: '#e0e0e0',
+  backgroundLight: '#f8f9fa'
+};
 
 /* ------------------------
    DROPDOWN COMPONENT
 ------------------------ */
 const DropdownChip = ({ title, data, selected, onSelect, id, openDropdown, setOpenDropdown }) => {
   const isOpen = openDropdown === id;
+  const isSelected = !!selected;
 
   return (
-    <View style={{ position: "relative", zIndex: isOpen ? 9999 : 1 }}>
+    <View style={{ position: "relative", zIndex: isOpen ? 1000 : 1 }}>
       <TouchableOpacity
-        style={styles.whiteChip}
+        style={[
+          styles.chip,
+          isOpen && styles.chipActiveBorder, // Blue border when open
+          isSelected && styles.chipSelectedBg // Light blue bg when value selected
+        ]}
         onPress={() => setOpenDropdown(isOpen ? null : id)}
-        activeOpacity={0.8}
+        activeOpacity={0.7}
       >
-        <Text style={styles.chipText}>{selected || title}</Text>
-        <Entypo name={isOpen ? "chevron-up" : "chevron-down"} size={16} color="#444" />
+        <Text style={[
+          styles.chipText,
+          (isOpen || isSelected) && styles.chipTextActive
+        ]}>
+          {selected || title}
+        </Text>
+        <Ionicons
+          name={isOpen ? "chevron-up" : "chevron-down"}
+          size={16}
+          color={(isOpen || isSelected) ? COLORS.primary : COLORS.textLight}
+        />
       </TouchableOpacity>
 
       {isOpen && (
@@ -54,11 +80,14 @@ const DropdownChip = ({ title, data, selected, onSelect, id, openDropdown, setOp
               <Text
                 style={[
                   styles.dropdownItemText,
-                  selected === item && styles.whiteText,
+                  selected === item && styles.dropdownItemTextActive,
                 ]}
               >
                 {item}
               </Text>
+              {selected === item && (
+                <Ionicons name="checkmark" size={16} color={COLORS.primary} />
+              )}
             </TouchableOpacity>
           ))}
         </View>
@@ -77,61 +106,61 @@ const SearchFiltersHeader = () => {
   const [openDropdown, setOpenDropdown] = useState(null);
 
   return (
-    <View>
+    <View style={styles.mainWrapper}>
       {/* Overlay to close dropdown when clicking outside */}
       {openDropdown !== null && (
         <Pressable
-          style={[StyleSheet.absoluteFill, { zIndex: 1 }]}
+          style={styles.overlay}
           onPress={() => setOpenDropdown(null)}
         />
       )}
 
-      <View style={{ zIndex: 2 }}>
-        <View style={styles.container}>
-          <View style={styles.row}>
-            
-            {/* LOCATION CHIP */}
-            <TouchableOpacity style={styles.locationChip} activeOpacity={0.8}>
-              <MaterialIcons name="location-pin" size={18} color="#fff" />
-              <Text style={styles.locText}>Location</Text>
-            </TouchableOpacity>
+      <ScrollView
+        horizontal
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsHorizontalScrollIndicator={false}
+      >
+        {/* LOCATION CHIP (Solid Blue) */}
+        <TouchableOpacity style={styles.locationChip} activeOpacity={0.8}>
+          <MaterialIcons name="location-pin" size={18} color="#fff" />
+          <Text style={styles.locText}>Location</Text>
+        </TouchableOpacity>
 
-            {/* BUDGET DROPDOWN */}
-            <DropdownChip
-              id="budget"
-              title="Budget"
-              data={budgets}
-              selected={budget}
-              onSelect={setBudget}
-              openDropdown={openDropdown}
-              setOpenDropdown={setOpenDropdown}
-            />
+        {/* PROPERTY TYPE DROPDOWN */}
+        <DropdownChip
+          id="propertyType"
+          title="Property Type"
+          data={propertyTypes}
+          selected={propertyType}
+          onSelect={setPropertyType}
+          openDropdown={openDropdown}
+          setOpenDropdown={setOpenDropdown}
+        />
 
-            {/* SIZE DROPDOWN */}
-            <DropdownChip
-              id="size"
-              title="Size"
-              data={sizes}
-              selected={size}
-              onSelect={setSize}
-              openDropdown={openDropdown}
-              setOpenDropdown={setOpenDropdown}
-            />
+        {/* BUDGET DROPDOWN */}
+        <DropdownChip
+          id="budget"
+          title="Budget"
+          data={budgets}
+          selected={budget}
+          onSelect={setBudget}
+          openDropdown={openDropdown}
+          setOpenDropdown={setOpenDropdown}
+        />
 
-            {/* PROPERTY TYPE DROPDOWN */}
-            <DropdownChip
-              id="propertyType"
-              title="Property Type"
-              data={propertyTypes}
-              selected={propertyType}
-              onSelect={setPropertyType}
-              openDropdown={openDropdown}
-              setOpenDropdown={setOpenDropdown}
-            />
+        {/* SIZE DROPDOWN */}
+        <DropdownChip
+          id="size"
+          title="Size"
+          data={sizes}
+          selected={size}
+          onSelect={setSize}
+          openDropdown={openDropdown}
+          setOpenDropdown={setOpenDropdown}
+        />
 
-          </View>
-        </View>
-      </View>
+      </ScrollView>
     </View>
   );
 };
@@ -142,70 +171,122 @@ export default SearchFiltersHeader;
           STYLES
 ------------------------------ */
 const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 16,
-    marginTop: 8,
+  mainWrapper: {
+    backgroundColor: COLORS.white,
+    paddingVertical: 12,
+    zIndex: 10, // Ensure dropdowns float above content below
   },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    flexWrap: "wrap",
-    gap:5
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 1,
+    // backgroundColor: 'rgba(0,0,0,0.05)', // Optional: Dim background when menu open
   },
+  scrollView: {
+    zIndex: 2,
+    overflow: "visible", // Important for dropdowns to show outside scrollview bounds if needed
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
+    gap: 10, // Easy spacing between items
+    alignItems: 'center',
+    paddingBottom: 5, // Space for shadow
+  },
+
+  // --- LOCATION CHIP ---
   locationChip: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#3ACD58",
+    backgroundColor: COLORS.primary, // Blue Theme
     paddingHorizontal: 16,
-    height: 42,
-    borderRadius: 14,
+    height: 40,
+    borderRadius: 8, // Matching the Header/Tab styling
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+    marginRight: 2,
   },
   locText: {
     color: "#fff",
     marginLeft: 6,
-    fontSize: 15,
-    fontWeight: "500",
+    fontSize: 14,
+    fontFamily: "Poppins-Medium",
+    includeFontPadding: false,
   },
-  whiteChip: {
+
+  // --- FILTER CHIPS ---
+  chip: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.white,
     paddingHorizontal: 14,
-    height: 42,
-    borderRadius: 14,
+    height: 40,
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#E6E6E6",
+    borderColor: COLORS.border,
+    // Subtle Shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  chipActiveBorder: {
+    borderColor: COLORS.primary,
+    backgroundColor: '#fff',
+  },
+  chipSelectedBg: {
+    backgroundColor: '#f0f3ff', // Very light blue tint
+    borderColor: COLORS.primary,
   },
   chipText: {
-    fontSize: 15,
-    color: "#444",
+    fontSize: 14,
+    color: COLORS.textLight,
     marginRight: 6,
+    fontFamily: "Poppins-Medium",
+    includeFontPadding: false,
   },
+  chipTextActive: {
+    color: COLORS.primary,
+  },
+
+  // --- DROPDOWN MENU ---
   dropdownMenu: {
     position: "absolute",
-    top: 48,
+    top: 46, // Just below the chip
+    left: 0,
     backgroundColor: "#fff",
     borderRadius: 12,
+    paddingVertical: 8,
+    minWidth: 160,
+
+    // Strong Shadow to float above everything
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 10,
     borderWidth: 1,
-    borderColor: "#e6e6e6",
-    zIndex: 9999,
-    elevation: 20,
-    minWidth: 150,
+    borderColor: '#f0f0f0',
   },
   dropdownItem: {
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+  },
+  dropdownItemActive: {
+    backgroundColor: '#f8f9fa',
   },
   dropdownItemText: {
     fontSize: 14,
-    color: "#444",
+    color: COLORS.textDark,
+    fontFamily: "Poppins-Regular",
   },
-  dropdownItemActive: {
-    backgroundColor: "#3ACD58",
-  },
-  whiteText: {
-    color: "#fff",
+  dropdownItemTextActive: {
+    color: COLORS.primary,
+    fontFamily: "Poppins-Medium",
   },
 });

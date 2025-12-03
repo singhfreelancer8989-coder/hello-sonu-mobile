@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  SafeAreaView, 
-  FlatList, 
-  TextInput, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  FlatList,
+  TextInput,
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons'; // Assuming Expo or a similar icon library
+import { useNavigation } from '@react-navigation/native';
 
 // --- Dummy Data ---
 const dummyMessages = [
@@ -25,7 +26,7 @@ const dummyMessages = [
 // 1. Message Bubble Component
 const MessageBubble = ({ message }) => {
   const isMe = message.sender === 'me';
-  
+
   return (
     <View style={[
       styles.messageContainer,
@@ -47,13 +48,13 @@ const MessageBubble = ({ message }) => {
 // 2. Chat UI Screen
 const AIChatScreen = () => {
   const [inputText, setInputText] = useState('');
-  
+  const Navigator = useNavigation();
   // Dummy send function
   const handleSend = () => {
     if (inputText.trim()) {
       console.log('Sending message:', inputText.trim());
       // In a real app, you would add the message to the state here
-      setInputText(''); 
+      setInputText('');
     }
   };
 
@@ -61,7 +62,9 @@ const AIChatScreen = () => {
     <>
       {/* Header */}
       <View style={styles.header}>
-        <MaterialIcons name="arrow-back" size={24} color="#007AFF" />
+        <TouchableOpacity onPress={() => Navigator.goBack()}>
+          <MaterialIcons name="chevron-left" size={24} color="#007AFF" />
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>Agent Support</Text>
         <MaterialIcons name="more-vert" size={24} color="#007AFF" />
       </View>
@@ -76,7 +79,7 @@ const AIChatScreen = () => {
       />
 
       {/* Input Area (Uses KeyboardAvoidingView for smooth behavior) */}
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20} // Adjust as needed
         style={styles.inputArea}
@@ -93,7 +96,7 @@ const AIChatScreen = () => {
           <MaterialIcons name="send" size={24} color="white" />
         </TouchableOpacity>
       </KeyboardAvoidingView>
-</>  );
+    </>);
 };
 
 // --- Styles ---
@@ -102,7 +105,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8F8F8', // Light background for the chat screen
   },
-  
+
   // Header Styles
   header: {
     flexDirection: 'row',
@@ -118,12 +121,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
-  
+
   // Message List Styles
   messageList: {
     paddingVertical: 10,
   },
-  
+
   // Message Bubble Styles
   messageContainer: {
     marginVertical: 4,
