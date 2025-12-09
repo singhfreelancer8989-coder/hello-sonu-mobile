@@ -8,6 +8,8 @@ import {
 } from "react-native";
 // Assuming PropertyCard is in the same directory and is correctly implemented
 import PropertyCard from "./PropertyCard";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+
 const MAX_SLIDER_CARDS = 5;
 const handleSeeAllPress = (title, allData) => {
   console.log(`Navigating to "See All ${title}" page with ${allData.length} properties.`);
@@ -64,31 +66,32 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: 15,
+    paddingHorizontal: wp('3.75%'),
     marginBottom: 0,
-    paddingVertical: 10,
+    paddingVertical: hp('1.25%'),
   },
 
   sectionTitle: {
-    fontSize: 18,
+    fontSize: wp('4.5%'), // 18
     fontFamily: "Poppins-Bold",
     color: "#000",
   },
 
   seeAll: {
-    fontSize: 14,
+    fontSize: wp('3.5%'), // 14
     color: "#32CD32",
     fontFamily: "Poppins-Medium",
   },
 
   scrollContent: {
-    paddingHorizontal: 10,
-    paddingBottom: 10,
+    paddingHorizontal: wp('2.5%'),
+    paddingBottom: hp('1.25%'),
   },
 
   emptyText: {
-    paddingHorizontal: 15,
+    paddingHorizontal: wp('3.75%'),
     color: "#555",
     fontFamily: "Poppins-Regular",
+    fontSize: wp('3.5%'),
   },
 });

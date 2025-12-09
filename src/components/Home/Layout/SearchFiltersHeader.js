@@ -9,6 +9,7 @@ import {
   Platform
 } from "react-native";
 import { MaterialIcons, Ionicons } from "@expo/vector-icons";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 /* PROPERTY TYPE OPTIONS */
 const propertyTypes = [
@@ -173,7 +174,7 @@ export default SearchFiltersHeader;
 const styles = StyleSheet.create({
   mainWrapper: {
     backgroundColor: COLORS.white,
-    paddingVertical: 12,
+    paddingVertical: hp('1.5%'),
     zIndex: 10, // Ensure dropdowns float above content below
   },
   overlay: {
@@ -186,10 +187,10 @@ const styles = StyleSheet.create({
     overflow: "visible", // Important for dropdowns to show outside scrollview bounds if needed
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    gap: 10, // Easy spacing between items
+    paddingHorizontal: wp('5%'),
+    gap: wp('2.5%'), // Easy spacing between items
     alignItems: 'center',
-    paddingBottom: 5, // Space for shadow
+    paddingBottom: hp('0.6%'), // Space for shadow
   },
 
   // --- LOCATION CHIP ---
@@ -197,8 +198,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: COLORS.primary, // Blue Theme
-    paddingHorizontal: 16,
-    height: 40,
+    paddingHorizontal: wp('4%'),
+    height: hp('5%'), // 40 approx
     borderRadius: 8, // Matching the Header/Tab styling
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 4 },
@@ -210,7 +211,7 @@ const styles = StyleSheet.create({
   locText: {
     color: "#fff",
     marginLeft: 6,
-    fontSize: 14,
+    fontSize: wp('3.5%'),
     fontFamily: "Poppins-Medium",
     includeFontPadding: false,
   },
@@ -220,8 +221,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: COLORS.white,
-    paddingHorizontal: 14,
-    height: 40,
+    paddingHorizontal: wp('3.5%'),
+    height: hp('5%'),
     borderRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.border,
@@ -241,7 +242,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.primary,
   },
   chipText: {
-    fontSize: 14,
+    fontSize: wp('3.5%'),
     color: COLORS.textLight,
     marginRight: 6,
     fontFamily: "Poppins-Medium",
@@ -254,12 +255,12 @@ const styles = StyleSheet.create({
   // --- DROPDOWN MENU ---
   dropdownMenu: {
     position: "absolute",
-    top: 46, // Just below the chip
+    top: hp('5.8%'), // Just below the chip
     left: 0,
     backgroundColor: "#fff",
     borderRadius: 12,
-    paddingVertical: 8,
-    minWidth: 160,
+    paddingVertical: hp('1%'),
+    minWidth: wp('40%'),
 
     // Strong Shadow to float above everything
     shadowColor: "#000",
@@ -274,14 +275,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
+    paddingVertical: hp('1.25%'),
+    paddingHorizontal: wp('4%'),
   },
   dropdownItemActive: {
     backgroundColor: '#f8f9fa',
   },
   dropdownItemText: {
-    fontSize: 14,
+    fontSize: wp('3.5%'),
     color: COLORS.textDark,
     fontFamily: "Poppins-Regular",
   },

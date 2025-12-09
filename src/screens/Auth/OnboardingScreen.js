@@ -10,6 +10,7 @@ import {
 import images from '../../assets/images';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 const OnboardingScreen = () => {
   const Navigator = useNavigation();
@@ -29,7 +30,7 @@ const OnboardingScreen = () => {
 
         {/* LOGO */}
         <View style={styles.logoWrapper}>
-          <Image 
+          <Image
             source={images.mainLogo}
             style={styles.mainLogoImage}
             resizeMode="contain"
@@ -40,10 +41,10 @@ const OnboardingScreen = () => {
         <View style={styles.taglineWrapper}>
           <Text style={styles.taglineName}>
             Hello Sonu - <Text style={styles.taglineHindi}>
-            सही प्रॉपर्टी की सही जगह
+              सही प्रॉपर्टी की सही जगह
+            </Text>
           </Text>
-          </Text>
-          
+
         </View>
 
       </View>
@@ -75,8 +76,8 @@ const styles = StyleSheet.create({
   },
 
   logoWrapper: {
-    width: '70%',
-    height: '40%',
+    width: wp('70%'),
+    height: hp('40%'),
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -93,7 +94,7 @@ const styles = StyleSheet.create({
   },
 
   taglineName: {
-    fontSize: 20,
+    fontSize: wp('5%'), // Approx 20
     fontFamily: 'Poppins-SemiBold',
     color: '#0E0E0E',
     opacity: 0.95,
@@ -101,7 +102,7 @@ const styles = StyleSheet.create({
   },
 
   taglineHindi: {
-    fontSize: 20,
+    fontSize: wp('5%'), // Approx 20
     fontFamily: 'Poppins-Medium',
     color: '#0E0E0E',
     opacity: 0.85,
@@ -113,11 +114,11 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    height: 56,
+    height: wp('14%'), // Approx 56
     backgroundColor: '#34C759',
-    borderRadius: 28,
+    borderRadius: wp('7%'), // Half of height
     marginHorizontal: 24,
-    marginBottom: 80,
+    marginBottom: hp('10%'), // Approx 80
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -131,7 +132,7 @@ const styles = StyleSheet.create({
   },
 
   buttonText: {
-    fontSize: 20,
+    fontSize: wp('5%'), // Approx 20
     color: '#fff',
     fontFamily: "Poppins-SemiBold"
   },

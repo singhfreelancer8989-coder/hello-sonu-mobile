@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 export default function RegisterBrokerScreen() {
   const navigation = useNavigation();
@@ -57,7 +58,7 @@ export default function RegisterBrokerScreen() {
 
   return (
     <View style={styles.screen}>
-      
+
       {/* HEADER */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
@@ -180,7 +181,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FAFAFA",
-    padding: 16,
+    padding: wp('4%'),
   },
   row: {
     alignItems: "center",
@@ -188,12 +189,12 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   fieldBox: {
-    marginBottom: 14,
+    marginBottom: hp('1.75%'),
   },
   label: {
-    fontSize: 14,
+    fontSize: wp('3.5%'), // 14
     color: "#222",
-    marginBottom: 4,
+    marginBottom: hp('0.5%'),
     fontFamily: "Poppins-Medium",
   },
   input: {
@@ -202,70 +203,69 @@ const styles = StyleSheet.create({
     borderColor: "#D9D9D9",
     backgroundColor: "#FFFFFF",
     borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
+    paddingHorizontal: wp('3%'),
+    paddingVertical: hp('1.25%'),
+    fontSize: wp('3.5%'), // 14
     fontFamily: "Poppins-Regular",
   },
   footer: {
     flexDirection: "row",
-    marginTop: 20,
+    marginTop: hp('2.5%'),
   },
   clearBtn: {
     flex: 1,
     backgroundColor: "#E5E5E5",
-    paddingVertical: 12,
+    paddingVertical: hp('1.5%'),
     marginRight: 8,
     borderRadius: 8,
     alignItems: "center",
   },
   clearText: {
     color: "#333",
-    fontSize: 14,
+    fontSize: wp('3.5%'),
     fontFamily: "Poppins-Medium",
   },
   submitBtn: {
     flex: 1,
     backgroundColor: "#3465FD",
-    paddingVertical: 12,
+    paddingVertical: hp('1.5%'),
     marginLeft: 8,
     borderRadius: 8,
     alignItems: "center",
   },
   submitText: {
     color: "#fff",
-    fontSize: 14,
+    fontSize: wp('3.5%'),
     fontFamily: "Poppins-Medium",
   },
   screen: {
-  flex: 1,
-  backgroundColor: "#fff",
-},
+    flex: 1,
+    backgroundColor: "#fff",
+  },
 
-// Top Header
-header: {
-  flexDirection: "row",
-  alignItems: "center",
-  paddingHorizontal: 16,
-  paddingVertical: 14,
-  borderBottomWidth: 1,
-  borderColor: "#ececec",
-},
+  // Top Header
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: wp('4%'),
+    paddingVertical: hp('1.75%'),
+    borderBottomWidth: 1,
+    borderColor: "#ececec",
+  },
 
-backBtn: {
-  width: 40,
-  height: 40,
-  borderRadius: 8,
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundColor: "#F2F2F2",
-  marginRight: 8,
-},
+  backBtn: {
+    width: wp('10%'),
+    height: wp('10%'),
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F2F2F2",
+    marginRight: 8,
+  },
 
-headerTitle: {
-  fontSize: 20,
-  fontFamily: "Poppins-Bold",
-  color: "#000",
-},
-
+  headerTitle: {
+    fontSize: wp('5%'), // 20
+    fontFamily: "Poppins-Bold",
+    color: "#000",
+  },
 });

@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { Entypo, MaterialIcons, Feather, AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 const SettingsItem = ({ icon, label, onPress }) => (
   <TouchableOpacity style={styles.itemRow} onPress={onPress}>
@@ -46,7 +47,7 @@ const SettingsScreen = () => {
       </TouchableOpacity>
 
       {/* Settings List */}
-      <ScrollView style={{ marginTop: 25 }}>
+      <ScrollView style={{ marginTop: hp('3%') }}>
         <SettingsItem
           onPress={() => Navigator.navigate("AboutUsScreen")}
           label="About Us"
@@ -92,20 +93,20 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingHorizontal: 18,
+    paddingHorizontal: wp('4.5%'),
   },
 
   /* Header */
   header: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 14,
-    gap: 18,
+    paddingVertical: hp('1.8%'),
+    gap: wp('4.5%'),
     borderBottomWidth: 1,
     borderBottomColor: "#EAEAEA",
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: wp('4.5%'), // 18
     color: "#333",
     fontFamily: 'Poppins-Medium',
   },
@@ -114,30 +115,30 @@ const styles = StyleSheet.create({
   profileSection: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 15,
+    paddingVertical: hp('2%'),
     borderBottomColor: "#EAEAEA",
-    gap: 14,
+    gap: wp('3.5%'),
   },
   profileCircle: {
-    height: 64,
-    width: 64,
-    borderRadius: 32,
+    height: wp('16%'),
+    width: wp('16%'),
+    borderRadius: wp('8%'),
     backgroundColor: "#007AFF20",
     justifyContent: "center",
     alignItems: "center",
   },
   profileInitials: {
-    fontSize: 22,
+    fontSize: wp('5.5%'), // 22
     color: "#007AFF",
     fontFamily: 'Poppins-SemiBold',
   },
   profileName: {
-    fontSize: 17,
+    fontSize: wp('4.25%'), // 17
     fontFamily: 'Poppins-SemiBold',
     color: "#222",
   },
   profileSubText: {
-    fontSize: 13,
+    fontSize: wp('3.25%'), // 13
     color: "#666",
     fontFamily: 'Poppins-Regular',
   },
@@ -146,17 +147,17 @@ const styles = StyleSheet.create({
   itemRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 18,
+    paddingVertical: hp('2.2%'),
     borderBottomWidth: 1,
     borderBottomColor: "#EAEAEA",
   },
   iconWrapper: {
-    width: 32,
+    width: wp('8%'),
     alignItems: "center",
   },
   itemLabel: {
-    fontSize: 15.5,
-    marginLeft: 12,
+    fontSize: wp('3.8%'), // 15.5
+    marginLeft: wp('3%'),
     color: "#222",
     fontFamily: 'Poppins-Medium',
   },

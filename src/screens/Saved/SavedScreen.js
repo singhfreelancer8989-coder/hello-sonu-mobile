@@ -4,13 +4,14 @@ import SearchFiltersHeader from '../../components/Home/Layout/SearchFiltersHeade
 import SavedCard from '../../components/Saved/SavedCard'
 import { Ionicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 const SavedScreen = () => {
   const navigation = useNavigation();
 
   return (
     <SafeAreaView style={styles.root}>
-      
+
       {/* Header with back button + title */}
       <View style={styles.topHeader}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconWrapper}>
@@ -35,8 +36,8 @@ export default SavedScreen
 
 const styles = StyleSheet.create({
   root: {
-    flex: 1,  
-    paddingTop: 10,
+    flex: 1,
+    paddingTop: hp('1%'),
     backgroundColor: "#fff",
   },
 
@@ -44,9 +45,9 @@ const styles = StyleSheet.create({
   topHeader: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 15,
-    paddingVertical: 6,
-    gap: 6,
+    paddingHorizontal: wp('4%'),
+    paddingVertical: hp('0.8%'),
+    gap: wp('1.5%'),
   },
   iconWrapper: {
     padding: 4,
@@ -54,7 +55,7 @@ const styles = StyleSheet.create({
   },
 
   heading: {
-    fontSize: 24,
+    fontSize: wp('6%'), // 24
     fontFamily: 'Poppins-Bold',
     color: "#000",
   },

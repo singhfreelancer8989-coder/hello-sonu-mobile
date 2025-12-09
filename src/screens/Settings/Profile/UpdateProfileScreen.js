@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { MaterialIcons, Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 const UpdateProfileScreen = () => {
   const navigation = useNavigation();
@@ -38,7 +39,7 @@ const UpdateProfileScreen = () => {
         <Text style={styles.title}>Update Profile</Text>
       </View>
 
-      <ScrollView contentContainerStyle={{ padding: 18 }}>
+      <ScrollView contentContainerStyle={{ padding: wp('4.5%') }}>
         {/* Avatar Preview */}
         <View style={styles.avatar}>
           <Text style={styles.initials}>{initials}</Text>
@@ -103,52 +104,52 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
+    padding: wp('4%'),
     borderBottomWidth: 1,
     borderBottomColor: "#EAEAEA",
   },
   title: {
-    fontSize: 18,
+    fontSize: wp('4.5%'), // 18
     color: "#222",
-    marginLeft: 12,
+    marginLeft: wp('3%'),
     fontFamily: "Poppins-SemiBold",
   },
 
   /* Avatar Preview */
   avatar: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
+    width: wp('22.5%'), // 90
+    height: wp('22.5%'), // 90
+    borderRadius: wp('11.25%'),
     backgroundColor: "#007AFF20",
     justifyContent: "center",
     alignItems: "center",
     alignSelf: "center",
-    marginVertical: 20,
+    marginVertical: hp('2.5%'),
   },
   initials: {
-    fontSize: 32,
+    fontSize: wp('8%'), // 32
     fontFamily: "Poppins-SemiBold",
     color: "#007AFF",
   },
 
   /* Form */
   form: {
-    marginTop: 10,
+    marginTop: hp('1.25%'),
   },
   label: {
-    fontSize: 14,
+    fontSize: wp('3.5%'), // 14
     color: "#555",
     fontFamily: "Poppins-Medium",
-    marginBottom: 6,
-    marginTop: 14,
+    marginBottom: hp('0.75%'),
+    marginTop: hp('1.75%'),
   },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    fontSize: 15,
+    paddingHorizontal: wp('3.5%'),
+    paddingVertical: hp('1.25%'),
+    fontSize: wp('3.75%'), // 15
     color: "#222",
     backgroundColor: "#F9F9F9",
     fontFamily: "Poppins-Regular",
@@ -160,14 +161,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#007AFF",
-    paddingVertical: 14,
+    paddingVertical: hp('1.75%'),
     borderRadius: 10,
-    marginTop: 30,
+    marginTop: hp('3.75%'),
     gap: 8,
   },
   saveBtnText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: wp('4%'), // 16
     fontFamily: "Poppins-Medium",
   },
 });

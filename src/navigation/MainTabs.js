@@ -2,6 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons'; // Ionicons is better for this outline style
 import { View, Platform, StyleSheet } from 'react-native';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 // Import your stacks/screens
 import HomeStack from './HomeStacks';
@@ -28,7 +29,7 @@ const MainTabs = () => {
           bottom: 0,
           left: 0,
           right: 0,
-          height: Platform.OS === 'ios' ? 90 : 70,
+          height: Platform.OS === 'ios' ? hp('11%') : hp('9%'), // 90 / 70 approx
           backgroundColor: '#ffffff', // White background
           borderTopLeftRadius: 30,    // Rounded corners
           borderTopRightRadius: 30,
@@ -135,9 +136,9 @@ const styles = StyleSheet.create({
   iconContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 45,
-    height: 45,
-    borderRadius: 12.5,
+    width: wp('11.25%'), // 45
+    height: wp('11.25%'), // 45
+    borderRadius: wp('3%'),
   },
   activeIconContainer: {
     // Ye wo light blue background hai jo active hone pe aata (image jaisa)
@@ -145,9 +146,9 @@ const styles = StyleSheet.create({
   },
   floatingButton: {
     top: -8, // Isku upar uthane ke liye
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: wp('15%'), // 60
+    height: wp('15%'), // 60
+    borderRadius: wp('7.5%'),
     backgroundColor: '#4834d4', // Dark Blue color
     justifyContent: 'center',
     alignItems: 'center',

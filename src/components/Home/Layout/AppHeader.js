@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Image, StyleSheet, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import images from '../../../assets/images';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -9,7 +10,7 @@ const AppHeader = ({ userName, profileImage }) => {
     const insets = useSafeAreaInsets();
 
     return (
-        <View style={[styles.container, { paddingTop: insets.top + 10 }]}>
+        <View style={[styles.container, { paddingTop: insets.top + hp('1.2%') }]}>
             <View style={styles.contentWrapper}>
 
                 {/* Text Section - Left Side */}
@@ -28,13 +29,13 @@ const AppHeader = ({ userName, profileImage }) => {
                 {/* Rectangular Logo Section - Right Side */}
                 <View style={styles.logoWrapper}>
                     <Image
-                        source={profileImage ? { uri: profileImage } : images.mainLogo} 
+                        source={profileImage ? { uri: profileImage } : images.mainLogo}
                         style={styles.logoImage}
                         // 'cover' fills the rectangle, 'contain' shows full logo without crop
-                        resizeMode="cover" 
+                        resizeMode="cover"
                     />
                 </View>
-{/* 
+                {/* 
                 <View style={{
                     width: 50,
                     height: 50,
@@ -64,8 +65,8 @@ const styles = StyleSheet.create({
     container: {
         width: screenWidth,
         backgroundColor: '#ffffff',
-        paddingHorizontal: 24,       // Thoda breathing space zyada diya
-        paddingBottom: 15,
+        paddingHorizontal: wp('6%'),       // Thoda breathing space zyada diya
+        paddingBottom: hp('1.8%'),
         borderBottomWidth: 1,        // Optional: Ek halki line separation ke liye
         borderBottomColor: '#f0f0f0',
     },
@@ -78,13 +79,13 @@ const styles = StyleSheet.create({
 
     textContainer: {
         flex: 1,
-        marginRight: 20,             // Text logo se chipke nahi
+        marginRight: wp('5%'),             // Text logo se chipke nahi
         justifyContent: 'center',
 
     },
 
     greetingText: {
-        fontSize: 16,
+        fontSize: wp('4%'), // 16
         color: '#636e72',            // Thoda sophisticated grey
         fontFamily: 'Poppins-SemiBold',
         letterSpacing: 0.5,
@@ -92,10 +93,10 @@ const styles = StyleSheet.create({
     },
 
     userNameText: {
-        fontSize: 26,
+        fontSize: wp('6.5%'), // 26
         color: '#2d3436',            // Dark Bold color
         fontFamily: 'Poppins-Bold',  // Naam bold hona chahiye
-        lineHeight: 32,
+        lineHeight: hp('4%'),
     },
 
     logoWrapper: {
@@ -104,8 +105,8 @@ const styles = StyleSheet.create({
     },
 
     logoImage: {
-        width: 100,                   // Rectangular Width
-        height: 55,                   // Rectangular Height
+        width: wp('25%'),                   // Rectangular Width
+        height: wp('13.75%'),                   // Rectangular Height
     },
 });
 

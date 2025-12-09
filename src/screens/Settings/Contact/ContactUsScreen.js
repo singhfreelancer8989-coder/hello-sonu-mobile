@@ -12,9 +12,10 @@ import {
 import { AntDesign, Feather, FontAwesome, MaterialIcons, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 // Make sure this path matches where your logo is stored
-import images from '../../../assets/images'; 
+import images from '../../../assets/images';
 
 const ContactUsScreen = () => {
     const navigation = useNavigation();
@@ -27,7 +28,7 @@ const ContactUsScreen = () => {
 
             {/* Header */}
             <View style={styles.header}>
-                <TouchableOpacity 
+                <TouchableOpacity
                     onPress={() => navigation.goBack()}
                     style={styles.backButton}
                 >
@@ -36,25 +37,25 @@ const ContactUsScreen = () => {
                 <Text style={styles.headerTitle}>Contact Us</Text>
             </View>
 
-            <ScrollView 
-                contentContainerStyle={styles.body} 
+            <ScrollView
+                contentContainerStyle={styles.body}
                 showsVerticalScrollIndicator={false}
             >
 
                 {/* --- BRANDING SECTION (Logo & Address) --- */}
                 <View style={styles.brandingSection}>
                     <View style={styles.logoContainer}>
-                        <Image 
-                            source={images.mainLogo} 
-                            style={styles.logo} 
-                            resizeMode="contain" 
+                        <Image
+                            source={images.mainLogo}
+                            style={styles.logo}
+                            resizeMode="contain"
                         />
                     </View>
-                    
+
                     <Text style={styles.companyName}>Ramratan Infra</Text>
-                    
+
                     <View style={styles.addressContainer}>
-                        <Ionicons name="location-outline" size={16} color="#636e72" style={{marginTop: 2}} />
+                        <Ionicons name="location-outline" size={16} color="#636e72" style={{ marginTop: 2 }} />
                         <Text style={styles.addressText}>
                             Vinoba Gali, Khachrod 456224
                         </Text>
@@ -110,8 +111,8 @@ const ContactUsScreen = () => {
                 />
 
                 {/* Bottom Spacer */}
-                <View style={{ height: 40 }} />
-                
+                <View style={{ height: hp('5%') }} />
+
             </ScrollView>
         </View>
     );
@@ -139,13 +140,13 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#F9FAFB", // Very light grey bg for modern feel
     },
-    
+
     // Header
     header: {
         flexDirection: "row",
         alignItems: "center",
-        paddingVertical: 15,
-        paddingHorizontal: 20,
+        paddingVertical: hp('1.8%'),
+        paddingHorizontal: wp('5%'),
         backgroundColor: '#fff',
     },
     backButton: {
@@ -153,23 +154,23 @@ const styles = StyleSheet.create({
         marginLeft: -5,
     },
     headerTitle: {
-        fontSize: 18,
+        fontSize: wp('4.5%'), // 18
         color: "#2d3436",
-        marginLeft: 15,
+        marginLeft: wp('3.75%'),
         fontFamily: "Poppins-SemiBold",
     },
 
     body: {
-        paddingHorizontal: 20,
-        paddingTop: 20,
+        paddingHorizontal: wp('5%'),
+        paddingTop: hp('2.5%'),
     },
 
     // Branding Section
     brandingSection: {
         alignItems: 'center',
-        marginBottom: 30,
+        marginBottom: hp('3.75%'),
         backgroundColor: '#fff',
-        paddingVertical: 25,
+        paddingVertical: hp('3%'),
         borderRadius: 16,
         // Shadow
         shadowColor: "#000",
@@ -179,9 +180,9 @@ const styles = StyleSheet.create({
         elevation: 2,
     },
     logoContainer: {
-        height: 80,
-        width: 150, // Adjustable based on your logo aspect ratio
-        marginBottom: 15,
+        height: hp('10%'), // 80
+        width: wp('37.5%'), // 150
+        marginBottom: hp('1.8%'),
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -190,19 +191,19 @@ const styles = StyleSheet.create({
         height: '100%',
     },
     companyName: {
-        fontSize: 22,
+        fontSize: wp('5.5%'), // 22
         fontFamily: "Poppins-Bold",
         color: "#2d3436",
-        marginBottom: 5,
+        marginBottom: hp('0.6%'),
     },
     addressContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingHorizontal: 20,
+        paddingHorizontal: wp('5%'),
     },
     addressText: {
-        fontSize: 14,
+        fontSize: wp('3.5%'), // 14
         fontFamily: "Poppins-Regular",
         color: "#636e72",
         textAlign: 'center',
@@ -212,10 +213,10 @@ const styles = StyleSheet.create({
 
     // List Section
     sectionTitle: {
-        fontSize: 16,
+        fontSize: wp('4%'), // 16
         fontFamily: "Poppins-SemiBold",
         color: "#b2bec3",
-        marginBottom: 15,
+        marginBottom: hp('1.8%'),
         marginLeft: 5,
         textTransform: 'uppercase',
         letterSpacing: 1,
@@ -226,9 +227,9 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         backgroundColor: "#FFFFFF",
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        marginBottom: 12,
+        paddingVertical: hp('1.5%'),
+        paddingHorizontal: wp('4%'),
+        marginBottom: hp('1.5%'),
         borderRadius: 12,
         // Card Shadow
         shadowColor: "#000",
@@ -240,23 +241,23 @@ const styles = StyleSheet.create({
         borderColor: '#f1f2f6',
     },
     iconWrapper: {
-        width: 44,
-        height: 44,
+        width: wp('11%'), // 44
+        height: wp('11%'), // 44
         borderRadius: 12,
         justifyContent: "center",
         alignItems: "center",
     },
     textWrapper: {
         flex: 1,
-        marginLeft: 15,
+        marginLeft: wp('3.75%'),
     },
     itemLabel: {
-        fontSize: 15,
+        fontSize: wp('3.75%'), // 15
         fontFamily: "Poppins-Medium",
         color: "#2d3436",
     },
     itemSubLabel: {
-        fontSize: 12,
+        fontSize: wp('3%'), // 12
         fontFamily: "Poppins-Regular",
         color: "#b2bec3",
         marginTop: 2,

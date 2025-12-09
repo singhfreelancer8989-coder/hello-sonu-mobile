@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 const SavedCard = () => {
   const navigation = useNavigation();
@@ -45,9 +46,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: "#fff",
     borderRadius: 12,
-    height: 120,
-    marginHorizontal: 16,
-    marginVertical: 10,
+    height: hp('15%'), // 120
+    marginHorizontal: wp('4%'),
+    marginVertical: hp('1.25%'),
     overflow: "hidden",
 
     // shadow
@@ -58,33 +59,33 @@ const styles = StyleSheet.create({
   },
 
   image: {
-    width: 110,
+    width: wp('27.5%'), // 110
     height: "100%",
   },
 
   info: {
     flex: 1,
-    padding: 12,
+    padding: wp('3%'),
     justifyContent: "center",
     position: "relative",
   },
 
   title: {
     fontFamily: "Poppins-SemiBold",
-    fontSize: 16,
+    fontSize: wp('4%'), // 16
     color: "#000",
   },
 
   price: {
     fontFamily: "Poppins-Bold",
-    fontSize: 15,
+    fontSize: wp('3.75%'), // 15
     marginTop: 2,
     color: "#3a75cd",
   },
 
   subText: {
     fontFamily: "Poppins-Regular",
-    fontSize: 13,
+    fontSize: wp('3.25%'), // 13
     marginTop: 5,
     color: "#666",
   },

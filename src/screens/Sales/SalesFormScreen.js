@@ -12,6 +12,7 @@ import {
   Alert,
   Image
 } from 'react-native';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Entypo from '@expo/vector-icons/Entypo';
@@ -359,7 +360,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 14,
+    padding: wp('3.5%'),
     gap: 6,
   },
   backBtn: {
@@ -367,48 +368,48 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: "Poppins-Bold",
-    fontSize: 22,
+    fontSize: wp('5.5%'), // 22
     color: "#000",
   },
 
-  scrollContainer: { padding: 16, paddingBottom: 60 },
+  scrollContainer: { padding: wp('4%'), paddingBottom: hp('7.5%') },
 
   /* LOGO */
   logoHolder: {
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: hp('1.25%'),
   },
   mainLogoImage: {
     width: '55%',
-    height: 80,
+    height: hp('10%'),
   },
 
   /* TITLES + LABELS */
   pageTitle: {
-    fontSize: 20,
+    fontSize: wp('5%'), // 20
     fontFamily: "Poppins-Bold",
     color: '#000',
-    marginBottom: 20,
+    marginBottom: hp('2.5%'),
   },
 
-  inputGroup: { marginBottom: 16 },
+  inputGroup: { marginBottom: hp('2%') },
 
   label: {
     fontFamily: "Poppins-Medium",
-    fontSize: 14,
-    marginBottom: 6,
+    fontSize: wp('3.5%'), // 14
+    marginBottom: hp('0.75%'),
     color: '#333',
   },
 
   /* INPUTS */
   input: {
     fontFamily: "Poppins-Regular",
-    fontSize: 15,
+    fontSize: wp('3.8%'), // 15
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: wp('3%'),
+    paddingVertical: hp('1.25%'),
     color: '#000',
   },
   placeholder: { color: '#777' },
@@ -420,25 +421,25 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     borderWidth: 1,
     borderColor: "#ddd",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: wp('3%'),
+    paddingVertical: hp('1.25%'),
   },
 
   inputText: {
     fontFamily: "Poppins-Regular",
-    fontSize: 15,
+    fontSize: wp('3.8%'), // 15
     color: "#000",
   },
 
   textArea: {
     fontFamily: "Poppins-Regular",
-    fontSize: 15,
-    minHeight: 100,
+    fontSize: wp('3.8%'), // 15
+    minHeight: hp('12.5%'),
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: wp('3%'),
+    paddingVertical: hp('1.25%'),
     textAlignVertical: 'top',
     color: '#000',
   },
@@ -455,20 +456,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#3a75cd',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
+    paddingVertical: hp('1.25%'),
+    paddingHorizontal: wp('3%'),
     borderRadius: 6,
     gap: 6,
-    width: 130,
+    width: wp('32.5%'),
   },
   uploadButtonText: {
     color: '#fff',
     fontFamily: "Poppins-Medium",
-    fontSize: 14,
+    fontSize: wp('3.5%'),
   },
   uploadedImage: {
-    width: 70,
-    height: 70,
+    width: wp('17.5%'),
+    height: wp('17.5%'),
     borderRadius: 8,
     marginRight: 8,
   },
@@ -477,36 +478,36 @@ const styles = StyleSheet.create({
   radioRow: { flexDirection: 'row', gap: 12, marginTop: 6 },
   radioOption: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   radioCircle: {
-    height: 20,
-    width: 20,
-    borderRadius: 10,
+    height: wp('5%'),
+    width: wp('5%'),
+    borderRadius: wp('2.5%'),
     borderWidth: 2,
     borderColor: '#3a75cd',
     alignItems: 'center',
     justifyContent: 'center',
   },
   radioFill: {
-    height: 12,
-    width: 12,
-    borderRadius: 6,
+    height: wp('3%'),
+    width: wp('3%'),
+    borderRadius: wp('1.5%'),
     backgroundColor: '#3a75cd',
   },
   radioLabel: {
     fontFamily: "Poppins-Regular",
-    fontSize: 14,
+    fontSize: wp('3.5%'),
   },
 
   /* SUBMIT BTN */
   submitButton: {
     backgroundColor: '#3a75cd',
-    paddingVertical: 14,
+    paddingVertical: hp('1.75%'),
     borderRadius: 6,
     alignItems: 'center',
-    marginTop: 18,
+    marginTop: hp('2.25%'),
   },
   submitText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: wp('4%'),
     fontFamily: "Poppins-Bold",
   },
 
@@ -525,7 +526,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontFamily: "Poppins-Bold",
-    fontSize: 16,
+    fontSize: wp('4%'),
     marginBottom: 10,
     color: "#000",
   },
@@ -536,7 +537,7 @@ const styles = StyleSheet.create({
   },
   modalItemText: {
     fontFamily: "Poppins-Regular",
-    fontSize: 15,
+    fontSize: wp('3.8%'), // 15
     color: "#333",
   },
   closeBtn: {

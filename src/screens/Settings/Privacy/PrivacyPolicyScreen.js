@@ -10,11 +10,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 // Responsive Design
-const { width } = Dimensions.get('window');
-const PADDING_HORIZONTAL = width * 0.05;
-const PADDING_VERTICAL_SECTION = width * 0.04;
+// const { width } = Dimensions.get('window');
+// const PADDING_HORIZONTAL = width * 0.05;
+// const PADDING_VERTICAL_SECTION = width * 0.04;
 
 const PrivacyPolicyScreen = ({ navigation }) => {
 
@@ -30,16 +31,16 @@ const PrivacyPolicyScreen = ({ navigation }) => {
 
   return (
     <>
-      <StatusBar barStyle="dark-content" backgroundColor="#f8f8f8"/>
+      <StatusBar barStyle="dark-content" backgroundColor="#f8f8f8" />
 
 
-        {/* Header */}
-        <View style={styles.customHeader}>
-          <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
-            <Ionicons name="chevron-back" size={28} color="#000" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Privacy Policy</Text>
-        </View>
+      {/* Header */}
+      <View style={styles.customHeader}>
+        <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
+          <Ionicons name="chevron-back" size={28} color="#000" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Privacy Policy</Text>
+      </View>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.container}
@@ -49,9 +50,9 @@ const PrivacyPolicyScreen = ({ navigation }) => {
         <View style={styles.cardSection}>
           <Text style={styles.sectionTitle}>1. Introduction</Text>
           <Text style={styles.paragraph}>
-            Welcome to Hello-Sonu Mobile. We are deeply committed to safeguarding 
-            your privacy and ensuring a seamless experience on our real estate 
-            platform. This policy details our practices regarding the collection, 
+            Welcome to Hello-Sonu Mobile. We are deeply committed to safeguarding
+            your privacy and ensuring a seamless experience on our real estate
+            platform. This policy details our practices regarding the collection,
             use, disclosure, and protection of your information.
           </Text>
 
@@ -156,8 +157,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8f8f8",
   },
   container: {
-    paddingHorizontal: PADDING_HORIZONTAL,
-    paddingBottom: 20,
+    paddingHorizontal: wp('5%'),
+    paddingBottom: hp('2.5%'),
     backgroundColor: "#f8f8f8",
   },
 
@@ -166,9 +167,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#fff",
-    paddingVertical: 15,
-    paddingHorizontal: PADDING_HORIZONTAL,
-    marginBottom: 20,
+    paddingVertical: hp('2%'),
+    paddingHorizontal: wp('5%'),
+    marginBottom: hp('2.5%'),
     elevation: 4,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
@@ -177,21 +178,21 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   backButton: {
-    paddingRight: 15,
-    paddingVertical: 5,
+    paddingRight: wp('3.75%'),
+    paddingVertical: hp('0.6%'),
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: wp('6%'), // 24
     fontFamily: "Poppins-SemiBold",
     color: "#000",
   },
 
   /** SECTIONS **/
   cardSection: {
-    marginBottom: PADDING_VERTICAL_SECTION,
+    marginBottom: hp('2%'), // PADDING_VERTICAL_SECTION approx
     backgroundColor: "#fff",
     borderRadius: 15,
-    padding: PADDING_HORIZONTAL,
+    padding: wp('5%'),
     elevation: 2,
     borderWidth: 1,
     borderColor: "#e0e0e0",
@@ -202,30 +203,30 @@ const styles = StyleSheet.create({
   },
 
   sectionTitle: {
-    fontSize: 18,
+    fontSize: wp('4.5%'), // 18
     fontFamily: "Poppins-SemiBold",
     color: "#333",
-    marginBottom: 10,
-    paddingBottom: 5,
+    marginBottom: hp('1.25%'),
+    paddingBottom: hp('0.6%'),
     borderBottomWidth: 1,
     borderBottomColor: "#f0f0f0",
   },
 
   paragraph: {
-    fontSize: 14,
-    lineHeight: 22,
+    fontSize: wp('3.5%'), // 14
+    lineHeight: wp('5.5%'),
     color: "#4b5563",
-    marginBottom: 8,
+    marginBottom: hp('1%'),
     fontFamily: "Poppins-Regular",
   },
 
   listItem: {
-    fontSize: 14,
-    lineHeight: 22,
+    fontSize: wp('3.5%'), // 14
+    lineHeight: wp('5.5%'),
     color: "#4b5563",
-    marginBottom: 8,
-    paddingLeft: 10,
-    marginLeft: 5,
+    marginBottom: hp('1%'),
+    paddingLeft: wp('2.5%'),
+    marginLeft: wp('1.25%'),
     borderLeftWidth: 3,
     borderLeftColor: "#4CAF50",
     fontFamily: "Poppins-Regular",
@@ -237,10 +238,10 @@ const styles = StyleSheet.create({
   },
 
   lastUpdatedText: {
-    fontSize: 12,
+    fontSize: wp('3%'), // 12
     color: "#6b7280",
     fontStyle: "italic",
-    marginTop: 10,
+    marginTop: hp('1.25%'),
     textAlign: "right",
     fontFamily: "Poppins-Regular",
   },
@@ -248,10 +249,10 @@ const styles = StyleSheet.create({
   /** FOOTER **/
   footerText: {
     textAlign: "center",
-    fontSize: 12,
+    fontSize: wp('3%'), // 12
     color: "#9ca3af",
-    marginTop: 15,
-    marginBottom: 5,
+    marginTop: hp('2%'),
+    marginBottom: hp('0.6%'),
     fontFamily: "Poppins-Regular",
   },
 });

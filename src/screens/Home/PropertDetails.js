@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Ionicons, MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 const dummyProperties = [
     {
@@ -41,7 +42,7 @@ const PropertyDetailsScreen = ({ route }) => {
     if (!property) {
         return (
             <View style={styles.center}>
-                <Text style={{ fontSize: 18 }}>Property not found</Text>
+                <Text style={{ fontSize: wp('4.5%') }}>Property not found</Text>
             </View>
         );
     }
@@ -181,7 +182,7 @@ const PropertyDetailsScreen = ({ route }) => {
                 </TouchableOpacity>
             </View>
 
-            <View style={{ height: 60 }} />
+            <View style={{ height: hp('8%') }} />
         </ScrollView>
     );
 };
@@ -195,25 +196,25 @@ const styles = StyleSheet.create({
     headerBar: {
         flexDirection: "row",
         alignItems: "center",
-        paddingVertical: 14,
-        paddingHorizontal: 14,
+        paddingVertical: hp('1.75%'),
+        paddingHorizontal: wp('3.5%'),
         borderBottomWidth: 1,
         borderColor: "#eee",
         gap: 8,
     },
     backBtn: {
-        padding: 6,
+        padding: wp('1.5%'),
         borderRadius: 8,
     },
     headerTitle: {
-        fontSize: 18,
+        fontSize: wp('4.5%'), // 18
         fontFamily: "Poppins-SemiBold",
         color: "#111",
     },
     /* IMAGE */
     carouselContainer: {
         width: "100%",
-        height: 260,
+        height: hp('32%'), // 260
         position: "relative",
         backgroundColor: "#000",
     },
@@ -226,8 +227,8 @@ const styles = StyleSheet.create({
         position: "absolute",
         top: "50%",
         transform: [{ translateY: -20 }],
-        width: 36,
-        height: 36,
+        width: wp('9%'),
+        height: wp('9%'),
         borderRadius: 50,
         backgroundColor: "rgba(0,0,0,0.5)",
         justifyContent: "center",
@@ -243,9 +244,9 @@ const styles = StyleSheet.create({
         gap: 6,
     },
     dot: {
-        width: 8,
-        height: 8,
-        borderRadius: 6,
+        width: wp('2%'),
+        height: wp('2%'),
+        borderRadius: wp('1.5%'),
         backgroundColor: "rgba(255,255,255,0.4)",
     },
     activeDot: {
@@ -256,95 +257,95 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: "row",
         justifyContent: "space-between",
-        marginTop: 14,
-        paddingHorizontal: 16,
+        marginTop: hp('1.75%'),
+        paddingHorizontal: wp('4%'),
     },
-    type: { fontSize: 20, fontFamily: "Poppins-SemiBold", color: "#111" },
+    type: { fontSize: wp('5%'), fontFamily: "Poppins-SemiBold", color: "#111" }, // 20
 
     verifiedBadge: {
         flexDirection: "row",
         backgroundColor: "#E8F8E8",
-        paddingHorizontal: 10,
-        paddingVertical: 2,
+        paddingHorizontal: wp('2.5%'),
+        paddingVertical: hp('0.25%'),
         borderRadius: 14,
         alignItems: "center",
     },
-    verifiedText: { marginLeft: 4, color: "#2E7D32", fontFamily: "Poppins-Regular" },
+    verifiedText: { marginLeft: 4, color: "#2E7D32", fontFamily: "Poppins-Regular", fontSize: wp('3.5%') },
 
-    city: { fontSize: 16, color: "#666", paddingHorizontal: 16, marginTop: 4, fontFamily: "Poppins-Regular" },
-    address: { fontSize: 14, color: "#777", paddingHorizontal: 16, marginTop: 2, fontFamily: "Poppins-Regular" },
+    city: { fontSize: wp('4%'), color: "#666", paddingHorizontal: wp('4%'), marginTop: hp('0.5%'), fontFamily: "Poppins-Regular" },
+    address: { fontSize: wp('3.5%'), color: "#777", paddingHorizontal: wp('4%'), marginTop: hp('0.25%'), fontFamily: "Poppins-Regular" },
 
     /* PRICE */
     price: {
-        fontSize: 26,
+        fontSize: wp('6.5%'), // 26
         fontFamily: "Poppins-Bold",
         color: "#5D5FEF",
-        paddingHorizontal: 16,
-        marginVertical: 10,
+        paddingHorizontal: wp('4%'),
+        marginVertical: hp('1.25%'),
     },
 
     /* META */
     metaBox: {
         flexDirection: "row",
         justifyContent: "space-between",
-        marginHorizontal: 16,
+        marginHorizontal: wp('4%'),
         backgroundColor: "#F9F9F9",
-        padding: 14,
+        padding: wp('3.5%'),
         borderRadius: 12,
     },
     metaItem: { flexDirection: "row", alignItems: "center" },
-    metaText: { marginLeft: 8, fontSize: 14, color: "#555", fontFamily: "Poppins-Regular" },
+    metaText: { marginLeft: 8, fontSize: wp('3.5%'), color: "#555", fontFamily: "Poppins-Regular" },
 
     /* MAP */
     mapPreview: {
-        margin: 16,
-        padding: 16,
+        margin: wp('4%'),
+        padding: wp('4%'),
         backgroundColor: "#F0F0F0",
         flexDirection: "row",
         alignItems: "center",
         borderRadius: 10,
     },
-    mapText: { marginLeft: 10, fontSize: 14, color: "#555", fontFamily: "Poppins-Regular" },
+    mapText: { marginLeft: 10, fontSize: wp('3.5%'), color: "#555", fontFamily: "Poppins-Regular" },
 
     /* DESCRIPTION */
-    descriptionBox: { marginTop: 14, paddingHorizontal: 16 },
+    descriptionBox: { marginTop: hp('1.75%'), paddingHorizontal: wp('4%') },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: wp('4.5%'), // 18
         fontFamily: "Poppins-SemiBold",
-        marginBottom: 6,
+        marginBottom: hp('0.75%'),
         color: "#222",
     },
     descriptionText: {
-        fontSize: 14,
-        lineHeight: 20,
+        fontSize: wp('3.5%'), // 14
+        lineHeight: wp('5%'),
         color: "#555",
         textAlign: "left",
         fontFamily: "Poppins-Regular",
     },
 
     /* OWNER */
-    ownerBox: { marginTop: 10, paddingHorizontal: 16 },
-    ownerTitle: { fontSize: 18, fontFamily: "Poppins-SemiBold", marginBottom: 8 },
+    ownerBox: { marginTop: hp('1.25%'), paddingHorizontal: wp('4%') },
+    ownerTitle: { fontSize: wp('4.5%'), fontFamily: "Poppins-SemiBold", marginBottom: hp('1%') },
     ownerRow: { flexDirection: "row", alignItems: "center" },
-    ownerName: { fontSize: 16, fontFamily: "Poppins-Medium" },
-    ownerPhone: { color: "#444", marginTop: 2 },
+    ownerName: { fontSize: wp('4%'), fontFamily: "Poppins-Medium" },
+    ownerPhone: { color: "#444", marginTop: 2, fontSize: wp('3.5%') },
 
     /* ACTION BTN */
     btnRow: {
         flexDirection: "row",
-        gap: 10,
-        marginTop: 22,
-        paddingHorizontal: 16,
+        gap: wp('2.5%'),
+        marginTop: hp('2.75%'),
+        paddingHorizontal: wp('4%'),
     },
     btn: {
         width: "32%",
         backgroundColor: "#5D5FEF",
-        paddingVertical: 12,
+        paddingVertical: hp('1.5%'),
         borderRadius: 12,
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
         gap: 5,
     },
-    btnText: { color: "#fff", fontFamily: "Poppins-Medium" },
+    btnText: { color: "#fff", fontFamily: "Poppins-Medium", fontSize: wp('3.5%') },
 });

@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons'; // Assuming Expo or a similar icon library
 import { useNavigation } from '@react-navigation/native';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 // --- Dummy Data ---
 const dummyMessages = [
@@ -111,26 +112,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 15,
+    padding: wp('4%'),
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#EAEAEA',
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: wp('4.5%'), // 18
     fontWeight: 'bold',
     color: '#333',
   },
 
   // Message List Styles
   messageList: {
-    paddingVertical: 10,
+    paddingVertical: hp('1.5%'),
   },
 
   // Message Bubble Styles
   messageContainer: {
-    marginVertical: 4,
-    paddingHorizontal: 10,
+    marginVertical: hp('0.5%'),
+    paddingHorizontal: wp('2.5%'),
     flexDirection: 'row',
   },
   myMessageContainer: {
@@ -141,7 +142,7 @@ const styles = StyleSheet.create({
   },
   bubble: {
     maxWidth: '80%',
-    padding: 10,
+    padding: wp('2.5%'),
     borderRadius: 15,
     flexDirection: 'column',
   },
@@ -156,7 +157,7 @@ const styles = StyleSheet.create({
     borderColor: '#EAEAEA',
   },
   messageText: {
-    fontSize: 15,
+    fontSize: wp('3.8%'), // 15
     marginBottom: 3,
   },
   myMessageText: {
@@ -166,7 +167,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   messageTime: {
-    fontSize: 10,
+    fontSize: wp('2.5%'), // 10
     alignSelf: 'flex-end',
     color: '#C0C0C0', // Light gray time stamp
   },
@@ -175,26 +176,26 @@ const styles = StyleSheet.create({
   inputArea: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
+    padding: wp('2.5%'),
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#EAEAEA',
   },
   input: {
     flex: 1,
-    padding: 10,
-    marginRight: 10,
+    padding: wp('2.5%'),
+    marginRight: wp('2.5%'),
     borderWidth: 1,
     borderColor: '#EAEAEA',
     borderRadius: 20,
-    maxHeight: 100, // Prevent it from getting too large with multiline
-    fontSize: 16,
+    maxHeight: hp('12%'), // Prevent it from getting too large with multiline
+    fontSize: wp('4%'), // 16
   },
   sendButton: {
     backgroundColor: '#007AFF',
-    borderRadius: 20,
-    width: 40,
-    height: 40,
+    borderRadius: wp('5%'), // 20
+    width: wp('10%'),
+    height: wp('10%'),
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -10,9 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-
-const { width } = Dimensions.get('window');
-const PADDING = width * 0.05;
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 const features = [
   {
@@ -69,13 +67,13 @@ const AboutUsScreen = ({ navigation }) => {
 
   return (
     <>
-        {/* HEADER */}
-        <View style={styles.customHeader}>
-          <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
-            <Ionicons name="chevron-back" size={28} color="#000" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>About Us</Text>
-        </View>
+      {/* HEADER */}
+      <View style={styles.customHeader}>
+        <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
+          <Ionicons name="chevron-back" size={28} color="#000" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>About Us</Text>
+      </View>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.container}>
 
         {/* HERO */}
@@ -137,8 +135,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f4f8',
   },
   container: {
-    padding: PADDING,
-    paddingBottom: 20,
+    padding: wp('5%'),
+    paddingBottom: hp('2.5%'),
     backgroundColor: '#f0f4f8',
   },
 
@@ -147,22 +145,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#ffffff',
-    paddingVertical: 15,
-    paddingHorizontal: PADDING,
+    paddingVertical: hp('2%'),
+    paddingHorizontal: wp('5%'),
     elevation: 4,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 3,
     shadowOffset: { width: 0, height: 2 },
-    marginBottom: 20,
+    marginBottom: hp('2.5%'),
     width: '100%',
   },
   backButton: {
-    paddingRight: 15,
-    paddingVertical: 6,
+    paddingRight: wp('3.75%'),
+    paddingVertical: hp('0.75%'),
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: wp('6%'), // 24
     color: '#000',
     fontFamily: 'Poppins-SemiBold',
   },
@@ -171,8 +169,8 @@ const styles = StyleSheet.create({
   headerContainer: {
     backgroundColor: '#ffffff',
     borderRadius: 12,
-    padding: PADDING,
-    marginBottom: PADDING * 1.5,
+    padding: wp('5%'),
+    marginBottom: hp('3.5%'),
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -180,38 +178,38 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   title: {
-    fontSize: 26,
+    fontSize: wp('6.5%'), // 26
     color: '#1e3a8a',
-    marginBottom: 8,
+    marginBottom: hp('1%'),
     fontFamily: 'Poppins-Bold',
   },
   tagline: {
-    fontSize: 16,
+    fontSize: wp('4%'), // 16
     color: '#374151',
-    lineHeight: 24,
+    lineHeight: wp('6%'),
     fontFamily: 'Poppins-Regular',
   },
 
   /** CONTENT BLOCKS **/
   section: {
-    marginBottom: PADDING * 1.5,
+    marginBottom: hp('3.5%'),
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: wp('5%'), // 20
     fontWeight: '600',
     color: '#1f2937',
-    marginBottom: 10,
+    marginBottom: hp('1.25%'),
     borderBottomWidth: 2,
     borderBottomColor: '#d1d5db',
-    paddingBottom: 5,
+    paddingBottom: hp('0.6%'),
     fontFamily: 'Poppins-SemiBold',
   },
   paragraph: {
-    fontSize: 14,
+    fontSize: wp('3.5%'), // 14
     color: '#4b5563',
-    lineHeight: 22,
+    lineHeight: wp('5.5%'),
     backgroundColor: '#ffffff',
-    padding: PADDING,
+    padding: wp('5%'),
     borderRadius: 12,
     shadowColor: '#000',
     shadowOpacity: 0.05,
@@ -224,40 +222,40 @@ const styles = StyleSheet.create({
   /** FEATURE BLOCK **/
   featureItem: {
     flexDirection: 'row',
-    marginBottom: 15,
+    marginBottom: hp('1.8%'),
     backgroundColor: '#ffffff',
     borderRadius: 8,
-    padding: 15,
+    padding: wp('3.75%'),
     borderLeftWidth: 4,
     borderLeftColor: '#3b82f6',
     elevation: 1,
   },
   featureIcon: {
-    fontSize: 22,
-    marginRight: 10,
+    fontSize: wp('5.5%'), // 22
+    marginRight: wp('2.5%'),
   },
   featureTextContainer: {
     flex: 1,
   },
   featureTitle: {
-    fontSize: 16,
+    fontSize: wp('4%'), // 16
     color: '#1f2937',
     marginBottom: 3,
     fontFamily: 'Poppins-Medium',
   },
   featureDescription: {
-    fontSize: 13,
+    fontSize: wp('3.25%'), // 13
     color: '#6b7280',
-    lineHeight: 18,
+    lineHeight: wp('4.5%'),
     fontFamily: 'Poppins-Regular',
   },
 
   /** FOOTER **/
   footerText: {
     textAlign: 'center',
-    fontSize: 12,
+    fontSize: wp('3%'), // 12
     color: '#9ca3af',
-    marginBottom: 20,
+    marginBottom: hp('2.5%'),
     fontFamily: 'Poppins-Regular',
   },
 });
