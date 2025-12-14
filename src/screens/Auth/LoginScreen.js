@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  SafeAreaView,
   StyleSheet,
   View,
   Text,
@@ -8,18 +7,18 @@ import {
   TouchableOpacity,
   StatusBar,
   ScrollView,
-  Image, Platform
+  Image, Platform,
+  Linking
 } from 'react-native';
 import images from '../../assets/images';
-import AntDesign from '@expo/vector-icons/AntDesign'
 import Entypo from '@expo/vector-icons/Entypo';
-
+import { useNavigation } from '@react-navigation/native';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 const LoginScreen = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-
+  const Navigator = useNavigation();
   return (
     <>
-      <StatusBar barStyle="dark-content" />
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
 
@@ -67,32 +66,18 @@ const LoginScreen = () => {
         </TouchableOpacity>
 
         {/* 6. Login Button */}
-        <TouchableOpacity style={styles.loginButton}>
+        <TouchableOpacity onPress={() => { }} style={styles.loginButton}>
           <Text style={styles.loginButtonText}>LOGIN</Text>
         </TouchableOpacity>
 
         {/* 7. Footer (Socials) */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Sign In? or continue with</Text>
-
-          <View style={styles.socialRow}>
-            {/* Google */}
-            <TouchableOpacity>
-              <AntDesign name="google" size={30} color="#333" style={styles.socialImage} />
-            </TouchableOpacity>
-
-            {/* Apple */}
-            {Platform.OS === 'ios' && (
-              <TouchableOpacity>
-                <AntDesign name="apple1" size={30} color="#000" style={styles.socialImage} />
-              </TouchableOpacity>
-            )}
-
-            {/* Facebook */}
-            <TouchableOpacity>
-              <Entypo name="facebook" size={30} color="#333" style={styles.socialImage} />
-            </TouchableOpacity>
-          </View>
+          {/* We combine all elements in one Text component for inline flow */}
+          <Text style={styles.footerText}>
+            {/* Removed conflicting height/padding/overflow styles from TouchableOpacity */}
+            <Text onPress={() => { Navigator.navigate("Register") }} style={styles.signUpLinkText}>Sign Up ?</Text>
+            <Text> Don't Have an account</Text>
+          </Text>
         </View>
 
       </ScrollView>
@@ -106,62 +91,65 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   scrollContainer: {
-    padding: 24,
+    padding: wp('6%'), // 24
     flexGrow: 1,
     justifyContent: 'center',
   },
   logoPlaceholder: {
-    height: 150,
+    height: hp('20%'), // 150 approx
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: hp('2.5%'), // 20
   },
   mainLogoImage: {
     width: "100%",
     height: "100%",
   },
   logoText: {
-    fontSize: 24,
+    fontSize: wp('6%'), // 24
     fontWeight: 'bold',
     color: '#000',
   },
   pageTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    fontSize: wp('8%'), // 32
+    // fontWeight: 'bold',
     color: '#000',
-    marginBottom: 30,
+    fontFamily: Platform.OS === 'android' ? 'Poppins-Bold' : 'Poppins-Bold',
   },
   inputGroup: {
-    marginBottom: 10,
+    marginBottom: hp('1.5%'), // 10
   },
   label: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: wp('4%'), // 16
+    // fontWeight: 'bold',
     color: '#000',
-    marginBottom: 8,
+    fontFamily: Platform.OS === 'android' ? 'Poppins-Bold' : 'Poppins-Bold',
+    marginBottom: hp('1%'), // 8
   },
   input: {
-    height: 50,
+    height: wp('12.5%'), // 50
     borderWidth: 1.5,
     borderColor: '#000',
     borderRadius: 8,
-    paddingHorizontal: 16,
-    fontSize: 16,
+    paddingHorizontal: wp('4%'),
+    fontSize: wp('4%'), // 16
     color: '#000',
+    fontFamily: Platform.OS === 'android' ? 'Poppins-Regular' : 'Poppins-Regular',
   },
   passwordContainer: {
-    height: 50,
+    height: wp('12.5%'), // 50
     borderWidth: 1.5,
     borderColor: '#000',
     borderRadius: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: wp('4%'),
   },
   passwordInput: {
     flex: 1,
     height: '100%',
-    fontSize: 16,
+    fontSize: wp('4%'), // 16
+    fontFamily: Platform.OS === 'android' ? 'Poppins-Regular' : 'Poppins-Regular',
     color: '#000',
   },
   eyeImage: {
@@ -170,45 +158,49 @@ const styles = StyleSheet.create({
   // Forgot Password
   forgotContainer: {
     alignSelf: 'flex-end',
-    marginBottom: 20,
+    marginBottom: hp('2.5%'), // 20
   },
   forgotText: {
     color: '#555',
-    fontSize: 14,
+    fontFamily: Platform.OS === 'android' ? 'Poppins-Regular' : 'Poppins-Regular',
+    fontSize: wp('3.5%'), // 14
   },
   // Button
   loginButton: {
-    height: 55,
+    height: wp('13.5%'), // 55
     backgroundColor: '#5B75FF',
-    borderRadius: 28,
+    borderRadius: wp('7%'), // 28
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+    fontFamily: Platform.OS === 'android' ? 'Poppins-Regular' : 'Poppins-Regular',
+    marginBottom: hp('2.5%'),
   },
   loginButtonText: {
     color: '#FFF',
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: wp('4.5%'), // 18
+    // fontWeight: 'bold',
     letterSpacing: 1,
+    fontFamily: Platform.OS === 'android' ? 'Poppins-Bold' : 'Poppins-Bold',
   },
   // Footer
   footer: {
     alignItems: 'center',
   },
   footerText: {
-    fontSize: 14,
-    color: '#333',
-    marginBottom: 10,
-  },
-  socialRow: {
-    flexDirection: 'row',
+    alignItems: 'flex-end',
     justifyContent: 'center',
-    alignItems: 'center',
-    gap: 25,
-    marginTop: 0,
+    fontSize: wp('3.5%'), // 14
+    color: '#333',
+    fontFamily: 'Poppins-Regular',
+    // Align text elements inline
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
-  socialImage: {
-    // Optional: Add spacing if not using justify 'space-between'
+  signUpLinkText: {
+    color: "blue",
+    fontFamily: "Poppins-Regular",
+    marginRight: '4.6%',
+    height: wp('4%'),
   }
 });
 

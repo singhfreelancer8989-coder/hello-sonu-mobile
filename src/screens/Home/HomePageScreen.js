@@ -1,9 +1,22 @@
-import { StyleSheet, Text, View } from 'react-native'
-
+import { StyleSheet, Text, View, ScrollView } from 'react-native'
+import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
+import AppHeader from '../../components/Home/Layout/AppHeader'
+import SearchFiltersHeader from '../../components/Home/Layout/SearchFiltersHeader';
+import PropertySlider from '../../components/Home/Core/PropertySlider';
+import { useSelector } from 'react-redux';
+import { filterPropertiesByCategory } from '../../utility/propertyUtilities';
 const HomePageScreen = () => {
+  const properties = useSelector((state) => state.property.properties);
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Hello</Text>
+    <View style={styles.root}>
+      <AppHeader userName={"Mohit Vaishnav"} avatarUrl={"https://i.pinimg.com/736x/d0/00/fb/d000fb29aa999d3b97aeb648a88d8014.jpg"} />
+      <ScrollView>
+        <SearchFiltersHeader />
+        <PropertySlider title={"Plots/Projects"} data={filterPropertiesByCategory(properties, "plots")} />
+        <PropertySlider title={"Houses, Apartment and Flats"} data={filterPropertiesByCategory(properties, "House/Apartment/Flat")} />
+        <PropertySlider title={"Shops, Godowns and Offices"} data={filterPropertiesByCategory(properties, "Shop/Godown/Office")} />
+        <PropertySlider title={"Agricultural Lands and FarmHouses"} data={filterPropertiesByCategory(properties, "AgriculturalLand/FarmHouses")} />
+      </ScrollView>
     </View>
   )
 }
@@ -11,11 +24,14 @@ const HomePageScreen = () => {
 export default HomePageScreen
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#fff",
+
+  root: {
     flex: 1,
+    backgroundColor: "#fff",
   },
-  text: {
-    color: "#000"
-  }
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 })

@@ -10,25 +10,64 @@ import {
     Platform,
     Modal,
     TouchableWithoutFeedback,
-    Keyboard
+    Keyboard,
+    Alert
 } from 'react-native';
-
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 const OTPPopup = ({ visible, onClose, onVerify, mobile }) => {
     const Navigator = useNavigation();
+
     // 1. OTP State
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
+    const [timer, setTimer] = useState(30);
+    const [canResend, setCanResend] = useState(false);
     const inputRefs = useRef([]);
 
+    // Reset OTP and Timer when modal opens
     useEffect(() => {
         if (visible) {
             setOtp(['', '', '', '', '', '']);
+            setTimer(30);
+            setCanResend(false);
         }
     }, [visible]);
 
-    // Text Change Handler
+    // Timer Logic
+    useEffect(() => {
+        let interval;
+        if (visible && timer > 0) {
+            interval = setInterval(() => {
+                setTimer((prev) => prev - 1);
+            }, 1000);
+        } else if (timer === 0) {
+            setCanResend(true);
+        }
+        return () => clearInterval(interval);
+    }, [visible, timer]);
+
+    // Handle Resend
+    const handleResend = () => {
+        if (!canResend) return;
+        setTimer(30);
+        setCanResend(false);
+        Alert.alert("Sent!", "OTP has been resent to your mobile number.");
+        // Here you would typically trigger the API call to resend OTP
+    };
+
+    // Text Change Handler (Includes Paste Logic)
     const handleChange = (text, index) => {
+        // Handle Paste (length == 6)
+        if (text.length === 6 && /^\d+$/.test(text)) {
+            const pastedOtp = text.split('');
+            setOtp(pastedOtp);
+            inputRefs.current[5]?.focus();
+            return;
+        }
+
+        // Handle single digit input
         if (!/^\d*$/.test(text)) return;
+        if (text.length > 1) return; // Prevent multi-char entry manually
 
         const newOtp = [...otp];
         newOtp[index] = text;
@@ -51,7 +90,7 @@ const OTPPopup = ({ visible, onClose, onVerify, mobile }) => {
     const handleVerifyPress = () => {
         const finalOtp = otp.join('');
         if (finalOtp.length < 6) {
-            alert("Pura OTP daalo ustaad!");
+            Alert.alert("Invalid OTP", "Please enter the valid 6-digit OTP.");
             return;
         }
         onVerify(finalOtp);
@@ -61,7 +100,7 @@ const OTPPopup = ({ visible, onClose, onVerify, mobile }) => {
         <Modal
             visible={visible}
             transparent={true}
-            animationType="slide"
+            animationType="fade"
             onRequestClose={onClose}
         >
             {/* 1. Overlay (Background) - Click to Close */}
@@ -70,12 +109,12 @@ const OTPPopup = ({ visible, onClose, onVerify, mobile }) => {
                 activeOpacity={1}
                 onPress={onClose}
             >
-                {/* KeyboardAvoidingView taaki keyboard aane pe box upar khisak jaye */}
+                {/* KeyboardAvoidingView for keyboard handling */}
                 <KeyboardAvoidingView
                     behavior={Platform.OS === "ios" ? "padding" : "height"}
                     style={styles.keyboardView}
                 >
-                    {/* 2. Content Box - Stop Propagation (Clicking here won't close modal) */}
+                    {/* 2. Content Box - Stop Propagation */}
                     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                         <View style={styles.popupContainer}>
 
@@ -98,11 +137,14 @@ const OTPPopup = ({ visible, onClose, onVerify, mobile }) => {
                                             { borderColor: digit ? '#5B75FF' : '#CCC' }
                                         ]}
                                         keyboardType="number-pad"
-                                        maxLength={1}
+                                        maxLength={index === 0 ? 6 : 1} // Extend max length for first input to allow paste
                                         value={digit}
                                         onChangeText={(text) => handleChange(text, index)}
                                         onKeyPress={(e) => handleKeyPress(e, index)}
                                         textAlign="center"
+                                        selectTextOnFocus={true} // Improve UX
+                                        includeFontPadding={false}
+                                        textAlignVertical="center"
                                     />
                                 ))}
                             </View>
@@ -114,9 +156,11 @@ const OTPPopup = ({ visible, onClose, onVerify, mobile }) => {
 
                             {/* Resend Text */}
                             <View style={styles.footer}>
-                                <Text style={styles.footerText}>Did'nt receive OTP? </Text>
-                                <TouchableOpacity>
-                                    <Text style={styles.linkText}>Request again</Text>
+                                <Text style={styles.footerText}>Didn't receive OTP? </Text>
+                                <TouchableOpacity onPress={handleResend} disabled={!canResend}>
+                                    <Text style={[styles.linkText, !canResend && { color: '#999', textDecorationLine: 'none' }]}>
+                                        {canResend ? "Request again" : `Resend in ${timer}s`}
+                                    </Text>
                                 </TouchableOpacity>
                             </View>
 
@@ -133,16 +177,18 @@ const styles = StyleSheet.create({
     overlay: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.6)',
-        justifyContent: 'flex-end',
+        justifyContent: 'center', // Centered vertically now
+        alignItems: 'center',
     },
     keyboardView: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        width: '100%',
     },
     // White Popup Box
     popupContainer: {
-        width: '90%',
+        width: wp('90%'),
         backgroundColor: '#FFFFFF',
         borderRadius: 20,
         padding: 24,
@@ -158,16 +204,17 @@ const styles = StyleSheet.create({
         marginBottom: 30,
     },
     title: {
-        fontSize: 28,
-        fontWeight: 'bold',
+        fontSize: wp('7%'),
         color: '#000',
         marginBottom: 10,
+        fontFamily: 'Poppins-Bold',
     },
     subtitle: {
-        fontSize: 14,
+        fontSize: wp('3.5%'),
         color: '#666',
         textAlign: 'center',
         paddingHorizontal: 10,
+        fontFamily: 'Poppins-Regular',
     },
     otpContainer: {
         flexDirection: 'row',
@@ -176,14 +223,18 @@ const styles = StyleSheet.create({
         marginBottom: 30,
     },
     otpBox: {
-        width: 40,
-        height: 45,
+        width: wp('11%'),
+        height: wp('12%'),
         borderWidth: 1.5,
         borderRadius: 8,
-        fontSize: 20,
-        fontWeight: 'bold',
+        fontSize: wp('5%'),
         color: '#000',
         backgroundColor: '#fff',
+        fontFamily: 'Poppins-Medium',
+        marginHorizontal: wp('0.5%'),
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 0, // Ensure no padding affects centering
     },
     verifyButton: {
         width: '100%',
@@ -196,22 +247,24 @@ const styles = StyleSheet.create({
     },
     verifyButtonText: {
         color: '#FFF',
-        fontSize: 18,
-        fontWeight: 'bold',
+        fontSize: wp('4.5%'),
+        fontFamily: 'Poppins-Medium',
     },
     footer: {
         flexDirection: 'row',
         marginTop: 5,
+        alignItems: 'center',
     },
     footerText: {
-        fontSize: 14,
+        fontSize: wp('3.5%'),
         color: '#666',
+        fontFamily: 'Poppins-Regular',
     },
     linkText: {
-        fontSize: 14,
+        fontSize: wp('3.5%'),
         color: '#5B75FF',
-        fontWeight: 'bold',
         textDecorationLine: 'underline',
+        fontFamily: 'Poppins-Medium',
     },
 });
 

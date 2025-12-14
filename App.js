@@ -1,33 +1,44 @@
-import { StyleSheet, Text, View } from 'react-native';
-import LoginScreen from './src/screens/Auth/LoginScreen';
-import RegisterScreen from './src/screens/Auth/RegisterScreen';
-import HomePageScreen from './src/screens/Home/HomePageScreen';
-import OnboardingScreen from './src/screens/Auth/OnboardingScreen'
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import { StyleSheet, StatusBar, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import AuthStack from './src/navigation/AuthStack';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFonts } from 'expo-font';
+import { Provider } from 'react-redux';
+import { store } from './src/store/store';
 
-const Stack = createNativeStackNavigator();
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    "Poppins-Regular": require("./src/assets/fonts/Poppins/Poppins-Regular.ttf"),
+    "Poppins-Medium": require("./src/assets/fonts/Poppins/Poppins-Medium.ttf"),
+    "Poppins-SemiBold": require("./src/assets/fonts/Poppins/Poppins-SemiBold.ttf"),
+    "Poppins-Bold": require("./src/assets/fonts/Poppins/Poppins-Bold.ttf"),
+  });
+
+  if (!fontsLoaded) return null;
+
   return (
-    <>
-    <NavigationContainer>
-     <Stack.Navigator screenOptions={{headerShown: false}}>
-      <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-      <Stack.Screen name="Register" component={RegisterScreen} />
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Home"  component={HomePageScreen} />
-    </Stack.Navigator>
-    </NavigationContainer>
-    </>
+    <Provider store={store}>
+      {/* For Android + iOS, actual background support */}
+      <StatusBar barStyle="light-content" backgroundColor="#3a75cdff" />
+      <View style={styles.root}>
+        <NavigationContainer>
+          <SafeAreaView style={styles.container}>
+            <AuthStack />
+          </SafeAreaView>
+        </NavigationContainer>
+      </View>
+    </Provider>
   );
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: '#ffffffff',
+    Bottom:10
+  },
   container: {
     flex: 1,
-    backgroundColor: '#3f813f9b',
-    alignItems: 'center',
-    justifyContent: 'center',
-
+    backgroundColor: '#fff',
   },
 });

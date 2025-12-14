@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  SafeAreaView,
   StyleSheet,
   View,
   Text,
@@ -17,11 +16,14 @@ import {
 import Entypo from '@expo/vector-icons/Entypo';
 import images from '../../assets/images';
 import OTPPopup from '../../components/Auth/OTPPopup';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
-const RegisterScreen = () => {
-const Navigator = useNavigation();
-
+const RegisterScreen = ({ }) => {
+  const Navigator = useNavigation();
+  const route = useRoute();
+  const { setIsLogin } = route.params || {};
   // --- STATE: FORM ---
   const [username, setUsername] = useState('');
   const [mobile, setMobile] = useState('');
@@ -54,12 +56,11 @@ const Navigator = useNavigation();
     setOtpVisible(false);
     console.log("User Verified & Registered:", { username, mobile, email, city });
     Alert.alert("Mubarak ho!", "Welcome to the App!");
-    Navigator.navigate("Home")
+    setIsLogin(1);
   };
 
   return (
-    <SafeAreaView style={styles.root}>
-      <StatusBar barStyle="dark-content" />
+    <>
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* Logo */}
@@ -106,7 +107,7 @@ const Navigator = useNavigation();
 
         {/* Gmail */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>G-Mail</Text>
+          <Text style={styles.label}>Email</Text>
           <TextInput
             style={styles.input} keyboardType="email-address" placeholder="example@gmail.com" placeholderTextColor="#999"
             value={email} onChangeText={setEmail} autoCapitalize="none"
@@ -160,37 +161,37 @@ const Navigator = useNavigation();
         }}
       />
 
-    </SafeAreaView>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
   // ... Styles wahi purane wale same rahenge ...
   root: { flex: 1, backgroundColor: '#FFFFFF' },
-  scrollContainer: { padding: 24, flexGrow: 1 },
-  logoPlaceholder: { height: 120, justifyContent: 'center', alignItems: 'center', marginBottom: 30, marginTop: 20 },
+  scrollContainer: { padding: wp('6%'), flexGrow: 1 },
+  logoPlaceholder: { height: hp('15%'), justifyContent: 'center', alignItems: 'center', marginBottom: hp('3%'), marginTop: hp('2%') },
   mainLogoImage: { width: "100%", height: "100%" },
-  pageTitle: { fontSize: 30, fontWeight: 'bold', color: '#000', marginBottom: 25 },
-  inputGroup: { marginBottom: 15 },
-  label: { fontSize: 16, fontWeight: 'bold', color: '#000', marginBottom: 8 },
-  input: { height: 50, borderWidth: 1.5, borderColor: '#000', borderRadius: 8, paddingHorizontal: 16, fontSize: 16, color: '#000' },
-  mobileContainer: { height: 50, borderWidth: 1.5, borderColor: '#000', borderRadius: 8, flexDirection: 'row', alignItems: 'center', overflow: 'hidden' },
+  pageTitle: { fontSize: wp('7.5%'), fontFamily: "Poppins-Bold", color: '#000', },
+  inputGroup: { marginBottom: hp('2%') },
+  label: { fontSize: wp('4%'), fontFamily: "Poppins-SemiBold", color: '#000', marginBottom: hp('1%') },
+  input: { height: wp('12.5%'), borderWidth: 1.5, borderColor: '#000', borderRadius: 8, paddingHorizontal: wp('4%'), fontSize: wp('4%'), color: '#000', fontFamily: 'Poppins-Regular' },
+  mobileContainer: { height: wp('12.5%'), borderWidth: 1.5, borderColor: '#000', borderRadius: 8, flexDirection: 'row', alignItems: 'center', overflow: 'hidden' },
   countryCode: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, height: '100%' },
-  countryText: { fontSize: 16, color: '#000', fontWeight: '500' },
+  countryText: { fontSize: wp('4%'), color: '#000', fontFamily: 'Poppins-Regular' },
   verticalDivider: { width: 1.5, height: '60%', backgroundColor: '#000' },
-  phoneInput: { flex: 1, height: '100%', paddingHorizontal: 12, fontSize: 16, color: '#000' },
-  dropdownInput: { height: 50, borderWidth: 1.5, borderColor: '#000', borderRadius: 8, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center' },
-  inputText: { fontSize: 16, color: '#000' },
-  signupButton: { height: 55, backgroundColor: '#5B75FF', borderRadius: 28, justifyContent: 'center', alignItems: 'center', marginTop: 20, marginBottom: 20, elevation: 8 },
-  signupButtonText: { color: '#FFF', fontSize: 20, fontWeight: 'bold' },
+  phoneInput: { flex: 1, height: '100%', paddingHorizontal: 12, fontSize: wp('4%'), color: '#000', fontFamily: 'Poppins-Regular' },
+  dropdownInput: { height: wp('12.5%'), borderWidth: 1.5, borderColor: '#000', borderRadius: 8, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center' },
+  inputText: { fontSize: wp('4%'), color: '#000', fontFamily: 'Poppins-Regular' },
+  signupButton: { height: wp('13.5%'), backgroundColor: '#5B75FF', borderRadius: 28, justifyContent: 'center', alignItems: 'center', marginTop: 20, marginBottom: 20, elevation: 8 },
+  signupButtonText: { color: '#FFF', fontSize: wp('5%'), fontFamily: 'Poppins-SemiBold' },
   // Modal Styles
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
   modalContainer: { width: '80%', backgroundColor: '#FFF', borderRadius: 12, padding: 20, maxHeight: '50%' },
-  modalTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 15, textAlign: 'center' },
+  modalTitle: { fontSize: wp('5%'), fontFamily: 'Poppins-SemiBold', marginBottom: 15, textAlign: 'center' },
   modalItem: { paddingVertical: 15, borderBottomWidth: 1, borderBottomColor: '#eee' },
-  modalItemText: { fontSize: 16, textAlign: 'center' },
+  modalItemText: { fontSize: wp('4%'), textAlign: 'center', fontFamily: 'Poppins-Regular' },
   closeButton: { marginTop: 15, backgroundColor: '#000', padding: 10, borderRadius: 8, alignItems: 'center' },
-  closeButtonText: { color: '#FFF', fontWeight: 'bold' }
+  closeButtonText: { color: '#FFF', fontFamily: 'Poppins-Regular' }
 });
 
 export default RegisterScreen;

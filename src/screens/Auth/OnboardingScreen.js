@@ -1,150 +1,127 @@
 import React from 'react';
 import {
-  SafeAreaView,
   StyleSheet,
   View,
   Text,
   TouchableOpacity,
   StatusBar,
-  Image, // Image component import karna mat bhoolna
+  Image,
 } from 'react-native';
-
-// Humara naya banaya hua asset manager import karo
-import images from '../../assets/images'; 
+import images from '../../assets/images';
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 const OnboardingScreen = () => {
   const Navigator = useNavigation();
+
   return (
-    <SafeAreaView style={styles.root}>
-      <StatusBar barStyle="dark-content" />
-
+    <>
       <View style={styles.container}>
-        <View style={styles.circleContainer}>
-          
-          {/* --- Central Logo --- */}
-          {/* View hata ke seedha Image use kar rahe, taaki transparent look aaye */}
-          <View style={styles.logoWrapper}>
-             <Image 
-                source={images.mainLogo} 
-                style={styles.mainLogoImage} 
-                resizeMode="contain" 
-             />
-          </View>
+        {/* Taglines */}
+        {/* <View style={styles.taglineWrapper}>
+           <Text style={styles.taglineName}>
+            Hello Sonu
+          </Text> 
+          <Text style={styles.taglineHindi}>
+            सही प्रॉपर्टी की सही जगह
+          </Text>
+        </View> */}
 
-          {/* --- Surrounding Icons --- */}
+        {/* LOGO */}
+        <View style={styles.logoWrapper}>
+          <Image
+            source={images.mainLogo}
+            style={styles.mainLogoImage}
+            resizeMode="contain"
+          />
+        </View>
 
-          {/* Icon 1: Top-Left */}
-          <View style={[styles.iconBox, { top: 50, left: 30 }]}>
-            <Image source={images.building} style={styles.iconImage} />
-          </View>
-
-          {/* Icon 2: Top */}
-          <View style={[styles.iconBox, { top: 0, alignSelf: 'center' }]}>
-            <Image source={images.checklist} style={styles.iconImage} />
-          </View>
-
-          {/* Icon 3: Top-Right */}
-          <View style={[styles.iconBox1, { top: 50, right: 30}]}>
-            <Image source={images.fileEye} style={styles.iconImage} />
-          </View>
-
-          {/* Icon 4: Right */}
-          <View style={[styles.iconBox, { top: '45%', right: 0 }]}>
-            <Image source={images.houseRight} style={styles.iconImage} />
-          </View>
-
-          {/* Icon 5: Bottom-Right */}
-          <View style={[styles.iconBox, { bottom: 40, right: 35 }]}>
-            <Image source={images.rCircle} style={styles.iconImage} />
-          </View>
-
-          {/* Icon 6: Bottom */}
-          <View style={[styles.iconBox, { bottom: -5, alignSelf: 'center' }]}>
-            <Image source={images.houseMoney} style={styles.iconImage} />
-          </View>
-
-          {/* Icon 7: Bottom-Left */}
-          <View style={[styles.iconBox, { bottom: 40, left: 35 }]}>
-            <Image source={images.houseAnalytics} style={styles.iconImage} />
-          </View>
-
-          {/* Icon 8: Left */}
-          <View style={[styles.iconBox, { top: '45%', left: 0 }]}>
-            <Image source={images.houseLeft} style={styles.iconImage} />
-          </View>
+        {/* Taglines */}
+        <View style={styles.taglineWrapper}>
+          <Text style={styles.taglineName}>
+            Hello Sonu - <Text style={styles.taglineHindi}>
+              सही प्रॉपर्टी की सही जगह
+            </Text>
+          </Text>
 
         </View>
+
       </View>
 
       {/* Bottom Button */}
-      <TouchableOpacity style={styles.button} onPress={()=>{Navigator.navigate("Register")}}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => Navigator.navigate('Login')}
+      >
         <Text style={styles.buttonText}>Getting Started</Text>
       </TouchableOpacity>
-      
-    </SafeAreaView>
+
+    </>
   );
 };
+
+export default OnboardingScreen;
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
+
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  circleContainer: {
-    width: 320,
-    height: 320,
-    justifyContent: 'center',
-    alignItems: 'center',
-    // Debugging ke liye border laga ke dekh sakte ho
-    // borderWidth: 1, borderColor: 'red', 
-  },
+
   logoWrapper: {
-    width: 180,
-    height: 180,
-    borderRadius: 100,
-    backgroundColor: '#ddf3f1ff', // Grey circle background
+    width: wp('70%'),
+    height: hp('40%'),
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   mainLogoImage: {
-    width: 130, // Logo size adjust kar lena
-    height: 100,
-  },
-  iconBox: {
-    width: 50,
-    height: 50,
-    position: 'absolute',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconBox1: {
-    width: 40,
-    height: 50,
-    position: 'absolute',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  // New style for the icons
-  iconImage: {
-    width: '100%', // Box ke size ka 100% lega (50px)
+    width: '100%',
     height: '100%',
-    resizeMode: 'contain', // Image kategi nahi, fit ho jayegi
   },
+
+  /*  Tagline Styles */
+  taglineWrapper: {
+    marginTop: -30,
+    alignItems: 'center',
+  },
+
+  taglineName: {
+    fontSize: wp('5%'), // Approx 20
+    fontFamily: 'Poppins-SemiBold',
+    color: '#0E0E0E',
+    opacity: 0.95,
+    letterSpacing: 0.3,
+  },
+
+  taglineHindi: {
+    fontSize: wp('5%'), // Approx 20
+    fontFamily: 'Poppins-Medium',
+    color: '#0E0E0E',
+    opacity: 0.85,
+    marginTop: 4,
+    letterSpacing: 0.2,
+    // textDecorationLine: 'underline',
+    textDecorationColor: '#8a0808ff',
+    textDecorationStyle: 'solid',
+  },
+
   button: {
-    height: 56,
+    height: wp('14%'), // Approx 56
     backgroundColor: '#34C759',
-    borderRadius: 28,
+    borderRadius: wp('7%'), // Half of height
     marginHorizontal: 24,
-    marginBottom: 80,
+    marginBottom: hp('10%'), // Approx 80
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 4,
@@ -153,11 +130,10 @@ const styles = StyleSheet.create({
     shadowRadius: 4.65,
     elevation: 8,
   },
+
   buttonText: {
-    fontSize: 20, // 28 thoda zyada bada tha button height ke hisaab se
-    fontWeight: '600',
+    fontSize: wp('5%'), // Approx 20
     color: '#fff',
+    fontFamily: "Poppins-SemiBold"
   },
 });
-
-export default OnboardingScreen;

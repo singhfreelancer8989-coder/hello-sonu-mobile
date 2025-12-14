@@ -1,14 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-const HomeStack = () => {
+const AppText = ({text}) => {
   return (
-    <View>
-      <Text>HomeStack</Text>
-    </View>
+    <Text style={{fontFamily: 'Poppins'}}>
+        {text}
+    </Text>
   )
 }
 
-export default HomeStack
+export default AppText
 
 const styles = StyleSheet.create({})
