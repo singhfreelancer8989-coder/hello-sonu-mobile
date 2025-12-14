@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   StatusBar,
   ScrollView,
-  Image, Platform
+  Image, Platform,
+  Linking
 } from 'react-native';
 import images from '../../assets/images';
 import Entypo from '@expo/vector-icons/Entypo';
@@ -71,9 +72,12 @@ const LoginScreen = () => {
 
         {/* 7. Footer (Socials) */}
         <View style={styles.footer}>
+          {/* We combine all elements in one Text component for inline flow */}
           <Text style={styles.footerText}>
-            <TouchableOpacity style={{height: 18, padding: 0, overflow: "visible" }} onPress={() => { Navigator.navigate("Register") }}><Text style={{ color: "blue", fontFamily: "Poppins-Regular" }}>Sign Up ?  </Text></TouchableOpacity>
-            <Text> if Don't Have an account</Text></Text>
+            {/* Removed conflicting height/padding/overflow styles from TouchableOpacity */}
+            <Text onPress={() => { Navigator.navigate("Register") }} style={styles.signUpLinkText}>Sign Up ?</Text>
+            <Text> Don't Have an account</Text>
+          </Text>
         </View>
 
       </ScrollView>
@@ -183,12 +187,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   footerText: {
-    alignItems: 'center',
+    alignItems: 'flex-end',
     justifyContent: 'center',
     fontSize: wp('3.5%'), // 14
     color: '#333',
     fontFamily: 'Poppins-Regular',
+    // Align text elements inline
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
+  signUpLinkText: {
+    color: "blue",
+    fontFamily: "Poppins-Regular",
+    marginRight: '4.6%',
+    height: wp('4%'),
+  }
 });
 
 export default LoginScreen;
