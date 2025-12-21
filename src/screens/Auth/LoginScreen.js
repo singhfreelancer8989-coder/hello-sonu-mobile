@@ -8,15 +8,36 @@ import {
   StatusBar,
   ScrollView,
   Image, Platform,
-  Linking
+  Linking,
+  ActivityIndicator,
+  Alert
 } from 'react-native';
 import images from '../../assets/images';
 import Entypo from '@expo/vector-icons/Entypo';
 import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../../contexts/AuthContext';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 const LoginScreen = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const { login, isLoading } = useAuth();
   const Navigator = useNavigation();
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("Error", "Please enter both email and password");
+      return;
+    }
+    try {
+      console.log("Login init");
+      await login(email, password);
+      console.log("Login Success");
+    } catch (e) {
+      Alert.alert("Login Failed", e.message || "Something went wrong");
+    }
+  }
+
   return (
     <>
 
@@ -32,10 +53,12 @@ const LoginScreen = () => {
 
         {/* 3. Username Input */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Username</Text>
+          <Text style={styles.label}>Email</Text>
           <TextInput
             style={styles.input}
             placeholder=""
+            value={email}
+            onChangeText={setEmail}
           />
         </View>
 
@@ -46,6 +69,8 @@ const LoginScreen = () => {
             <TextInput
               style={styles.passwordInput}
               secureTextEntry={!isPasswordVisible}
+              value={password}
+              onChangeText={setPassword}
             />
             <TouchableOpacity
               onPress={() => setIsPasswordVisible(!isPasswordVisible)}
@@ -66,8 +91,8 @@ const LoginScreen = () => {
         </TouchableOpacity>
 
         {/* 6. Login Button */}
-        <TouchableOpacity onPress={() => { }} style={styles.loginButton}>
-          <Text style={styles.loginButtonText}>LOGIN</Text>
+        <TouchableOpacity onPress={handleLogin} style={styles.loginButton} disabled={isLoading}>
+          {isLoading ? <ActivityIndicator color="#FFF" /> : <Text style={styles.loginButtonText}>LOGIN</Text>}
         </TouchableOpacity>
 
         {/* 7. Footer (Socials) */}

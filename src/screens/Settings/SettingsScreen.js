@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-nati
 import { Entypo, MaterialIcons, Feather, AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { handleLogout } from "../../services/auth/auth.service";
+import { useAuth } from "../../contexts/AuthContext";
 
 const SettingsItem = ({ icon, label, onPress }) => (
   <TouchableOpacity style={styles.itemRow} onPress={onPress}>
@@ -13,6 +15,7 @@ const SettingsItem = ({ icon, label, onPress }) => (
 
 const SettingsScreen = () => {
   const Navigator = useNavigation();
+  const { logout } = useAuth();
 
   // You can fetch these from user state
   const firstName = "Hello";
@@ -78,7 +81,7 @@ const SettingsScreen = () => {
         />
 
         <SettingsItem
-          onPress={() => console.log("Logout")}
+          onPress={() => handleLogout(logout)}
           label="Logout"
           icon={<MaterialIcons name="logout" size={22} color="#000" />}
         />

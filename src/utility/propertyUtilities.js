@@ -1,4 +1,4 @@
-// property filter
+
 export const filterPropertiesByCategory = (properties, category) => {
     if (!properties || properties.length === 0 || !category) {
         return [];

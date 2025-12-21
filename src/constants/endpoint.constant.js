@@ -1,5 +1,9 @@
 export const user = {
-    login: '/user/login',
-    fogotPassword: '/user/forgot-password',
-    resetPassword: '/user/reset-password',
+    login: '/user/auth/signin',
+    fogotPassword: '/user/auth/forgot-password',
+    resetPassword: '/user/auth/reset-password',
+}
+
+export const image = {
+  
 }
