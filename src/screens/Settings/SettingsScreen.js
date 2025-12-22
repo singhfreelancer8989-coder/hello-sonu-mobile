@@ -4,9 +4,10 @@ import { Entypo, MaterialIcons, Feather, AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { handleLogout } from "../../services/auth/auth.service";
-import { useAuth } from "../../contexts/AuthContext";
+import useAuth from "../../hooks/useAuth";
 
 const SettingsItem = ({ icon, label, onPress }) => (
+
   <TouchableOpacity style={styles.itemRow} onPress={onPress}>
     <View style={styles.iconWrapper}>{icon}</View>
     <Text style={styles.itemLabel}>{label}</Text>
@@ -15,11 +16,11 @@ const SettingsItem = ({ icon, label, onPress }) => (
 
 const SettingsScreen = () => {
   const Navigator = useNavigation();
-  const { logout } = useAuth();
+  const { logout, userData } = useAuth();
 
   // You can fetch these from user state
-  const firstName = "Hello";
-  const lastName = "Sonu";
+  const firstName = userData.firstName;
+  const lastName = userData.lastName;
 
   const initials = `${firstName?.charAt(0) ?? ""}${lastName?.charAt(0) ?? ""}`.toUpperCase();
 

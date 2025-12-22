@@ -1,49 +1,103 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { AuthContext } from '../contexts/AuthContext';
-import { getToken } from '../utility/secureStorage.utility';
+import React, { useEffect, useState } from "react";
+import AuthContext from "../contexts/AuthContext";
+import { globalApiRequest } from "../utility/api.utility";
+import secureStorage from "../utility/secureStorage.utility";
+import { user as userEndpoints } from "../constants/endpoint.constant";
 
-const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [sessionToken, setSessionToken] = useState(null);
+export const AuthProvider = ({ children }) => {
+  const [userToken, setUserToken] = useState(null);
+  const [userData, setUserData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSplashLoading, setIsSplashLoading] = useState(true);
 
-    useEffect(() => {
-        async function loadSessionToken() {
-            try {
-                const token = await getToken();
-                setSessionToken(token);
-                setLoading(false);
-            } catch (err) {
-                console.log(err);
-            }
-        }
+  const getUser = async (token) => {
+    try {
+      if (token) {
+        const [headerB64, payloadB64, signature] = token.split(".");
+        const payload = await JSON.parse(atob(payloadB64));
+        setUserData(payload);
+        await secureStorage.storeData("me", JSON.stringify(payload));
+      }
+    } catch (error) {
+      console.error("Error fetching user:", error);
+    }
+  };
 
-        async function loadUser() {
-            if (token) {
-                // fetch user
-                //set user and send through context
-                //set to secureStorage
-            }
-        }
+  const login = async (email, password) => {
+    setIsLoading(true);
+    try {
+      // Adjust payload key names based on backend expectation (username/email?)
+      // Assuming 'username' and 'password' for now.
+      const response = await globalApiRequest(
+        false,
+        "POST",
+        { email, password },
+        userEndpoints.login,
+      );
+      console.log("outside if:", response);
 
-        loadSessionToken();
-    }, [])
+      // Assuming response contains { token: '...', user: { ... } }
+      // Adjust based on actual API response structure
+      if (response && response.data) {
+        console.log("inside if:", response);
+        setUserToken(response.data);
+        await secureStorage.storeToken(response.data);
+      } else {
+        throw new Error("Invalid response from server");
+      }
+      return response;
+    } catch (error) {
+      console.error("Login Error:", error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    const contextValue = useMemo({
-        user,
-        setUser,
-        loading,
-        sessionToken,
-        setSessionToken,
-        isSignedIn: !!sessionToken,
-    }, [user, sessionToken, loading])
+  const logout = async () => {
+    setIsLoading(true);
+    try {
+      setUserToken(null);
+      await secureStorage.removeToken();
+    } catch (error) {
+      console.error("Logout Error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    return (
-        <AuthContext.Provider value={contextValue}>
-            {children}
-        </AuthContext.Provider>
-    )
-}   
+  const isLoggedIn = async () => {
+    try {
+      setIsSplashLoading(true);
+      // Minimum delay to allow splash animation to play (e.g. 2.5 seconds)
+      const minDelayPromise = new Promise((resolve) =>
+        setTimeout(resolve, 2500),
+      );
+      const tokenPromise = secureStorage.getToken();
 
+      const [_, token] = await Promise.all([minDelayPromise, tokenPromise]);
 
+      if (token) {
+        setUserToken(token);
+        await getUser(token);
+      }
+    } catch (error) {
+      console.error("Check Login Error:", error);
+    } finally {
+      setIsSplashLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    isLoggedIn();
+  }, []);
+
+  return (
+    <AuthContext.Provider
+      value={{ login, logout, isLoading, userToken, isSplashLoading, userData }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
 export default AuthProvider;

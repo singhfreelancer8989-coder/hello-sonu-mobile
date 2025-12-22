@@ -11,15 +11,17 @@ import {
 import { MaterialIcons, Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import useAuth from "../../../hooks/useAuth";
 
 const UpdateProfileScreen = () => {
   const navigation = useNavigation();
+  const {userData} = useAuth();
 
   // Dummy user data — replace with your backend/auth state
-  const [firstName, setFirstName] = useState("Hello");
-  const [lastName, setLastName] = useState("Sonu");
-  const [email, setEmail] = useState("support@hellosonu.com");
-  const [phone, setPhone] = useState("+91 9876543210");
+  const [firstName, setFirstName] = useState(userData.firstName);
+  const [lastName, setLastName] = useState(userData.lastName);
+  const [email, setEmail] = useState(userData.email);
+  const [phone, setPhone] = useState(userData.phone);
 
   const initials = `${firstName[0]}${lastName[0]}`.toUpperCase();
 

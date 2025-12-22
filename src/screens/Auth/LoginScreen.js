@@ -15,7 +15,7 @@ import {
 import images from '../../assets/images';
 import Entypo from '@expo/vector-icons/Entypo';
 import { useNavigation } from '@react-navigation/native';
-import { useAuth } from '../../contexts/AuthContext';
+import useAuth from '../../hooks/useAuth';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 const LoginScreen = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);

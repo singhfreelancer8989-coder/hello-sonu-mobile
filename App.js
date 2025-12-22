@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import { Provider } from 'react-redux';
 import { store } from './src/store/store';
-import { AuthProvider } from './src/contexts/AuthContext';
+import { AuthProvider } from './src/providers/AuthProvider';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -21,7 +21,7 @@ export default function App() {
     <Provider store={store}>
       <AuthProvider>
         {/* For Android + iOS, actual background support */}
-        <StatusBar barStyle="light-content" backgroundColor="#3a75cdff" />
+        <StatusBar barStyle="dark-content" backgroundColor="#3a75cdff" />
         <View style={styles.root}>
           <NavigationContainer>
             <SafeAreaView style={styles.container}>
