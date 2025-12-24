@@ -5,5 +5,6 @@ export const user = {
 }
 
 export const image = {
-  
+    upload: '/media/upload-image',
+    delete: '/media/delete-image',
 }

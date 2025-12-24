@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -10,7 +10,8 @@ import {
   FlatList,
   TouchableWithoutFeedback,
   Alert,
-  Image
+  Image,
+  Switch
 } from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
@@ -22,29 +23,105 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { pickImage } from '../../utility/imagePicker';
 import images from '../../assets/images';
+import useAuth from '../../hooks/useAuth';
+import { uploadImage, deleteImage } from '../../services/imageUpload.service';
+import { ActivityIndicator } from 'react-native';
+import { createProperty } from '../../services/property.service';
 
 const SalesFormScreen = () => {
   const navigation = useNavigation();
+  const { userData } = useAuth();
+  console.log("SalesFormScreen userData:", userData);
+
+  useEffect(() => {
+    if (userData?.id || userData?._id) {
+      setFormData(prev => ({ ...prev, userId: userData.id || userData._id }));
+    }
+  }, [userData]);
 
   const [formData, setFormData] = useState({
+    userId: userData?.id || userData?._id || "",
+    propertyName: '',
     propertyCategory: '',
-    propertyType: '',
-    propertyRelation: '',
+    relationToProperty: '',
+    flatSize: '',
     size: '',
-    length: '',
-    width: '',
-    location: '',
+    lengthFt: '',
+    widthFt: '',
+    address: '',
     landmark: '',
     city: '',
     mapLink: '',
-    demandPrice: '',
+    expectedPrice: '',
     sellingPreference: 'Normal',
     description: '',
-    name: '',
-    mobile: '',
-    whatsapp: '',
-    imageUris: []
+    imageUris: [],
+    images: [], // { url, publicId }
+    isVerified: false,
+    ownerName: '',
+    ownerMobileNumber: '',
+    createdBy: userData?.firstName + ' ' + userData?.lastName,
+    mainVideoUrl: '',//youtube video url
   });
+
+  const [uploading, setUploading] = useState(false);
+
+  const handleImagePick = async () => {
+    if (formData.images.length >= 5) {
+      Alert.alert("Limit Reached", "You can upload maximum 5 images.");
+      return;
+    }
+
+    const uri = await pickImage();
+    if (uri) {
+      setUploading(true);
+      try {
+        const response = await uploadImage(uri);
+        // Response structure: { data: { url, publicId }, message }
+        if (response && response.data) {
+          const newImage = {
+            url: response.data.url,
+            publicId: response.data.publicId
+          };
+          setFormData(prev => ({
+            ...prev,
+            images: [...prev.images, newImage]
+          }));
+        }
+      } catch (error) {
+        console.log(error);
+        Alert.alert("Upload Failed", "Could not upload image. Please try again.");
+      } finally {
+        setUploading(false);
+      }
+    }
+  };
+
+  const handleImageDelete = async (publicId) => {
+    Alert.alert(
+      "Delete Image",
+      "Are you sure you want to delete this image?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteImage(publicId);
+              setFormData(prev => ({
+                ...prev,
+                images: prev.images.filter(img => img.publicId !== publicId)
+              }));
+              console.log(formData);
+            } catch (error) {
+              Alert.alert("Error", "Failed to delete image.");
+            }
+          }
+        }
+      ]
+    );
+  };
 
   const updateField = (key, value) => {
     setFormData(prev => ({ ...prev, [key]: value }));
@@ -54,40 +131,46 @@ const SalesFormScreen = () => {
   const openModal = (field) => setActiveModalField(field);
   const closeModal = () => setActiveModalField(null);
 
-  const citiesList = ['Hyderabad', 'Bangalore', 'Mumbai', 'Pune', 'Delhi'];
-  const propertyCategories = ['Residential', 'Commercial', 'Agriculture', 'Rental'];
-  const propertyTypes = ['House', 'Plot', 'Shop', 'Office', 'Land', 'Flat'];
-  const relationList = ['Owner', 'Relative', 'Friend', 'Broker'];
+  const propertyCategories = [
+    { label: 'Plots', value: 'plots' },
+    { label: 'House/Apartment', value: 'house_apartment' },
+    { label: 'Office/Shop', value: 'office_shop' },
+    { label: 'Agricultural Land', value: 'agriculture_land' },
+    { label: 'Flats', value: 'flats' }
+  ];
+  const relationList = ["owner", "relative", "friend", "broker"];
 
   const getModalData = () => {
     if (activeModalField === 'propertyCategory') return propertyCategories;
-    if (activeModalField === 'propertyType') return propertyTypes;
-    if (activeModalField === 'propertyRelation') return relationList;
-    if (activeModalField === 'city') return citiesList;
+    if (activeModalField === 'relationToProperty') return relationList;
     return [];
   };
 
   const handleSelection = (item) => {
-    updateField(activeModalField, item);
+    const value = item.value || item;
+    updateField(activeModalField, value);
     closeModal();
   };
 
-  const handleImagePick = async () => {
-    if (formData.imageUris.length >= 5) {
-      Alert.alert("Limit Reached", "You can upload maximum 5 images.");
-      return;
+  const getDisplayLabel = (field, value) => {
+    if (field === 'propertyCategory') {
+      const found = propertyCategories.find(c => c.value === value);
+      return found ? found.label : value;
     }
-    const uri = await pickImage();
-    if (uri) updateField("imageUris", [...formData.imageUris, uri]);
+    return value;
   };
 
-  const handleSubmit = () => {
+
+
+  const handleSubmit = async () => {
     const requiredFields = [
-      "propertyType",
       "propertyCategory",
+      "relationToProperty",
+      "expectedPrice",
       "city",
-      "name",
-      "mobile"
+      "ownerName", // Updated from "name" as per formData key
+      "ownerMobileNumber", // Updated from "mobile" as per formData key
+      "userId"
     ];
 
     for (let key of requiredFields) {
@@ -97,8 +180,20 @@ const SalesFormScreen = () => {
       }
     }
 
-    console.log("FORM DATA → ", formData);
-    Alert.alert("Success", "Sales form submitted successfully!");
+    setUploading(true);
+    try {
+      console.log("Submitting formData:", JSON.stringify(formData, null, 2));
+      const response = await createProperty(formData);
+      console.log("Property Created:", response);
+      Alert.alert("Success", "Sales form submitted successfully!", [
+        { text: "OK", onPress: () => navigation.goBack() }
+      ]);
+    } catch (error) {
+      console.error("Submission Error:", error);
+      Alert.alert("Error", "Failed to submit sales form. Please try again.");
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -120,38 +215,53 @@ const SalesFormScreen = () => {
           <Image style={styles.mainLogoImage} source={images.mainLogo} resizeMode="contain" />
         </View>
 
+        {/* title */}
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Property Name</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter"
+            placeholderTextColor="#aaa"
+            value={formData.propertyName}
+            onChangeText={(v) => updateField("propertyName", v)}
+          />
+        </View>
+
         {/* PROPERTY CATEGORY */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Property Category</Text>
           <TouchableOpacity style={styles.dropdownInput} onPress={() => openModal('propertyCategory')}>
             <Text style={[styles.inputText, !formData.propertyCategory && styles.placeholder]}>
-              {formData.propertyCategory || "Select Category"}
+              {getDisplayLabel('propertyCategory', formData.propertyCategory) || "Select Category"}
             </Text>
             <Entypo name="chevron-down" size={22} color="#333" />
           </TouchableOpacity>
         </View>
 
-        {/* PROPERTY TYPE */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Property Type</Text>
-          <TouchableOpacity style={styles.dropdownInput} onPress={() => openModal('propertyType')}>
-            <Text style={[styles.inputText, !formData.propertyType && styles.placeholder]}>
-              {formData.propertyType || "Select Type"}
-            </Text>
-            <Entypo name="chevron-down" size={22} color="#333" />
-          </TouchableOpacity>
-        </View>
 
         {/* PROPERTY RELATION */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Relation to Property</Text>
-          <TouchableOpacity style={styles.dropdownInput} onPress={() => openModal('propertyRelation')}>
-            <Text style={[styles.inputText, !formData.propertyRelation && styles.placeholder]}>
-              {formData.propertyRelation || "Select"}
+          <TouchableOpacity style={styles.dropdownInput} onPress={() => openModal('relationToProperty')}>
+            <Text style={[styles.inputText, !formData.relationToProperty && styles.placeholder]}>
+              {formData.relationToProperty || "Select"}
             </Text>
             <Entypo name="chevron-down" size={22} color="#333" />
           </TouchableOpacity>
         </View>
+
+        {(formData.propertyCategory == 'flats' || formData.propertyCategory == 'house_apartment') && (
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Flat size(in BHK)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter"
+              placeholderTextColor="#aaa"
+              value={formData.flatSize}
+              onChangeText={(v) => updateField("flatSize", v)}
+            />
+          </View>
+        )}
 
         {/* Size */}
         <View style={styles.inputGroup}>
@@ -173,8 +283,9 @@ const SalesFormScreen = () => {
               style={styles.input}
               placeholder="Ex: 40"
               placeholderTextColor="#aaa"
-              value={formData.length}
-              onChangeText={(v) => updateField("length", v)}
+              keyboardType="numeric"
+              value={formData.lengthFt}
+              onChangeText={(v) => updateField("lengthFt", v)}
             />
           </View>
 
@@ -184,8 +295,9 @@ const SalesFormScreen = () => {
               style={styles.input}
               placeholder="Ex: 30"
               placeholderTextColor="#aaa"
-              value={formData.width}
-              onChangeText={(v) => updateField("width", v)}
+              keyboardType="numeric"
+              value={formData.widthFt}
+              onChangeText={(v) => updateField("widthFt", v)}
             />
           </View>
         </View>
@@ -197,32 +309,46 @@ const SalesFormScreen = () => {
             style={styles.input}
             placeholder="Enter"
             placeholderTextColor="#aaa"
-            value={formData.location}
-            onChangeText={(v) => updateField("location", v)}
+            value={formData.address}
+            onChangeText={(v) => updateField("address", v)}
           />
         </View>
 
-        {/* Landmark */}
+
+        {/* CITY */}
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>City</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter City"
+            placeholderTextColor="#aaa"
+            value={formData.city}
+            onChangeText={(v) => updateField("city", v)}
+          />
+        </View>
+
+        {/* LANDMARK */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Landmark</Text>
           <TextInput
             style={styles.input}
-            placeholder="Enter"
+            placeholder="Near City Center"
             placeholderTextColor="#aaa"
             value={formData.landmark}
             onChangeText={(v) => updateField("landmark", v)}
           />
         </View>
 
-        {/* CITY */}
+        {/* GOOGLE MAP LINK */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>City</Text>
-          <TouchableOpacity style={styles.dropdownInput} onPress={() => openModal('city')}>
-            <Text style={[styles.inputText, !formData.city && styles.placeholder]}>
-              {formData.city || "Select City"}
-            </Text>
-            <Entypo name="chevron-down" size={22} color="#333" />
-          </TouchableOpacity>
+          <Text style={styles.label}>Google Map Link</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Paste Link"
+            placeholderTextColor="#aaa"
+            value={formData.mapLink}
+            onChangeText={(v) => updateField("mapLink", v)}
+          />
         </View>
 
         {/* Description */}
@@ -241,16 +367,39 @@ const SalesFormScreen = () => {
         {/* UPLOAD IMAGES */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Upload Images (max 5)</Text>
-          <TouchableOpacity style={styles.uploadButton} onPress={handleImagePick}>
-            <MaterialIcons name="file-upload" size={20} color="#fff" />
-            <Text style={styles.uploadButtonText}>Upload</Text>
-          </TouchableOpacity>
 
-          <ScrollView horizontal style={{ marginTop: 8 }}>
-            {formData.imageUris.map((uri, idx) => (
-              <Image key={idx} source={{ uri }} style={styles.uploadedImage} />
+          <ScrollView horizontal style={{ marginTop: 8, paddingTop: 10, marginBottom: 8 }} contentContainerStyle={{ paddingRight: 10 }}>
+            {formData.images.map((img, idx) => (
+              <View key={idx} style={styles.uploadedImageWrapper}>
+                <Image source={{ uri: img.url }} style={styles.uploadedImage} />
+                <TouchableOpacity
+                  style={styles.deleteIcon}
+                  onPress={() => handleImageDelete(img.publicId)}
+                >
+                  <Ionicons name="close-circle" size={24} color="#ff4444" />
+                </TouchableOpacity>
+              </View>
             ))}
           </ScrollView>
+
+          {formData.images.length < 5 && (
+            <TouchableOpacity style={styles.uploadButton} onPress={handleImagePick} disabled={uploading}>
+              {uploading ? <ActivityIndicator color="#fff" /> : <MaterialIcons name="file-upload" size={20} color="#fff" />}
+              <Text style={styles.uploadButtonText}>{uploading ? "Uploading..." : "Upload"}</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* MAIN VIDEO URL */}
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>YouTube Video URL</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="https://youtu.be/..."
+            placeholderTextColor="#aaa"
+            value={formData.mainVideoUrl}
+            onChangeText={(v) => updateField("mainVideoUrl", v)}
+          />
         </View>
 
         {/* PRICE */}
@@ -261,8 +410,8 @@ const SalesFormScreen = () => {
             placeholder="Enter amount"
             placeholderTextColor="#aaa"
             keyboardType="numeric"
-            value={formData.demandPrice}
-            onChangeText={(v) => updateField("demandPrice", v)}
+            value={formData.expectedPrice}
+            onChangeText={(v) => updateField("expectedPrice", v)}
           />
         </View>
 
@@ -270,7 +419,7 @@ const SalesFormScreen = () => {
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Selling Preference</Text>
           <View style={styles.radioRow}>
-            {['Urgent', 'Flexible', 'Normal'].map((pref) => (
+            {["urgent", "flexible", "normal"].map((pref) => (
               <TouchableOpacity
                 key={pref}
                 style={styles.radioOption}
@@ -285,34 +434,52 @@ const SalesFormScreen = () => {
           </View>
         </View>
 
-        {/* NAME */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Your Name</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter"
-            placeholderTextColor="#aaa"
-            value={formData.name}
-            onChangeText={(v) => updateField("name", v)}
+        {/* VERIFIED TOGGLE */}
+        <View style={styles.rowBetween}>
+          <Text style={styles.label}>Verified Property?</Text>
+          <Switch
+            trackColor={{ false: "#767577", true: "#3a75cd" }}
+            thumbColor={formData.isVerified ? "#fff" : "#f4f3f4"}
+            onValueChange={(v) => updateField("isVerified", v)}
+            value={formData.isVerified}
           />
         </View>
 
-        {/* MOBILE */}
+
+        <Text style={styles.sectionHeader}>Owner Details</Text>
+
+        {/* OWNER NAME */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Mobile Number</Text>
+          <Text style={styles.label}>Owner Name</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter Owner Name"
+            placeholderTextColor="#aaa"
+            value={formData.ownerName}
+            onChangeText={(v) => updateField("ownerName", v)}
+          />
+        </View>
+
+        {/* OWNER MOBILE */}
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Owner Mobile</Text>
           <TextInput
             style={styles.input}
             placeholder="10 digits"
             keyboardType="phone-pad"
             maxLength={10}
-            value={formData.mobile}
-            onChangeText={(v) => updateField("mobile", v)}
+            value={formData.ownerMobileNumber}
+            onChangeText={(v) => updateField("ownerMobileNumber", v)}
           />
         </View>
 
         {/* SUBMIT */}
-        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-          <Text style={styles.submitText}>Submit</Text>
+        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={uploading}>
+          {uploading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.submitText}>Submit</Text>
+          )}
         </TouchableOpacity>
       </ScrollView>
 
@@ -329,10 +496,10 @@ const SalesFormScreen = () => {
 
               <FlatList
                 data={getModalData()}
-                keyExtractor={(item) => item}
+                keyExtractor={(item) => item.value || item}
                 renderItem={({ item }) => (
                   <TouchableOpacity style={styles.modalItem} onPress={() => handleSelection(item)}>
-                    <Text style={styles.modalItemText}>{item}</Text>
+                    <Text style={styles.modalItemText}>{item.label || item}</Text>
                   </TouchableOpacity>
                 )}
               />
@@ -448,6 +615,7 @@ const styles = StyleSheet.create({
   dimensionContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: hp('2%'),
   },
   dimWrapper: { flex: 0.48 },
 
@@ -468,10 +636,23 @@ const styles = StyleSheet.create({
     fontSize: wp('3.5%'),
   },
   uploadedImage: {
-    width: wp('17.5%'),
-    height: wp('17.5%'),
+    width: wp('20%'),
+    height: wp('20%'),
     borderRadius: 8,
-    marginRight: 8,
+    overflow: 'visible'
+  },
+  uploadedImageWrapper: {
+    width: wp('20%'),
+    height: wp('20%'),
+    marginRight: 10,
+    position: 'relative',
+  },
+  deleteIcon: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: '#fff',
+    borderRadius: 12,
   },
 
   /* RADIO */
@@ -550,5 +731,19 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins-Medium",
     color: "#fff",
     textAlign: 'center',
+  },
+  rowBetween: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: hp('1%'),
+    paddingRight: wp('2%')
+  },
+  sectionHeader: {
+    fontFamily: "Poppins-Bold",
+    fontSize: wp('4.5%'),
+    color: '#000',
+    marginTop: hp('1%'),
+    marginBottom: hp('1.5%'),
   },
 });

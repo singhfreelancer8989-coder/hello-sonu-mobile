@@ -31,8 +31,8 @@ export const AuthProvider = ({ children }) => {
       const response = await globalApiRequest(
         false,
         "POST",
-        { email, password },
         userEndpoints.login,
+        { email, password },
       );
       console.log("outside if:", response);
 

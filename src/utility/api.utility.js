@@ -1,40 +1,42 @@
 import axios from "axios";
 import secureStorage from "./secureStorage.utility";
-
-
 import { API_URL, API_KEY } from "@env";
 
-axios.defaults.baseURL = API_URL;
-axios.defaults.headers.common["x-api-key"] = API_KEY;
+// Configure default instance
+const api = axios.create({
+    baseURL: API_URL,
+    headers: {
+        "Content-Type": "application/json",
+        "x-api-key": API_KEY,
+    },
+});
 
+/**
+ * Core requester for all API calls
+ */
+export const globalApiRequest = async (useToken, method, url, data = null, config = {}) => {
+    const requestConfig = {
+        method: method.toLowerCase(),
+        url,
+        data,
+        ...config,
+        headers: { ...config.headers },
+    };
 
-export const globalApiRequest = async (token, method, data = null, url, config = {}) => {
-    const requestConfig = { ...config };
-
-    if (token) {
+    if (useToken) {
         const sessionToken = await secureStorage.getToken();
         if (sessionToken) {
-            requestConfig.headers = {
-                ...requestConfig.headers,
-                Authorization: `Bearer ${sessionToken}`,
-            };
+            requestConfig.headers.Authorization = `Bearer ${sessionToken}`;
         }
     }
 
     try {
-        let response;
-        const lowerCaseMethod = method.toLowerCase();
-
-        if (lowerCaseMethod === "get" || lowerCaseMethod === "delete") {
-            response = await axios[lowerCaseMethod](url, requestConfig);
-        } else if (lowerCaseMethod === "post" || lowerCaseMethod === "put" || lowerCaseMethod === "patch") {
-            response = await axios[lowerCaseMethod](url, data, requestConfig);
-        } else {
-            throw new Error(`Unsupported HTTP method: ${method}`);
-        }
+        const response = await api.request(requestConfig);
         return response.data;
     } catch (error) {
-        console.error("API Request Failed:", error.response?.data || error.message);
+        // Log more specific error details
+        const errorMsg = error.response?.data?.message || error.message || "API Request Failed";
+        console.error(`[API Error] ${method.toUpperCase()} ${url}:`, errorMsg);
         throw error;
     }
 };
