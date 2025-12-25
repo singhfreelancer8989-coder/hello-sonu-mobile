@@ -14,14 +14,16 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 /* PROPERTY TYPE OPTIONS */
 const propertyTypes = [
   "Plots",
-  "House / Apartment",
-  "Office / Shop",
-  "Farm House",
+  "House/Apartment",
+  "Office/Shop",
+  "Agricultural Land",
+  "Flats",
 ];
 
 /* OPTIONS */
 const budgets = ["10L+", "25L+", "50L+", "1Cr+"];
 const sizes = ["1 BHK", "2 BHK", "3 BHK", "4+ BHK"];
+const cities = ["Udaipur", "Jaipur", "Jodhpur", "Kota", "Bhilwara"];
 
 /* THEME COLORS */
 const COLORS = {
@@ -36,7 +38,7 @@ const COLORS = {
 /* ------------------------
    DROPDOWN COMPONENT
 ------------------------ */
-const DropdownChip = ({ title, data, selected, onSelect, id, openDropdown, setOpenDropdown }) => {
+const DropdownChip = ({ title, data, selected, onSelect, id, openDropdown, setOpenDropdown, icon }) => {
   const isOpen = openDropdown === id;
   const isSelected = !!selected;
 
@@ -51,6 +53,7 @@ const DropdownChip = ({ title, data, selected, onSelect, id, openDropdown, setOp
         onPress={() => setOpenDropdown(isOpen ? null : id)}
         activeOpacity={0.7}
       >
+        {icon && <MaterialIcons name={icon} size={18} color={isSelected ? COLORS.primary : COLORS.textLight} style={{ marginRight: 4 }} />}
         <Text style={[
           styles.chipText,
           (isOpen || isSelected) && styles.chipTextActive
@@ -100,11 +103,78 @@ const DropdownChip = ({ title, data, selected, onSelect, id, openDropdown, setOp
 /* ------------------------
            MAIN
 ------------------------ */
-const SearchFiltersHeader = () => {
+const SearchFiltersHeader = ({ onSearch }) => {
   const [budget, setBudget] = useState(null);
   const [size, setSize] = useState(null);
   const [propertyType, setPropertyType] = useState(null);
+  const [city, setCity] = useState(null);
   const [openDropdown, setOpenDropdown] = useState(null);
+
+  /* HELPER TO TRIGGER SEARCH IMMEDIATELY */
+  const triggerSearch = (field, value) => {
+    if (!onSearch) return;
+
+    // Use the new value for the changed field, and current state for others
+    const current = {
+      propertyType: field === 'propertyType' ? value : propertyType,
+      budget: field === 'budget' ? value : budget,
+      size: field === 'size' ? value : size,
+      city: field === 'city' ? value : city,
+    };
+
+    const filters = {};
+
+    // Map Property Type
+    if (current.propertyType) {
+      const map = {
+        "Plots": "plots",
+        "House/Apartment": "house_apartment",
+        "Office/Shop": "office_shop",
+        "Agricultural Land": "agriculture_land",
+        "Flats": "flats"
+      };
+      filters.property_category = map[current.propertyType] || current.propertyType;
+    }
+
+    // Map Budget
+    if (current.budget) {
+      filters.budget = current.budget.replace('+', '');
+    }
+
+    // Map Size
+    if (current.size) {
+      filters.flatSize = current.size;
+    }
+
+    // Map City
+    if (current.city) {
+      filters.city = current.city;
+    }
+
+    onSearch(filters);
+  };
+
+  const handleSelectPropertyType = (val) => {
+    setPropertyType(val);
+    triggerSearch('propertyType', val);
+  };
+
+  const handleSelectBudget = (val) => {
+    setBudget(val);
+    triggerSearch('budget', val);
+  };
+
+  const handleSelectSize = (val) => {
+    setSize(val);
+    triggerSearch('size', val);
+  };
+
+  const handleSelectCity = (val) => {
+    setCity(val);
+    triggerSearch('city', val);
+  };
+
+  // const hasFilters = budget || size || propertyType || city; // No longer needed for button logic
 
   return (
     <View style={styles.mainWrapper}>
@@ -122,11 +192,19 @@ const SearchFiltersHeader = () => {
         contentContainerStyle={styles.scrollContent}
         showsHorizontalScrollIndicator={false}
       >
-        {/* LOCATION CHIP (Solid Blue) */}
-        <TouchableOpacity style={styles.locationChip} activeOpacity={0.8}>
-          <MaterialIcons name="location-pin" size={18} color="#fff" />
-          <Text style={styles.locText}>Location</Text>
-        </TouchableOpacity>
+        {/* REMOVED SEARCH BUTTON & LOCATION CHIP PLACEHOLDER - AUTO SEARCH ACTIVE */}
+
+        {/* CITY DROPDOWN */}
+        <DropdownChip
+          id="city"
+          title="Location"
+          data={cities}
+          selected={city}
+          onSelect={handleSelectCity}
+          openDropdown={openDropdown}
+          setOpenDropdown={setOpenDropdown}
+          icon="location-pin"
+        />
 
         {/* PROPERTY TYPE DROPDOWN */}
         <DropdownChip
@@ -134,7 +212,7 @@ const SearchFiltersHeader = () => {
           title="Property Type"
           data={propertyTypes}
           selected={propertyType}
-          onSelect={setPropertyType}
+          onSelect={handleSelectPropertyType}
           openDropdown={openDropdown}
           setOpenDropdown={setOpenDropdown}
         />
@@ -145,7 +223,7 @@ const SearchFiltersHeader = () => {
           title="Budget"
           data={budgets}
           selected={budget}
-          onSelect={setBudget}
+          onSelect={handleSelectBudget}
           openDropdown={openDropdown}
           setOpenDropdown={setOpenDropdown}
         />
@@ -156,7 +234,7 @@ const SearchFiltersHeader = () => {
           title="Size"
           data={sizes}
           selected={size}
-          onSelect={setSize}
+          onSelect={handleSelectSize}
           openDropdown={openDropdown}
           setOpenDropdown={setOpenDropdown}
         />
@@ -202,6 +280,21 @@ const styles = StyleSheet.create({
     height: hp('5%'), // 40 approx
     borderRadius: 8, // Matching the Header/Tab styling
     shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+    elevation: 4,
+    marginRight: 2,
+  },
+  searchChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: '#00b894', // Green for search action
+    paddingHorizontal: wp('4%'),
+    height: hp('5%'),
+    borderRadius: 8,
+    shadowColor: '#00b894',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,

@@ -27,11 +27,13 @@ import useAuth from '../../hooks/useAuth';
 import { uploadImage, deleteImage } from '../../services/imageUpload.service';
 import { ActivityIndicator } from 'react-native';
 import { createProperty } from '../../services/property.service';
+import { useDispatch } from 'react-redux';
+import { fetchPropertiesAsync } from '../../store/slices/propertySlices';
 
 const SalesFormScreen = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const { userData } = useAuth();
-  console.log("SalesFormScreen userData:", userData);
 
   useEffect(() => {
     if (userData?.id || userData?._id) {
@@ -184,7 +186,11 @@ const SalesFormScreen = () => {
     try {
       console.log("Submitting formData:", JSON.stringify(formData, null, 2));
       const response = await createProperty(formData);
-      console.log("Property Created:", response);
+      // console.log("Property Created:", response);
+
+      // RELOAD PROPERTIES
+      dispatch(fetchPropertiesAsync());
+
       Alert.alert("Success", "Sales form submitted successfully!", [
         { text: "OK", onPress: () => navigation.goBack() }
       ]);

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
     View,
     Text,
@@ -6,76 +6,172 @@ import {
     StyleSheet,
     ScrollView,
     TouchableOpacity,
+    ActivityIndicator,
+    Linking,
+    Alert,
+    FlatList
 } from "react-native";
-import { Ionicons, MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { Ionicons, MaterialIcons, FontAwesome5, FontAwesome } from "@expo/vector-icons";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { useDispatch, useSelector } from "react-redux";
+import { fetchPropertyByIdAsync, clearCurrentProperty, savePropertyAsync, removeSavedPropertyAsync } from "../../store/slices/propertySlices";
+import useAuth from "../../hooks/useAuth";
 
-const dummyProperties = [
-    {
-        id: 2,
-        images: [
-            "https://i.pinimg.com/1200x/98/4e/7a/984e7afee7eae7b9644453057e80f201.jpg",
-            "https://i.pinimg.com/736x/08/39/28/083928363559c12f69700ee25cab4117.jpg",
-            "https://images.unsplash.com/photo-1494526585095-c41746248156",
-            "https://i.pinimg.com/736x/08/39/28/083928363559c12f69700ee25cab4117.jpg",
-        ],
-        propertyType: "Residential Plot",
-        demandPrice: "42,50,000",
-        city: "Udaipur",
-        address: "Sector 14, Hiran Magri, Udaipur",
-        isVerified: true,
-        size: "1500 sq.ft",
-        length: 30,
-        width: 50,
-        ownerName: "Ravi Kumar",
-        ownerPhone: "9876543210",
-    },
-];
-
-const PropertyDetailsScreen = ({ route }) => {
+const PropertyDetailsScreen = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
-    const Navigator = useNavigation();
-    const { id } = { id: 2 };
-    const property = dummyProperties.find((p) => p.id === id);
+    const navigation = useNavigation();
+    const route = useRoute();
+    const dispatch = useDispatch();
+    const { userData } = useAuth(); // Get logged-in user
 
-    if (!property) {
+    const { propertyId } = route.params || {}; // Get ID from navigation params
+
+    // Redux State
+    const { currentProperty, currentPropertyStatus, savedPropertyIds } = useSelector((state) => state.property);
+
+    // Check if saved
+    // Check if saved
+    const isSaved = savedPropertyIds.includes(propertyId);
+
+    // CAROUSEL REF
+    const flatListRef = useRef(null);
+
+    const handleNext = () => {
+        if (images.length === 0) return;
+        const nextIndex = currentIndex === images.length - 1 ? 0 : currentIndex + 1;
+        flatListRef.current?.scrollToIndex({ index: nextIndex, animated: true });
+        setCurrentIndex(nextIndex);
+    };
+
+    const handlePrev = () => {
+        if (images.length === 0) return;
+        const prevIndex = currentIndex === 0 ? images.length - 1 : currentIndex - 1;
+        flatListRef.current?.scrollToIndex({ index: prevIndex, animated: true });
+        setCurrentIndex(prevIndex);
+    };
+
+    useEffect(() => {
+
+        // console.log("Fetching property with ID:", propertyId);
+        if (propertyId) {
+            dispatch(fetchPropertyByIdAsync(propertyId));
+        }
+        return () => {
+            dispatch(clearCurrentProperty());
+        };
+    }, [dispatch, propertyId]);
+
+
+
+    // HANDLER: Toggle Save
+    const toggleSave = async () => {
+        // console.log("userData", userData);
+        if (!userData?.id && !userData?._id) {
+            Alert.alert("Login Required", "Please login to save properties.");
+            return;
+        }
+
+        const payload = {
+            userId: userData.id || userData._id,
+            propertyId: propertyId
+        };
+
+        if (isSaved) {
+            await dispatch(removeSavedPropertyAsync(payload));
+        } else {
+            await dispatch(savePropertyAsync(payload));
+        }
+    };
+
+    // HANDLER: Open YouTube
+    const openVideo = () => {
+        if (currentProperty?.mainVideoUrl) {
+            Linking.openURL(currentProperty.mainVideoUrl).catch(err =>
+                Alert.alert("Error", "Could not open video link.")
+            );
+        }
+    };
+
+    // LOADING STATE
+    if (currentPropertyStatus === 'loading' || !currentProperty) {
         return (
             <View style={styles.center}>
-                <Text style={{ fontSize: wp('4.5%') }}>Property not found</Text>
+                <ActivityIndicator size="large" color="#4834d4" />
             </View>
         );
     }
 
+    const property = currentProperty;
+
+    // IMAGES FALLBACK
+    const images = property.media && property.media.length > 0
+        ? property.media.map(img => {
+            return img.imageUrl;
+        })
+        : [property.mainImage || "https://via.placeholder.com/400x300?text=No+Image"];
+
     return (
         <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-            <View style={styles.headerBar}>
+            {/* ========== HEADER BAR (Renamed to prevent conflict) ========== */}
+            <View style={styles.topBar}>
                 <TouchableOpacity
                     style={styles.backBtn}
-                    onPress={() => Navigator.goBack()}
+                    onPress={() => navigation.goBack()}
                 >
                     <Ionicons name="chevron-back" size={26} color="#111" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Property Details</Text>
+
+                {/* SAVE BUTTON IN HEADER */}
+                <TouchableOpacity style={styles.saveBtnHeader} onPress={toggleSave}>
+                    <MaterialIcons
+                        name={isSaved ? "bookmark" : "bookmark-border"}
+                        size={26}
+                        color={isSaved ? "#3a75cd" : "#111"}
+                    />
+                </TouchableOpacity>
             </View>
 
 
             {/* ========== IMAGE CAROUSEL ========== */}
             <View style={styles.carouselContainer}>
-                <Image
-                    source={{ uri: property.images[currentIndex] }}
-                    style={styles.image}
-                    resizeMode="cover"
+                <FlatList
+                    ref={flatListRef}
+                    data={images}
+                    horizontal
+                    pagingEnabled
+                    showsHorizontalScrollIndicator={false}
+                    scrollEventThrottle={16}
+                    keyExtractor={(_, index) => index.toString()}
+                    getItemLayout={(data, index) => ({
+                        length: wp('100%'),
+                        offset: wp('100%') * index,
+                        index,
+                    })}
+                    onScrollToIndexFailed={(info) => {
+                        const wait = new Promise(resolve => setTimeout(resolve, 500));
+                        wait.then(() => {
+                            flatListRef.current?.scrollToIndex({ index: info.index, animated: true });
+                        });
+                    }}
+                    onMomentumScrollEnd={(event) => {
+                        const index = Math.round(event.nativeEvent.contentOffset.x / wp('100%'));
+                        setCurrentIndex(index);
+                    }}
+                    renderItem={({ item }) => (
+                        <Image
+                            source={{ uri: item }}
+                            style={styles.image}
+                            resizeMode="cover"
+                        />
+                    )}
                 />
 
                 {/* LEFT BUTTON */}
                 <TouchableOpacity
                     style={[styles.navBtn, { left: 10 }]}
-                    onPress={() =>
-                        setCurrentIndex((prev) =>
-                            prev === 0 ? property.images.length - 1 : prev - 1
-                        )
-                    }
+                    onPress={handlePrev}
                 >
                     <Ionicons name="chevron-back" size={24} color="#fff" />
                 </TouchableOpacity>
@@ -83,18 +179,14 @@ const PropertyDetailsScreen = ({ route }) => {
                 {/* RIGHT BUTTON */}
                 <TouchableOpacity
                     style={[styles.navBtn, { right: 10 }]}
-                    onPress={() =>
-                        setCurrentIndex((prev) =>
-                            prev === property.images.length - 1 ? 0 : prev + 1
-                        )
-                    }
+                    onPress={handleNext}
                 >
                     <Ionicons name="chevron-forward" size={24} color="#fff" />
                 </TouchableOpacity>
 
                 {/* DOTS */}
                 <View style={styles.dots}>
-                    {property.images.map((_, i) => (
+                    {images.map((_, i) => (
                         <View
                             key={i}
                             style={[
@@ -106,9 +198,9 @@ const PropertyDetailsScreen = ({ route }) => {
                 </View>
             </View>
 
-            {/* ========== HEADER ========== */}
+            {/* ========== TITLE / TYPE ========== */}
             <View style={styles.header}>
-                <Text style={styles.type}>{property.propertyType}</Text>
+                <Text style={styles.type}>{property.propertyName || property.propertyType}</Text>
 
                 {property.isVerified && (
                     <View style={styles.verifiedBadge}>
@@ -120,40 +212,47 @@ const PropertyDetailsScreen = ({ route }) => {
 
             {/* CITY + ADDRESS */}
             <Text style={styles.city}>{property.city}</Text>
-            <Text style={styles.address}>{property.address}</Text>
+            <Text style={styles.address}>{property.address || property.landmark}</Text>
 
             {/* PRICE */}
-            <Text style={styles.price}>₹ {property.demandPrice}</Text>
+            <Text style={styles.price}>₹ {property.expectedPrice || property.demandPrice}</Text>
 
             {/* ========== META ========== */}
             <View style={styles.metaBox}>
-                <View style={styles.metaItem}>
-                    <FontAwesome5 name="ruler-combined" size={18} color="#555" />
-                    <Text style={styles.metaText}>
-                        {property.length} x {property.width} ft
-                    </Text>
-                </View>
+                {(property.length || property.lengthFt) && (
+                    <View style={styles.metaItem}>
+                        <FontAwesome5 name="ruler-combined" size={18} color="#555" />
+                        <Text style={styles.metaText}>
+                            {property.length || property.lengthFt} x {property.width || property.widthFt} ft
+                        </Text>
+                    </View>
+                )}
 
                 <View style={styles.metaItem}>
                     <MaterialIcons name="square-foot" size={20} color="#555" />
-                    <Text style={styles.metaText}>{property.size}</Text>
+                    <Text style={styles.metaText}>{property.size || property.flatSize}</Text>
                 </View>
             </View>
 
+            {/* ========== ACTION BUTTONS (Video) ========== */}
+            {property.mainVideoUrl ? (
+                <TouchableOpacity style={styles.videoBtn} onPress={openVideo}>
+                    <FontAwesome name="youtube-play" size={24} color="#fff" />
+                    <Text style={styles.videoBtnText}>Watch Video</Text>
+                </TouchableOpacity>
+            ) : null}
+
             {/* ========== MAP PREVIEW ========== */}
-            <View style={styles.mapPreview}>
+            {/* <View style={styles.mapPreview}>
                 <Ionicons name="map" size={20} color="#666" />
                 <Text style={styles.mapText}>View on Map</Text>
-            </View>
+            </View> */}
 
             {/* ========== DESCRIPTION ========== */}
             <View style={styles.descriptionBox}>
                 <Text style={styles.sectionTitle}>Description</Text>
                 <Text style={styles.descriptionText}>
-                    This property is located in a prime residential area with wide roads,
-                    nearby schools, hospitals, and public transport connectivity.
-                    Ideal for personal use or investment with high future appreciation value.
-                    The site has a clear title and is suitable for construction.
+                    {property.description || "No description provided."}
                 </Text>
             </View>
 
@@ -163,20 +262,23 @@ const PropertyDetailsScreen = ({ route }) => {
                 <View style={styles.ownerRow}>
                     <Ionicons name="person-circle-outline" size={40} color="#333" />
                     <View style={{ marginLeft: 10 }}>
-                        <Text style={styles.ownerName}>{property.ownerName}</Text>
-                        <Text style={styles.ownerPhone}>📞 {property.ownerPhone}</Text>
+                        <Text style={styles.ownerName}>{property.ownerName || "Owner"}</Text>
+                        <Text style={styles.ownerPhone}>📞 {property.ownerMobileNumber || property.ownerPhone}</Text>
                     </View>
                 </View>
             </View>
 
-            {/* ========== ACTION BUTTONS ========== */}
+            {/* ========== FOOTER ACTIONS ========== */}
             <View style={styles.btnRow}>
-                <TouchableOpacity style={styles.btn}>
+                <TouchableOpacity style={styles.btn} onPress={() => Linking.openURL(`tel:${property.ownerMobileNumber}`)}>
                     <Ionicons name="call-outline" size={20} color="#fff" />
                     <Text style={styles.btnText}>Call</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={[styles.btn, { backgroundColor: "#25D366" }]}>
+                <TouchableOpacity
+                    style={[styles.btn, { backgroundColor: "#25D366" }]}
+                    onPress={() => Linking.openURL(`whatsapp://send?phone=${property.ownerMobileNumber}&text=Hi, I'm interested in your property: ${property.propertyName}`)}
+                >
                     <Ionicons name="logo-whatsapp" size={20} color="#fff" />
                     <Text style={styles.btnText}>WhatsApp</Text>
                 </TouchableOpacity>
@@ -193,23 +295,43 @@ const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: "#fff" },
     center: { flex: 1, justifyContent: "center", alignItems: "center" },
     /* HEADER */
-    headerBar: {
+    topBar: {
         flexDirection: "row",
         alignItems: "center",
+        justifyContent: "space-between", // Spread back btn and title/save
         paddingVertical: hp('1.75%'),
         paddingHorizontal: wp('3.5%'),
         borderBottomWidth: 1,
         borderColor: "#eee",
-        gap: 8,
     },
     backBtn: {
         padding: wp('1.5%'),
         borderRadius: 8,
     },
+    saveBtnHeader: {
+        padding: wp('1.5%'),
+    },
     headerTitle: {
         fontSize: wp('4.5%'), // 18
         fontFamily: "Poppins-SemiBold",
         color: "#111",
+    },
+    /* VIDEO BTN */
+    videoBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#FF0000',
+        marginHorizontal: wp('4%'),
+        marginTop: hp('2%'),
+        paddingVertical: hp('1.5%'),
+        borderRadius: 8,
+        gap: 8,
+    },
+    videoBtnText: {
+        color: '#fff',
+        fontFamily: "Poppins-Medium",
+        fontSize: wp('3.8%'),
     },
     /* IMAGE */
     carouselContainer: {
@@ -219,7 +341,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#000",
     },
     image: {
-        width: "100%",
+        width: wp('100%'), // Full width for paging
         height: "100%",
     },
 

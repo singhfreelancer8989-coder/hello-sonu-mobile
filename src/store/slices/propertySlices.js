@@ -1,266 +1,240 @@
-import { createSlice, nanoid } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { fetchProperties, getPropertyById, saveProperty, removeSavedProperty, getSavedProperties } from "../../services/property.service";
 
-const emptyProperty = {
-  propertyType: "",
-  size: "",
-  dimension: "",
-  location: "",
-  landmark: "",
-  city: "",
-  mapLink: "",
-  demandPrice: "",
-  sellingPreference: "Normal",
-  name: "",
-  mobile: "",
-  whatsapp: "",
-  description: "",
-};
+// Async Thunk to Fetch All Properties
+export const fetchPropertiesAsync = createAsyncThunk(
+  "property/fetchProperties",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await fetchProperties();
+      // Adjust based on actual API response structure (e.g., response.data, or response.properties)
+      // Assuming response.data contains the array or response itself is the array
+      let data = Array.isArray(response) ? response.data.properties : (response.data.properties || response.properties || []);
 
-const dummyExampleProperty = [
-  {
-    "id": "p1",
-    "propertyType": "Residential plot",
-    "category": "plots",
-    "size": "1500 sq ft",
-    "length": 150,
-    "width": 60,
-    "location": "Sector 12",
-    "landmark": "Near City Mall",
-    "city": "Udaipur",
-    "mapLink": "https://maps.google.com/?q=Udaipur",
-    "demandPrice": "28,00,000",
-    "sellingPreference": "Normal",
-    "name": "Rahul Sharma",
-    "mobile": "9876543210",
-    "whatsapp": "9876543210",
-    "description": "East-facing plot in prime location with wide road.",
-    "image": "https://i.pinimg.com/1200x/7d/34/84/7d348438789ab4dc3ab666cbaeb0b225.jpg"
-  },
-  {
-    "id": "p2",
-    "propertyType": "3 BHK Flat",
-    "category": "flats",
-    "size": "1450 sq ft",
-    "length": 150,
-    "width": 50,
-    "location": "Hiran Magri",
-    "landmark": "Near DPS School",
-    "city": "Udaipur",
-    "mapLink": "https://maps.google.com/?q=Hiran+Magri",
-    "demandPrice": "52,00,000",
-    "sellingPreference": "Urgent",
-    "name": "Sonu Verma",
-    "mobile": "9123456789",
-    "whatsapp": "9123456789",
-    "description": "Fully furnished 3 BHK apartment with parking and lift.",
-    "image": "https://i.pinimg.com/1200x/7d/34/84/7d348438789ab4dc3ab666cbaeb0b225.jpg"
-  },
-  {
-    "id": "p3",
-    "propertyType": "Commercial Shop",
-    "category": "office_shop",
-    "size": "250 sq ft",
-    "length": 50,
-    "width": 5,
-    "location": "Surajpole",
-    "landmark": "Near Bapu Bazar",
-    "city": "Udaipur",
-    "mapLink": "https://maps.google.com/?q=Surajpole",
-    "demandPrice": "40,00,000",
-    "sellingPreference": "Normal",
-    "name": "Mohit Jain",
-    "mobile": "9988776655",
-    "whatsapp": "9988776655",
-    "description": "Ground floor shop at high footfall location.",
-    "image": "https://i.pinimg.com/1200x/7d/34/84/7d348438789ab4dc3ab666cbaeb0b225.jpg"
-  },
-  {
-    "id": "p4",
-    "propertyType": "Commercial Shop",
-    "category": "Shop/Godown/Office",
-    "size": "250 sq ft",
-    "length": 50,
-    "width": 5,
-    "location": "Surajpole",
-    "landmark": "Near Bapu Bazar",
-    "city": "Udaipur",
-    "mapLink": "https://maps.google.com/?q=Surajpole",
-    "demandPrice": "40,00,000",
-    "sellingPreference": "Normal",
-    "name": "Mohit Jain",
-    "mobile": "9988776655",
-    "whatsapp": "9988776655",
-    "description": "Ground floor shop at high footfall location.",
-    "image": "https://i.pinimg.com/1200x/7d/34/84/7d348438789ab4dc3ab666cbaeb0b225.jpg"
-  },
-  {
-    "id": "p5",
-    "propertyType": "Commercial Shop",
-    "category": "Shop/Godown/Office",
-    "size": "250 sq ft",
-    "length": 50,
-    "width": 5,
-    "location": "Surajpole",
-    "landmark": "Near Bapu Bazar",
-    "city": "Udaipur",
-    "mapLink": "https://maps.google.com/?q=Surajpole",
-    "demandPrice": "40,00,000",
-    "sellingPreference": "Normal",
-    "name": "Mohit Jain",
-    "mobile": "9988776655",
-    "whatsapp": "9988776655",
-    "description": "Ground floor shop at high footfall location.",
-    "image": "https://i.pinimg.com/1200x/7d/34/84/7d348438789ab4dc3ab666cbaeb0b225.jpg"
-  },
-  {
-    "id": "p6",
-    "propertyType": "Commercial Shop",
-    "category": "Shop/Godown/Office",
-    "size": "250 sq ft",
-    "length": 50,
-    "width": 5,
-    "location": "Surajpole",
-    "landmark": "Near Bapu Bazar",
-    "city": "Udaipur",
-    "mapLink": "https://maps.google.com/?q=Surajpole",
-    "demandPrice": "40,00,000",
-    "sellingPreference": "Normal",
-    "name": "Mohit Jain",
-    "mobile": "9988776655",
-    "whatsapp": "9988776655",
-    "description": "Ground floor shop at high footfall location.",
-    "image": "https://i.pinimg.com/1200x/7d/34/84/7d348438789ab4dc3ab666cbaeb0b225.jpg"
-  },
-  {
-    "id": "p7",
-    "propertyType": "Commercial Shop",
-    "category": "Shop/Godown/Office",
-    "size": "250 sq ft",
-    "length": 50,
-    "width": 5,
-    "location": "Surajpole",
-    "landmark": "Near Bapu Bazar",
-    "city": "Udaipur",
-    "mapLink": "https://maps.google.com/?q=Surajpole",
-    "demandPrice": "40,00,000",
-    "sellingPreference": "Normal",
-    "name": "Mohit Jain",
-    "mobile": "9988776655",
-    "whatsapp": "9988776655",
-    "description": "Ground floor shop at high footfall location.",
-    "image": "https://i.pinimg.com/1200x/7d/34/84/7d348438789ab4dc3ab666cbaeb0b225.jpg"
-  },
-  {
-    "id": "p8",
-    "propertyType": "Commercial Shop",
-    "category": "Shop/Godown/Office",
-    "size": "250 sq ft",
-    "length": 50,
-    "width": 5,
-    "location": "Surajpole",
-    "landmark": "Near Bapu Bazar",
-    "city": "Udaipur",
-    "mapLink": "https://maps.google.com/?q=Surajpole",
-    "demandPrice": "40,00,000",
-    "sellingPreference": "Normal",
-    "name": "Mohit Jain",
-    "mobile": "9988776655",
-    "whatsapp": "9988776655",
-    "description": "Ground floor shop at high footfall location.",
-    "image": "https://i.pinimg.com/1200x/7d/34/84/7d348438789ab4dc3ab666cbaeb0b225.jpg"
-  },
-  {
-    "id": "p9",
-    "propertyType": "Agricultural Land",
-    "category": "agriculture_land",
-    "size": "5 Acres",
-    "length": 400,
-    "width": 500,
-    "location": "Outskirts",
-    "landmark": "Near National Highway 8",
-    "city": "Udaipur",
-    "mapLink": "http://googleusercontent.com/maps.google.com/3",
-    "demandPrice": "90,00,000",
-    "sellingPreference": "Normal",
-    "name": "Arvind Singh",
-    "mobile": "9000011111",
-    "whatsapp": "9000011111",
-    "description": "Fertile farm land with borewell access and boundary walls.",
-    "image": "https://i.pinimg.com/1200x/7d/34/84/7d348438789ab4dc3ab666cbaeb0b225.jpg"
-  },
-  {
-    "id": "p10",
-    "propertyType": "4 BHK Villa",
-    "category": "house_apartment",
-    "size": "3000 sq ft",
-    "length": 50,
-    "width": 60,
-    "location": "Shakti Nagar",
-    "landmark": "Near Fatehsagar Lake",
-    "city": "Udaipur",
-    "mapLink": "http://googleusercontent.com/maps.google.com/4",
-    "demandPrice": "1,80,00,000",
-    "sellingPreference": "Urgent",
-    "name": "Priya Patel",
-    "mobile": "9555544444",
-    "whatsapp": "9555544444",
-    "description": "Luxury villa with a private garden and rooftop access.",
-    "image": "https://i.pinimg.com/1200x/7d/34/84/7d348438789ab4dc3ab666cbaeb0b225.jpg"
+      // // Strict fallback
+      // if (!Array.isArray(data)) {
+      //   console.warn("API response is not an array, defaulting to empty list.", data);
+      //   data = [];
+      // }
+      return data;
+    } catch (error) {
+      console.error("Fetch Error:", error);
+      return rejectWithValue(error.message);
+    }
   }
-]
+);
+
+// Async Thunk to Fetch LISTING Properties (Server-Side Filtered)
+export const fetchListingPropertiesAsync = createAsyncThunk(
+  "property/fetchListingProperties",
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await fetchProperties(params);
+      let data = Array.isArray(response) ? response.data.properties : (response.data?.properties || response.properties || []);
+
+      return {
+        data,
+        page: params.page || 1,
+        hasMore: data.length === (params.limit || 10) // Simple heuristic
+      };
+    } catch (error) {
+      console.error("Listing Fetch Error:", error);
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// Async Thunk to Fetch Property Details
+export const fetchPropertyByIdAsync = createAsyncThunk(
+  "property/fetchPropertyById",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await getPropertyById(id);
+      return response.data || response; // Adjust based on API structure
+    } catch (error) {
+      console.error("Fetch Detail Error:", error);
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// Async Thunk to Save Property
+export const savePropertyAsync = createAsyncThunk(
+  "property/saveProperty",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await saveProperty(data); // { userId, propertyId }
+      return { propertyId: data.propertyId, response };
+    } catch (error) {
+      console.error("Save Property Error:", error);
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// Async Thunk to Remove Saved Property
+// Async Thunk to Remove Saved Property
+export const removeSavedPropertyAsync = createAsyncThunk(
+  "property/removeSavedProperty",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await removeSavedProperty(data); // { userId, propertyId }
+      return { propertyId: data.propertyId, response };
+    } catch (error) {
+      console.error("Remove Saved Error:", error);
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// Async Thunk to Fetch Saved Properties List
+export const fetchSavedPropertiesAsync = createAsyncThunk(
+  "property/fetchSavedProperties",
+  async (userId, { rejectWithValue }) => {
+    try {
+      const response = await getSavedProperties(userId);
+      // Adjust based on response structure, e.g. { properties: [...] }
+      const data = Array.isArray(response) ? response : (response.data || response.properties || []);
+      return data;
+    } catch (error) {
+      console.error("Fetch Saved Properties Error:", error);
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+const initialState = {
+  properties: [], // Stores ALL properties fetched from API
+  status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
+  error: null,
+
+  // Separate state for the Property Listing Screen (Server-Side Filtered)
+  listing: [],
+  listingStatus: 'idle',
+  listingError: null,
+  listingPagination: {
+    page: 1,
+    hasMore: true,
+  },
+
+  // Current Property Details
+  currentProperty: null,
+  currentPropertyStatus: 'idle',
+  currentPropertyError: null,
+
+  // Saved Properties Trackers
+  savedPropertyIds: [], // List of IDs (for quick check)
+  savedPropertiesList: [], // List of Objects (for Saved Screen)
+  savedPropertiesStatus: 'idle',
+  savedPropertiesError: null,
+  saveStatus: 'idle', // 'idle' | 'saving' | 'removing'
+};
 
 const propertySlice = createSlice({
   name: "property",
-
-  initialState: {
-    properties: [...dummyExampleProperty],
-    currentProperty: emptyProperty,
-  },
-
+  initialState,
   reducers: {
-    updateCurrentField: (state, action) => {
-      const { key, value } = action.payload;
-      state.currentProperty[key] = value;
+    // Add any synchronous reducers if needed here
+    clearProperties: (state) => {
+      state.properties = [];
+      state.status = 'idle';
     },
-
-    resetCurrentProperty: (state) => {
-      state.currentProperty = emptyProperty;
+    clearListingProperties: (state) => {
+      state.listing = [];
+      state.listingStatus = 'idle';
+      state.listingPagination = { page: 1, hasMore: true };
     },
+    clearCurrentProperty: (state) => {
+      state.currentProperty = null;
+      state.currentPropertyStatus = 'idle';
+    }
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchPropertiesAsync.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(fetchPropertiesAsync.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.properties = action.payload;
+      })
+      .addCase(fetchPropertiesAsync.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
 
-    addProperty: (state) => {
-      state.properties.push({
-        id: nanoid(),
-        ...state.currentProperty,
+      // LISTING Handlers
+      .addCase(fetchListingPropertiesAsync.pending, (state) => {
+        state.listingStatus = "loading";
+        state.listingError = null;
+      })
+      .addCase(fetchListingPropertiesAsync.fulfilled, (state, action) => {
+        state.listingStatus = "succeeded";
+        const { data, page, hasMore } = action.payload;
+
+        if (page === 1) {
+          state.listing = data;
+        } else {
+          // Append for pagination
+          state.listing = [...state.listing, ...data];
+        }
+
+        state.listingPagination.page = page;
+        state.listingPagination.hasMore = hasMore;
+      })
+      .addCase(fetchListingPropertiesAsync.rejected, (state, action) => {
+        state.listingStatus = "failed";
+        state.listingError = action.payload;
+      })
+
+      // DETAILS Handlers
+      .addCase(fetchPropertyByIdAsync.pending, (state) => {
+        state.currentPropertyStatus = "loading";
+        state.currentPropertyError = null;
+      })
+      .addCase(fetchPropertyByIdAsync.fulfilled, (state, action) => {
+        state.currentPropertyStatus = "succeeded";
+        state.currentProperty = action.payload;
+      })
+      .addCase(fetchPropertyByIdAsync.rejected, (state, action) => {
+        state.currentPropertyStatus = "failed";
+        state.currentPropertyError = action.payload;
+      })
+
+      // SAVE/REMOVE Handlers
+      .addCase(savePropertyAsync.fulfilled, (state, action) => {
+        const { propertyId } = action.payload;
+        if (!state.savedPropertyIds.includes(propertyId)) {
+          state.savedPropertyIds.push(propertyId);
+        }
+      })
+      .addCase(removeSavedPropertyAsync.fulfilled, (state, action) => {
+        const { propertyId } = action.payload;
+        state.savedPropertyIds = state.savedPropertyIds.filter(id => id !== propertyId);
+        // Also remove from the list if present
+        state.savedPropertiesList = state.savedPropertiesList.filter(p => p.id !== propertyId && p._id !== propertyId);
+      })
+
+      // FETCH SAVED LIST Handlers
+      .addCase(fetchSavedPropertiesAsync.pending, (state) => {
+        state.savedPropertiesStatus = "loading";
+        state.savedPropertiesError = null;
+      })
+      .addCase(fetchSavedPropertiesAsync.fulfilled, (state, action) => {
+        state.savedPropertiesStatus = "succeeded";
+        state.savedPropertiesList = action.payload;
+        // Sync IDs for quick access
+        // The payload contains wrapper objects, so we need to access item.property.id
+        state.savedPropertyIds = action.payload.map(p => p.property?.id || p.property?._id || p.propertyId);
+      })
+      .addCase(fetchSavedPropertiesAsync.rejected, (state, action) => {
+        state.savedPropertiesStatus = "failed";
+        state.savedPropertiesError = action.payload;
       });
-
-      state.currentProperty = emptyProperty;
-    },
-
-    setCurrentProperty: (state, action) => {
-      state.currentProperty = action.payload;
-    },
-
-    updateProperty: (state, action) => {
-      const updated = action.payload;
-      state.properties = state.properties.map((p) =>
-        p.id === updated.id ? updated : p
-      );
-    },
-
-    deleteProperty: (state, action) => {
-      const id = action.payload;
-      state.properties = state.properties.filter((p) => p.id !== id);
-    },
   },
 });
 
-export const {
-  updateCurrentField,
-  resetCurrentProperty,
-  addProperty,
-  setCurrentProperty,
-  updateProperty,
-  deleteProperty,
-} = propertySlice.actions;
+export const { clearProperties, clearListingProperties, clearCurrentProperty } = propertySlice.actions;
 
 export default propertySlice.reducer;

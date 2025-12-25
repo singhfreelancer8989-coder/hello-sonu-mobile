@@ -7,7 +7,7 @@ const SavedStack = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="SavedScreen" component={SavedScreen} />
-        <Stack.Screen name="PropertyDetailsScreen" component={PropertyDetailsScreen} />
+      <Stack.Screen name="PropertyDetails" component={PropertyDetailsScreen} />
     </Stack.Navigator>
   )
 }
