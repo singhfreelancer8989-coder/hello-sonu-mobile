@@ -9,20 +9,25 @@ import {
 // Assuming PropertyCard is in the same directory and is correctly implemented
 import PropertyCard from "./PropertyCard";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { useNavigation } from "@react-navigation/native";
 
 const MAX_SLIDER_CARDS = 5;
-const handleSeeAllPress = (title, allData) => {
-  console.log(`Navigating to "See All ${title}" page with ${allData.length} properties.`);
-};
 
+const PropertySlider = ({ title = "Properties", data = [], category }) => {
+  const navigation = useNavigation();
 
-const PropertySlider = ({ title = "Properties", data = [] }) => {
+  const handleSeeAllPress = () => {
+    navigation.navigate('PropertyListing', {
+      title: title,
+      filters: category ? { property_category: category } : {}
+    });
+  };
 
   // 1. Slice the data to show only the first 5 cards
   const displayedData = data.slice(0, MAX_SLIDER_CARDS);
 
   // Determine if the "See All" button should be visible
-  const shouldShowSeeAll = data.length > MAX_SLIDER_CARDS;
+  const shouldShowSeeAll = true; // Always show to allow "View All" access
 
   return (
     <View style={styles.section}>
@@ -32,7 +37,7 @@ const PropertySlider = ({ title = "Properties", data = [] }) => {
 
         {/* 2. Conditionally render the "See All" button */}
         {shouldShowSeeAll && (
-          <TouchableOpacity onPress={() => handleSeeAllPress(title, data)}>
+          <TouchableOpacity onPress={handleSeeAllPress}>
             <Text style={styles.seeAll}>See All →</Text>
           </TouchableOpacity>
         )}

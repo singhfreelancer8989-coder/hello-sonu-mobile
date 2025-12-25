@@ -1,27 +1,34 @@
-import { useState } from 'react';
+import { cloneElement } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import useAuth from '../hooks/useAuth';
+
 
 import LoginScreen from '../screens/Auth/LoginScreen';
 import RegisterScreen from '../screens/Auth/RegisterScreen';
 import OnboardingScreen from '../screens/Auth/OnboardingScreen';
+import SplashScreen from '../screens/SplashScreen';
 import MainTabs from './MainTabs';
 
 const Stack = createNativeStackNavigator();
 
 const AuthStack = () => {
-  const [isLogin, setIsLogin] = useState(0);
+  const { userToken, isSplashLoading } = useAuth();
+
+  if (isSplashLoading) {
+    return <SplashScreen />;
+  }
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {isLogin ? (
+      {userToken ? (
         // User is logged in - show home screens
         <Stack.Screen name="MainTabs" component={MainTabs} />
       ) : (
         // User is not logged in - show auth screens
         <>
           <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-          <Stack.Screen name="Login" component={LoginScreen} initialParams={{setIsLogin}} />
-          <Stack.Screen name="Register" component={RegisterScreen} initialParams={{setIsLogin}} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Register" component={RegisterScreen} />
         </>
       )}
     </Stack.Navigator>

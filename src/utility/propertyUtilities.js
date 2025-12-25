@@ -1,13 +1,27 @@
-// property filter
+
 export const filterPropertiesByCategory = (properties, category) => {
-    if (!properties || properties.length === 0 || !category) {
+    if (!properties || !Array.isArray(properties) || properties.length === 0 || !category) {
         return [];
     }
 
     // Filter is case-insensitive and trims whitespace for robustness
     const normalizedCategory = category.trim().toLowerCase();
 
-    return properties.filter(property =>
-        property.category && property.category.trim().toLowerCase() === normalizedCategory
-    );
+    return properties.filter(property => {
+        const cat = property.propertyCategory || property.category || '';
+        const normalizeCat = cat.trim().toLowerCase();
+
+        // Loose matching for diverse backend data
+        if (normalizedCategory === 'house_apartment' || normalizedCategory === 'house/apartment/flat') {
+            return ['house_apartment', 'flats', 'house/apartment/flat', 'house', 'apartment', 'villa'].some(c => normalizeCat.includes(c));
+        }
+        if (normalizedCategory === 'office_shop' || normalizedCategory === 'shop/godown/office') {
+            return ['office_shop', 'shop', 'office', 'godown'].some(c => normalizeCat.includes(c));
+        }
+        if (normalizedCategory === 'agriculture_land' || normalizedCategory === 'agriculturalland/farmhouses') {
+            return ['agriculture_land', 'agricultural', 'farm', 'land'].some(c => normalizeCat.includes(c));
+        }
+
+        return normalizeCat === normalizedCategory;
+    });
 };

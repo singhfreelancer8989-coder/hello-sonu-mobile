@@ -11,11 +11,15 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import useAuth from "../../../hooks/useAuth";
+import { registerBroker } from "../../../services/broker.service";
 
 export default function RegisterBrokerScreen() {
   const navigation = useNavigation();
+  const { userData } = useAuth();
 
   const [form, setForm] = useState({
+    userId:  userData?.id || userData?._id || "",
     name: "",
     age: "",
     city: "",
@@ -31,16 +35,42 @@ export default function RegisterBrokerScreen() {
   };
 
   const validate = () => {
-    if (!form.name || !form.age || !form.city || !form.mobile || !form.whatsapp) {
+    if (!form.name || !form.age || !form.city || !form.mobile || !form.whatsapp || !form.occupation) {
       Alert.alert("Missing Fields", "Please fill all required fields.");
       return false;
     }
     return true;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validate()) return;
-    Alert.alert("Success", "Broker registration submitted.");
+
+    if (!userData?.id && !userData?._id) {
+      Alert.alert("Error", "User not authenticated or user ID missing.");
+      return;
+    }
+
+    const payload = {
+      userId: userData?.id || userData?._id || "",
+      fullName: form.name,
+      occupation: form.occupation,
+      city: form.city,
+      age: parseInt(form.age, 10),
+      mobileNumber: form.mobile,
+      whatsappNumber: form.whatsapp,
+      email: form.email,
+      address: form.address,
+    };
+
+    try {
+      await registerBroker(payload);
+      Alert.alert("Success", "Broker registration submitted successfully.", [
+        { text: "OK", onPress: () => navigation.goBack() }
+      ]);
+      handleClear();
+    } catch (error) {
+      Alert.alert("Registration Failed", error.message || "Something went wrong.");
+    }
   };
 
   const handleClear = () => {

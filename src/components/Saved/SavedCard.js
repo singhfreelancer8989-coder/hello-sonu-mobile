@@ -1,39 +1,46 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
-const SavedCard = () => {
+const SavedCard = ({ property, onRemove }) => {
   const navigation = useNavigation();
+
+  if (!property) return null;
+
+  // Image Fallback
+  const imageUri = property.mainImage || (property.images && property.images.length > 0 ? property.images[0].url : "https://via.placeholder.com/150");
 
   return (
     <TouchableOpacity
       style={styles.card}
       activeOpacity={0.85}
-      onPress={() => navigation.navigate('PropertyDetailsScreen')}
+      onPress={() => navigation.navigate('PropertyDetails', { propertyId: property.id || property._id })}
     >
       {/* Image */}
       <Image
         source={{
-          uri: 'https://i.pinimg.com/736x/6e/f8/a3/6ef8a3670220ea6fd0556bf77eec6b20.jpg',
+          uri: property.mainImage,
         }}
         style={styles.image}
+        resizeMode="cover"
       />
 
       {/* Content */}
       <View style={styles.info}>
-        <Text style={styles.title}>B-Farmhouse</Text>
-        <Text style={styles.price}>₹ 12,00,000</Text>
+        <Text style={styles.title} numberOfLines={1}>{property.propertyName || property.propertyType}</Text>
+        <Text style={styles.price}>₹ {property.expectedPrice || property.demandPrice}</Text>
 
-        <Text style={styles.subText}>
-          Surrounded by greenery • Peaceful location
+        <Text style={styles.subText} numberOfLines={1}>
+          {property.city} • {property.size || property.flatSize}
         </Text>
 
-        {/* Bookmark / Save action */}
-        <TouchableOpacity style={styles.saveBtn}>
+        {/* Remove Action */}
+        {/* Remove Action - Hidden as per user request */}
+        {/* <TouchableOpacity style={styles.saveBtn} onPress={() => onRemove(property.id || property._id)}>
           <MaterialIcons name="bookmark" size={22} color="#3a75cd" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </TouchableOpacity>
   );

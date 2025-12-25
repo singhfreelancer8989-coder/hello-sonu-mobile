@@ -39,7 +39,7 @@ const RegisterScreen = ({ }) => {
   // --- LOGIC: SIGN UP ---
   const handleSignUp = () => {
     if (!username || !mobile || !email || !city) {
-      Alert.alert("Arey bhai!", "Sab fields bharna padta na.");
+      Alert.alert("all fields are required");
       return;
     }
     setOtpVisible(true);

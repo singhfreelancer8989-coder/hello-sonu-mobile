@@ -7,15 +7,37 @@ import {
   TouchableOpacity,
   StatusBar,
   ScrollView,
-  Image, Platform
+  Image, Platform,
+  Linking,
+  ActivityIndicator,
+  Alert
 } from 'react-native';
 import images from '../../assets/images';
 import Entypo from '@expo/vector-icons/Entypo';
 import { useNavigation } from '@react-navigation/native';
+import useAuth from '../../hooks/useAuth';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 const LoginScreen = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const { login, isLoading } = useAuth();
   const Navigator = useNavigation();
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("Error", "Please enter both email and password");
+      return;
+    }
+    try {
+      console.log("Login init");
+      await login(email, password);
+      console.log("Login Success");
+    } catch (e) {
+      Alert.alert("Login Failed", e.message || "Something went wrong");
+    }
+  }
+
   return (
     <>
 
@@ -31,10 +53,12 @@ const LoginScreen = () => {
 
         {/* 3. Username Input */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Username</Text>
+          <Text style={styles.label}>Email</Text>
           <TextInput
             style={styles.input}
             placeholder=""
+            value={email}
+            onChangeText={setEmail}
           />
         </View>
 
@@ -45,6 +69,8 @@ const LoginScreen = () => {
             <TextInput
               style={styles.passwordInput}
               secureTextEntry={!isPasswordVisible}
+              value={password}
+              onChangeText={setPassword}
             />
             <TouchableOpacity
               onPress={() => setIsPasswordVisible(!isPasswordVisible)}
@@ -65,15 +91,18 @@ const LoginScreen = () => {
         </TouchableOpacity>
 
         {/* 6. Login Button */}
-        <TouchableOpacity onPress={() => { }} style={styles.loginButton}>
-          <Text style={styles.loginButtonText}>LOGIN</Text>
+        <TouchableOpacity onPress={handleLogin} style={styles.loginButton} disabled={isLoading}>
+          {isLoading ? <ActivityIndicator color="#FFF" /> : <Text style={styles.loginButtonText}>LOGIN</Text>}
         </TouchableOpacity>
 
         {/* 7. Footer (Socials) */}
         <View style={styles.footer}>
+          {/* We combine all elements in one Text component for inline flow */}
           <Text style={styles.footerText}>
-            <TouchableOpacity style={{height: 18, padding: 0, overflow: "visible" }} onPress={() => { Navigator.navigate("Register") }}><Text style={{ color: "blue", fontFamily: "Poppins-Regular" }}>Sign Up ?  </Text></TouchableOpacity>
-            <Text> if Don't Have an account</Text></Text>
+            {/* Removed conflicting height/padding/overflow styles from TouchableOpacity */}
+            <Text onPress={() => { Navigator.navigate("Register") }} style={styles.signUpLinkText}>Sign Up ?</Text>
+            <Text> Don't Have an account</Text>
+          </Text>
         </View>
 
       </ScrollView>
@@ -183,12 +212,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   footerText: {
-    alignItems: 'center',
+    alignItems: 'flex-end',
     justifyContent: 'center',
     fontSize: wp('3.5%'), // 14
     color: '#333',
     fontFamily: 'Poppins-Regular',
+    // Align text elements inline
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
+  signUpLinkText: {
+    color: "blue",
+    fontFamily: "Poppins-Regular",
+    marginRight: '4.6%',
+    height: wp('4%'),
+  }
 });
 
 export default LoginScreen;
