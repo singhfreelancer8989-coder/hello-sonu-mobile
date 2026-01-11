@@ -163,12 +163,9 @@ const EditPropertyScreen = () => {
             }
         } catch (error) {
             console.error("Change Cover Image Error:", error);
-            if (error.response) {
-                console.error("Error Response Data:", error.response.data);
-                Alert.alert("Error", `Failed to update: ${error.response.data.message || error.response.data.error || "Unknown error"}`);
-            } else {
-                Alert.alert("Error", "Failed to update cover image");
-            }
+            // Production-friendly error message
+            const msg = error.response?.data?.message || "Failed to update cover image. Please try again.";
+            Alert.alert("Error", msg);
         } finally {
             setUploading(false);
         }

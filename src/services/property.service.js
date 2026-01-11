@@ -82,9 +82,9 @@ export const updatePropertyMedia = async (mediaId, data) => {
 };
 
 export const updatePropertyCoverImage = async (propertyId, data) => {
-    // data = { mainImageUrl, mainImageKey }
+    // data = { imageUrl, imageKey }
     const response = await globalApiRequest(true, "PUT", `${property.coverImage}/${propertyId}/cover-image`, data);
-    console.log("Cover Image Updated:", response);
+    // console.log("Cover Image Updated:", response);
     return response;
 };
 

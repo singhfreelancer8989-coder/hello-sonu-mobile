@@ -17,7 +17,7 @@ export const uploadImage = async (uri) => {
         type: type,
     });
     formData.append("type", "PROPERTY_IMAGE");
-    console.log(formData._parts);
+
 
     return globalApiRequest(true, "POST", image.upload, formData, {
         headers: {
