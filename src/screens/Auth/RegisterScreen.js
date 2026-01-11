@@ -19,16 +19,27 @@ import OTPPopup from '../../components/Auth/OTPPopup';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { registerUser } from '../../services/auth/auth.service';
+import { showErrorAlert } from '../../utility/error.utility';
 
 const RegisterScreen = ({ }) => {
   const Navigator = useNavigation();
   const route = useRoute();
   const { setIsLogin } = route.params || {};
   // --- STATE: FORM ---
-  const [username, setUsername] = useState('');
-  const [mobile, setMobile] = useState('');
-  const [email, setEmail] = useState('');
-  const [city, setCity] = useState('');
+  // --- STATE: FORM ---
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    mobile: '',
+    email: '',
+    city: '',
+    password: ''
+  });
+
+  const handleChange = (name, value) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
   // --- STATE: VISIBILITY ---
   const [isCityModalVisible, setCityModalVisible] = useState(false);
@@ -37,26 +48,69 @@ const RegisterScreen = ({ }) => {
   const citiesList = ['Hyderabad', 'Bangalore', 'Mumbai', 'Pune', 'Delhi', 'Chennai'];
 
   // --- LOGIC: SIGN UP ---
-  const handleSignUp = () => {
-    if (!username || !mobile || !email || !city) {
-      Alert.alert("all fields are required");
+  const handleSignUp = async () => {
+    const { firstName, lastName, mobile, email, city, password } = formData;
+    if (!firstName || !lastName || !mobile || !email || !city || !password) {
+      showErrorAlert("Missing Fields", "All fields are required");
       return;
     }
-    setOtpVisible(true);
+
+    // Check if we need to verify before popup or just show popup
+    // Usually we just show OTP popup here if validation passes
+    // But the original code had complete registration logic here too (lines 47-58 were weirdly duplicated/incomplete logic)
+    // Assuming the flow is: Validate -> Show OTP -> Verify -> Register
+
+    // BYPASS OTP FOR NOW: Redirect directly to Login
+    try {
+      const userData = {
+        first_name: firstName,
+        last_name: lastName,
+        // mobile,
+        email,
+        // city,
+        password
+      };
+      await registerUser(userData);
+      Alert.alert("Congratulations", "Registration Successful! Please Login.", [
+        { text: "OK", onPress: () => Navigator.navigate('Login') }
+      ]);
+      // setIsLogin(1);  
+    } catch (error) {
+      Alert.alert("Registration Failed", error.message || "Something went wrong");
+    }
+
+    // setOtpVisible(true);
   };
 
   // --- LOGIC: CITY SELECT ---
   const handleSelectCity = (selectedCity) => {
-    setCity(selectedCity);
+    handleChange('city', selectedCity);
     setCityModalVisible(false);
   };
 
   // --- LOGIC: FINAL VERIFY (Jo OTP Popup se call hoga) ---
-  const handleFinalVerification = () => {
+  // --- LOGIC: FINAL VERIFY (Jo OTP Popup se call hoga) ---
+  // --- LOGIC: FINAL VERIFY (Jo OTP Popup se call hoga) ---
+  const handleFinalVerification = async () => {
     setOtpVisible(false);
-    console.log("User Verified & Registered:", { username, mobile, email, city });
-    Alert.alert("Mubarak ho!", "Welcome to the App!");
-    setIsLogin(1);
+    const { firstName, lastName, mobile, email, city, password } = formData;
+    console.log("User Verified & Registered:", formData);
+
+    try {
+      const userData = {
+        first_name: firstName,
+        last_name: lastName,
+        // mobile,
+        email,
+        // city,
+        password
+      };
+      await registerUser(userData);
+      Alert.alert("Congratulations", "Welcome to the App!");
+      // setIsLogin(1);  
+    } catch (error) {
+      Alert.alert("Registration Failed", error.message || "Something went wrong");
+    }
   };
 
   return (
@@ -70,13 +124,22 @@ const RegisterScreen = ({ }) => {
 
         <Text style={styles.pageTitle}>SignUp</Text>
 
-        {/* Username */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Username</Text>
-          <TextInput
-            style={styles.input} placeholder="Enter your name" placeholderTextColor="#999"
-            value={username} onChangeText={setUsername}
-          />
+        {/* First & Last Name */}
+        <View style={[styles.inputGroup, { flexDirection: 'row', justifyContent: 'space-between' }]}>
+          <View style={{ width: '48%' }}>
+            <Text style={styles.label}>First Name</Text>
+            <TextInput
+              style={styles.input} placeholder="First Name" placeholderTextColor="#999"
+              value={formData.firstName} onChangeText={(text) => handleChange('firstName', text)}
+            />
+          </View>
+          <View style={{ width: '48%' }}>
+            <Text style={styles.label}>Last Name</Text>
+            <TextInput
+              style={styles.input} placeholder="Last Name" placeholderTextColor="#999"
+              value={formData.lastName} onChangeText={(text) => handleChange('lastName', text)}
+            />
+          </View>
         </View>
 
         {/* Mobile */}
@@ -90,7 +153,7 @@ const RegisterScreen = ({ }) => {
             <View style={styles.verticalDivider} />
             <TextInput
               style={styles.phoneInput} keyboardType="phone-pad" placeholder="00000 00000" placeholderTextColor="#999"
-              value={mobile} onChangeText={setMobile} maxLength={10}
+              value={formData.mobile} onChangeText={(text) => handleChange('mobile', text)} maxLength={10}
             />
           </View>
         </View>
@@ -99,7 +162,7 @@ const RegisterScreen = ({ }) => {
         <View style={styles.inputGroup}>
           <Text style={styles.label}>City</Text>
           <TouchableOpacity style={styles.dropdownInput} onPress={() => setCityModalVisible(true)}>
-            <Text style={[styles.inputText, !city && { color: '#999' }]}>{city || "Select City"}</Text>
+            <Text style={[styles.inputText, !formData.city && { color: '#999' }]}>{formData.city || "Select City"}</Text>
             <View style={{ flex: 1 }} />
             <Entypo name="chevron-down" size={24} color="#000" />
           </TouchableOpacity>
@@ -110,7 +173,16 @@ const RegisterScreen = ({ }) => {
           <Text style={styles.label}>Email</Text>
           <TextInput
             style={styles.input} keyboardType="email-address" placeholder="example@gmail.com" placeholderTextColor="#999"
-            value={email} onChangeText={setEmail} autoCapitalize="none"
+            value={formData.email} onChangeText={(text) => handleChange('email', text)} autoCapitalize="none"
+          />
+        </View>
+
+        {/* Password */}
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Password</Text>
+          <TextInput
+            style={styles.input} placeholder="Password" placeholderTextColor="#999"
+            value={formData.password} onChangeText={(text) => handleChange('password', text)} secureTextEntry
           />
         </View>
 
@@ -154,7 +226,7 @@ const RegisterScreen = ({ }) => {
 
       <OTPPopup
         visible={isOtpVisible}
-        mobile={mobile}
+        mobile={formData.mobile}
         onClose={() => setOtpVisible(false)}
         onVerify={(otpCode) => {
           handleFinalVerification()

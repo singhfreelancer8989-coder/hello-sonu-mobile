@@ -1,4 +1,5 @@
 import { globalApiRequest } from "../utility/api.utility";
+import { image } from "../constants/endpoint.constant";
 
 /**
  * Upload Image using FormData
@@ -15,8 +16,10 @@ export const uploadImage = async (uri) => {
         name: filename,
         type: type,
     });
+    formData.append("type", "PROPERTY_IMAGE");
+    console.log(formData._parts);
 
-    return globalApiRequest(true, "POST", "/media/upload-image", formData, {
+    return globalApiRequest(true, "POST", image.upload, formData, {
         headers: {
             'Content-Type': 'multipart/form-data',
         },
@@ -26,6 +29,6 @@ export const uploadImage = async (uri) => {
 /**
  * Delete Image
  */
-export const deleteImage = async (publicId) => {
-    return globalApiRequest(true, "DELETE", "/media/delete-image", { publicId });
+export const deleteImage = async (key) => {
+    return globalApiRequest(true, "DELETE", image.delete, { key, type: "PROPERTY_IMAGE" });
 };

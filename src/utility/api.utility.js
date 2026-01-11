@@ -1,6 +1,7 @@
 import axios from "axios";
 import secureStorage from "./secureStorage.utility";
 import { API_URL, API_KEY } from "@env";
+import authEvents from "./authEvents";
 
 // Configure default instance
 const api = axios.create({
@@ -32,10 +33,18 @@ export const globalApiRequest = async (useToken, method, url, data = null, confi
 
     try {
         const response = await api.request(requestConfig);
+        // console.log(`[API Response] ${method} ${url}:`, response.data);
         return response.data;
     } catch (error) {
         // Log more specific error details
         const errorMsg = error.response?.data?.message || error.message || "API Request Failed";
+
+        // Handle Token Expiry / Unauthorized Access
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            console.warn(`[API] Triggering Auto-Logout due to ${error.response.status}`);
+            authEvents.emitLogout();
+        }
+
         console.error(`[API Error] ${method.toUpperCase()} ${url}:`, errorMsg);
         throw error;
     }

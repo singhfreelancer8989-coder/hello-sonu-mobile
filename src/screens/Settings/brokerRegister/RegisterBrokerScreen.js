@@ -13,13 +13,14 @@ import { useNavigation } from "@react-navigation/native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import useAuth from "../../../hooks/useAuth";
 import { registerBroker } from "../../../services/broker.service";
+import { showErrorAlert } from "../../../utility/error.utility";
 
 export default function RegisterBrokerScreen() {
   const navigation = useNavigation();
   const { userData } = useAuth();
 
   const [form, setForm] = useState({
-    userId:  userData?.id || userData?._id || "",
+    userId: userData?.id || userData?._id || "",
     name: "",
     age: "",
     city: "",
@@ -36,7 +37,7 @@ export default function RegisterBrokerScreen() {
 
   const validate = () => {
     if (!form.name || !form.age || !form.city || !form.mobile || !form.whatsapp || !form.occupation) {
-      Alert.alert("Missing Fields", "Please fill all required fields.");
+      showErrorAlert("Missing Fields", "Please fill all required fields.");
       return false;
     }
     return true;
@@ -46,7 +47,7 @@ export default function RegisterBrokerScreen() {
     if (!validate()) return;
 
     if (!userData?.id && !userData?._id) {
-      Alert.alert("Error", "User not authenticated or user ID missing.");
+      showErrorAlert("Error", "User not authenticated or user ID missing.");
       return;
     }
 
@@ -69,7 +70,9 @@ export default function RegisterBrokerScreen() {
       ]);
       handleClear();
     } catch (error) {
-      Alert.alert("Registration Failed", error.message || "Something went wrong.");
+      const errorMessage = error.response?.data?.message || error.message || "Something went wrong.";
+      console.log("Registration Error:", errorMessage);
+      showErrorAlert("Registration Failed", errorMessage);
     }
   };
 

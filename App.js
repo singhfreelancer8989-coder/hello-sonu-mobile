@@ -7,6 +7,8 @@ import { Provider } from 'react-redux';
 import { store } from './src/store/store';
 import { AuthProvider } from './src/providers/AuthProvider';
 
+import { AnalyticsProvider } from './src/context/AnalyticsContext';
+
 export default function App() {
   const [fontsLoaded] = useFonts({
     "Poppins-Regular": require("./src/assets/fonts/Poppins/Poppins-Regular.ttf"),
@@ -20,15 +22,17 @@ export default function App() {
   return (
     <Provider store={store}>
       <AuthProvider>
-        {/* For Android + iOS, actual background support */}
-        <StatusBar barStyle="dark-content" backgroundColor="#3a75cdff" />
-        <View style={styles.root}>
-          <NavigationContainer>
-            <SafeAreaView style={styles.container}>
-              <AuthStack />
-            </SafeAreaView>
-          </NavigationContainer>
-        </View>
+        <AnalyticsProvider>
+          {/* For Android + iOS, actual background support */}
+          <StatusBar barStyle="dark-content" backgroundColor="#3a75cdff" />
+          <View style={styles.root}>
+            <NavigationContainer>
+              <SafeAreaView style={styles.container}>
+                <AuthStack />
+              </SafeAreaView>
+            </NavigationContainer>
+          </View>
+        </AnalyticsProvider>
       </AuthProvider>
     </Provider>
   );

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchProperties, getPropertyById, saveProperty, removeSavedProperty, getSavedProperties } from "../../services/property.service";
+import { fetchProperties, getPropertyById, saveProperty, removeSavedProperty, getSavedProperties, fetchMyProperties } from "../../services/property.service";
 
 // Async Thunk to Fetch All Properties
 export const fetchPropertiesAsync = createAsyncThunk(
@@ -11,11 +11,6 @@ export const fetchPropertiesAsync = createAsyncThunk(
       // Assuming response.data contains the array or response itself is the array
       let data = Array.isArray(response) ? response.data.properties : (response.data.properties || response.properties || []);
 
-      // // Strict fallback
-      // if (!Array.isArray(data)) {
-      //   console.warn("API response is not an array, defaulting to empty list.", data);
-      //   data = [];
-      // }
       return data;
     } catch (error) {
       console.error("Fetch Error:", error);
@@ -103,6 +98,25 @@ export const fetchSavedPropertiesAsync = createAsyncThunk(
   }
 );
 
+
+
+// Async Thunk to Fetch User's Properties
+export const fetchMyPropertiesAsync = createAsyncThunk(
+  "property/fetchMyProperties",
+  async (userId, { rejectWithValue }) => {
+    try {
+      // Use dedicated endpoint
+      const response = await fetchMyProperties();
+      // Adjust structure if needed, usually response.data is the payload
+      let data = Array.isArray(response) ? response.data : (response.data?.properties || response.properties || response.data || []);
+      return data;
+    } catch (error) {
+      console.error("Fetch My Properties Error:", error);
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const initialState = {
   properties: [], // Stores ALL properties fetched from API
   status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
@@ -127,7 +141,14 @@ const initialState = {
   savedPropertiesList: [], // List of Objects (for Saved Screen)
   savedPropertiesStatus: 'idle',
   savedPropertiesError: null,
+  savedPropertiesStatus: 'idle',
+  savedPropertiesError: null,
   saveStatus: 'idle', // 'idle' | 'saving' | 'removing'
+
+  // My Properties
+  myProperties: [],
+  myPropertiesStatus: 'idle',
+  myPropertiesError: null,
 };
 
 const propertySlice = createSlice({
@@ -231,7 +252,23 @@ const propertySlice = createSlice({
       .addCase(fetchSavedPropertiesAsync.rejected, (state, action) => {
         state.savedPropertiesStatus = "failed";
         state.savedPropertiesError = action.payload;
+      })
+
+      // MY PROPERTIES Handlers
+      .addCase(fetchMyPropertiesAsync.pending, (state) => {
+        state.myPropertiesStatus = "loading";
+        state.myPropertiesError = null;
+      })
+      .addCase(fetchMyPropertiesAsync.fulfilled, (state, action) => {
+        state.myPropertiesStatus = "succeeded";
+        state.myProperties = action.payload;
+      })
+      .addCase(fetchMyPropertiesAsync.rejected, (state, action) => {
+        state.myPropertiesStatus = "failed";
+        state.myPropertiesError = action.payload;
       });
+
+
   },
 });
 

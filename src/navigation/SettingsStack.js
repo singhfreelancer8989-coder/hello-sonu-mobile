@@ -4,9 +4,15 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import SettingsScreen from '../screens/Settings/SettingsScreen';
 import AboutUsScreen from '../screens/Settings/About/AboutUsScreen';
 import PrivacyPolicyScreen from '../screens/Settings/Privacy/PrivacyPolicyScreen';
+import UpdateProfileScreen from '../screens/Settings/Profile/UpdateProfileScreen';
 import RegisterBrokerScreen from '../screens/Settings/brokerRegister/RegisterBrokerScreen';
 import ContactUsScreen from '../screens/Settings/Contact/ContactUsScreen';
-import UpdateProfileScreen from '../screens/Settings/Profile/UpdateProfileScreen';
+import AnalyticsStack from './AnalyticsStack';
+import MyPropertiesScreen from '../screens/Home/MyPropertiesScreen';
+import PropertDetails from '../screens/Home/PropertDetails';
+import DeletedUserPropertiesScreen from '../screens/Settings/DeletedUserPropertiesScreen';
+
+
 const Stack = createNativeStackNavigator();
 const SettingsStack = () => {
   return (
@@ -17,10 +23,13 @@ const SettingsStack = () => {
       <Stack.Screen name="UpdateProfileScreen" component={UpdateProfileScreen} />
       <Stack.Screen name="PrivacyPolicyScreen" component={PrivacyPolicyScreen} />
       <Stack.Screen name="ContactUsScreen" component={ContactUsScreen} />
+      <Stack.Screen name="AnalyticsStack" component={AnalyticsStack} />
+      <Stack.Screen name="MyPropertiesScreen" component={MyPropertiesScreen} />
+      <Stack.Screen name="DeletedUserPropertiesScreen" component={DeletedUserPropertiesScreen} />
+      <Stack.Screen name="PropertyDetails" component={PropertDetails} />
+
     </Stack.Navigator>
   )
 }
 
 export default SettingsStack
-
-const styles = StyleSheet.create({})

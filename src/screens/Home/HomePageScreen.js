@@ -5,17 +5,29 @@ import SearchFiltersHeader from '../../components/Home/Layout/SearchFiltersHeade
 import PropertySlider from '../../components/Home/Core/PropertySlider';
 import { useDispatch, useSelector } from 'react-redux';
 import { filterPropertiesByCategory } from '../../utility/propertyUtilities';
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { fetchPropertiesAsync, fetchSavedPropertiesAsync } from '../../store/slices/propertySlices';
-import useAuth from '../../hooks/useAuth';
 
-import { useNavigation } from '@react-navigation/native';
+import useAuth from '../../hooks/useAuth';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
 const HomePageScreen = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { userData } = useAuth();
   const properties = useSelector((state) => state.property.properties);
+  const status = useSelector((state) => state.property.status);
+  const [resetKey, setResetKey] = useState(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      // Logic to run when the screen is focused
+      return () => {
+        // Logic to run when the screen loses focus (e.g., navigating away)
+        setResetKey((prev) => prev + 1);
+      };
+    }, [])
+  );
 
   useEffect(() => {
     async function fetchProperties() {
@@ -38,13 +50,13 @@ const HomePageScreen = () => {
 
   return (
     <View style={styles.root}>
-      <AppHeader userName={"Mohit Vaishnav"} avatarUrl={"https://i.pinimg.com/736x/d0/00/fb/d000fb29aa999d3b97aeb648a88d8014.jpg"} />
+      <AppHeader userName={userData ? `${userData.firstName} ${userData.lastName}` : "Welcome"} avatarUrl={"https://i.pinimg.com/736x/d0/00/fb/d000fb29aa999d3b97aeb648a88d8014.jpg"} />
       <ScrollView>
-        <SearchFiltersHeader onSearch={handleSearch} />
-        <PropertySlider title={"Plots/Projects"} category="plots" data={filterPropertiesByCategory(properties, "plots")} />
-        <PropertySlider title={"Houses, Apartment and Flats"} category="house_apartment" data={filterPropertiesByCategory(properties, "House/Apartment/Flat")} />
-        <PropertySlider title={"Shops, Godowns and Offices"} category="office_shop" data={filterPropertiesByCategory(properties, "Shop/Godown/Office")} />
-        <PropertySlider title={"Agricultural Lands and FarmHouses"} category="agriculture_land" data={filterPropertiesByCategory(properties, "AgriculturalLand/FarmHouses")} />
+        <SearchFiltersHeader key={resetKey} onSearch={handleSearch} />
+        <PropertySlider loading={status === 'loading'} title={"Plots and Projects"} category="plots" data={filterPropertiesByCategory(properties, "plots")} />
+        <PropertySlider loading={status === 'loading'} title={"Houses, Apartment and Flats"} category="house_apartment" data={filterPropertiesByCategory(properties, "House/Apartment/Flat")} />
+        <PropertySlider loading={status === 'loading'} title={"Shops, Godowns and Offices"} category="office_shop" data={filterPropertiesByCategory(properties, "Shop/Godown/Office")} />
+        <PropertySlider loading={status === 'loading'} title={"Agricultural Lands and FarmHouses"} category="agriculture_land" data={filterPropertiesByCategory(properties, "AgriculturalLand/FarmHouses")} />
       </ScrollView>
     </View>
   )

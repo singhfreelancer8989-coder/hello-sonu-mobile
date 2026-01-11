@@ -5,10 +5,8 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  StatusBar,
   ScrollView,
   Image, Platform,
-  Linking,
   ActivityIndicator,
   Alert
 } from 'react-native';
@@ -17,14 +15,23 @@ import Entypo from '@expo/vector-icons/Entypo';
 import { useNavigation } from '@react-navigation/native';
 import useAuth from '../../hooks/useAuth';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { showErrorAlert } from '../../utility/error.utility';
 const LoginScreen = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+
+  const handleChange = (name, value) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
   const { login, isLoading } = useAuth();
   const Navigator = useNavigation();
 
   const handleLogin = async () => {
+    const { email, password } = formData;
     if (!email || !password) {
       Alert.alert("Error", "Please enter both email and password");
       return;
@@ -34,7 +41,7 @@ const LoginScreen = () => {
       await login(email, password);
       console.log("Login Success");
     } catch (e) {
-      Alert.alert("Login Failed", e.message || "Something went wrong");
+      showErrorAlert("Login Failed", e);
     }
   }
 
@@ -57,8 +64,8 @@ const LoginScreen = () => {
           <TextInput
             style={styles.input}
             placeholder=""
-            value={email}
-            onChangeText={setEmail}
+            value={formData.email}
+            onChangeText={(text) => handleChange('email', text)}
           />
         </View>
 
@@ -69,8 +76,8 @@ const LoginScreen = () => {
             <TextInput
               style={styles.passwordInput}
               secureTextEntry={!isPasswordVisible}
-              value={password}
-              onChangeText={setPassword}
+              value={formData.password}
+              onChangeText={(text) => handleChange('password', text)}
             />
             <TouchableOpacity
               onPress={() => setIsPasswordVisible(!isPasswordVisible)}

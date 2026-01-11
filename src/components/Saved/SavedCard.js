@@ -10,7 +10,7 @@ const SavedCard = ({ property, onRemove }) => {
   if (!property) return null;
 
   // Image Fallback
-  const imageUri = property.mainImage || (property.images && property.images.length > 0 ? property.images[0].url : "https://via.placeholder.com/150");
+  const imageUri = property.coverImageUrl || property.mainImage || (property.images && property.images.length > 0 ? property.images[0].url : "https://via.placeholder.com/150");
 
   return (
     <TouchableOpacity
@@ -21,7 +21,7 @@ const SavedCard = ({ property, onRemove }) => {
       {/* Image */}
       <Image
         source={{
-          uri: property.mainImage,
+          uri: property.coverImageUrl || property.mainImage,
         }}
         style={styles.image}
         resizeMode="cover"

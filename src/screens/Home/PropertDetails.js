@@ -15,8 +15,10 @@ import { Ionicons, MaterialIcons, FontAwesome5, FontAwesome } from "@expo/vector
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useDispatch, useSelector } from "react-redux";
-import { fetchPropertyByIdAsync, clearCurrentProperty, savePropertyAsync, removeSavedPropertyAsync } from "../../store/slices/propertySlices";
+import { fetchPropertyByIdAsync, clearCurrentProperty, savePropertyAsync, removeSavedPropertyAsync, fetchListingPropertiesAsync, fetchPropertiesAsync } from "../../store/slices/propertySlices";
+import { deleteProperty } from "../../services/property.service";
 import useAuth from "../../hooks/useAuth";
+import { showErrorAlert } from "../../utility/error.utility";
 
 const PropertyDetailsScreen = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -68,7 +70,7 @@ const PropertyDetailsScreen = () => {
     const toggleSave = async () => {
         // console.log("userData", userData);
         if (!userData?.id && !userData?._id) {
-            Alert.alert("Login Required", "Please login to save properties.");
+            showErrorAlert("Login Required", "Please login to save properties.");
             return;
         }
 
@@ -84,11 +86,45 @@ const PropertyDetailsScreen = () => {
         }
     };
 
+
+
+    // HANDLER: Admin Delete
+    const handleAdminDelete = () => {
+        Alert.alert(
+            "Admin Delete",
+            "Are you sure you want to delete this property? This action cannot be undone.",
+            [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            if (!propertyId) {
+                                showErrorAlert("Error", "Property ID missing");
+                                return;
+                            }
+                            await deleteProperty(propertyId);
+                            dispatch(fetchListingPropertiesAsync({ page: 1, limit: 10 })); // Refresh listing
+                            dispatch(fetchPropertiesAsync()); // Refresh home screen
+                            Alert.alert("Success", "Property deleted by Admin", [
+                                { text: "OK", onPress: () => navigation.popToTop() }
+                            ]);
+                        } catch (error) {
+                            console.error("Admin Delete Error:", error);
+                            showErrorAlert("Error", "Failed to delete property");
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
     // HANDLER: Open YouTube
     const openVideo = () => {
         if (currentProperty?.mainVideoUrl) {
             Linking.openURL(currentProperty.mainVideoUrl).catch(err =>
-                Alert.alert("Error", "Could not open video link.")
+                showErrorAlert("Error", "Could not open video link.")
             );
         }
     };
@@ -104,12 +140,25 @@ const PropertyDetailsScreen = () => {
 
     const property = currentProperty;
 
-    // IMAGES FALLBACK
-    const images = property.media && property.media.length > 0
-        ? property.media.map(img => {
-            return img.imageUrl;
-        })
-        : [property.mainImage || "https://via.placeholder.com/400x300?text=No+Image"];
+    // IMAGES LOGIC
+    const coverUrl = property.coverImageUrl || property.mainImage;
+    let imageList = [];
+
+    // Add media images
+    if (property.media && Array.isArray(property.media)) {
+        imageList = property.media.map(img => img.imageUrl);
+    }
+
+    // Add cover image if strictly unique
+    if (coverUrl) {
+        if (!imageList.includes(coverUrl)) {
+            imageList.unshift(coverUrl);
+        }
+    }
+
+    const images = imageList.length > 0
+        ? imageList
+        : ["https://via.placeholder.com/400x300?text=No+Image"];
 
     return (
         <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -123,14 +172,36 @@ const PropertyDetailsScreen = () => {
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Property Details</Text>
 
-                {/* SAVE BUTTON IN HEADER */}
-                <TouchableOpacity style={styles.saveBtnHeader} onPress={toggleSave}>
-                    <MaterialIcons
-                        name={isSaved ? "bookmark" : "bookmark-border"}
-                        size={26}
-                        color={isSaved ? "#3a75cd" : "#111"}
-                    />
-                </TouchableOpacity>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+
+                    {/* EDIT BUTTON (Owner Only) */}
+                    {((userData?.id && property?.userId && String(userData.id) === String(property.userId)) ||
+                        (userData?._id && property?.userId && String(userData._id) === String(property.userId))) && (
+                            <TouchableOpacity
+                                style={{ padding: 6, marginRight: 0 }}
+                                onPress={() => navigation.navigate('EditProperty', { property: property })}
+                            >
+                                <MaterialIcons name="edit" size={24} color="#111" />
+                            </TouchableOpacity>
+                        )}
+
+                    {/* DELETE BUTTON (Admin Only) */}
+                    {userData?.role === 'admin' && (
+                        <TouchableOpacity
+                            style={{ padding: 6, marginRight: 0 }}
+                            onPress={handleAdminDelete}
+                        >
+                            <MaterialIcons name="delete" size={24} color="#ff4444" />
+                        </TouchableOpacity>
+                    )}
+                    <TouchableOpacity style={styles.saveBtnHeader} onPress={toggleSave}>
+                        <MaterialIcons
+                            name={isSaved ? "bookmark" : "bookmark-border"}
+                            size={26}
+                            color={isSaved ? "#3a75cd" : "#111"}
+                        />
+                    </TouchableOpacity>
+                </View>
             </View>
 
 
@@ -212,7 +283,8 @@ const PropertyDetailsScreen = () => {
 
             {/* CITY + ADDRESS */}
             <Text style={styles.city}>{property.city}</Text>
-            <Text style={styles.address}>{property.address || property.landmark}</Text>
+            <Text style={styles.address}>{property.address}</Text>
+            {property.landmark ? <Text style={styles.address}>Landmark: {property.landmark}</Text> : null}
 
             {/* PRICE */}
             <Text style={styles.price}>₹ {property.expectedPrice || property.demandPrice}</Text>
@@ -242,11 +314,19 @@ const PropertyDetailsScreen = () => {
                 </TouchableOpacity>
             ) : null}
 
-            {/* ========== MAP PREVIEW ========== */}
-            {/* <View style={styles.mapPreview}>
-                <Ionicons name="map" size={20} color="#666" />
-                <Text style={styles.mapText}>View on Map</Text>
-            </View> */}
+            {/* ========== MAP PREVIEW / LINK ========== */}
+            {property.googleMapLink && (
+                <TouchableOpacity
+                    style={styles.mapPreview}
+                    onPress={() => Linking.openURL(property.googleMapLink).catch(err => showErrorAlert("Error", "Could not open map link."))}
+                >
+                    <Ionicons name="map" size={22} color="#3a75cd" />
+                    <Text style={[styles.mapText, { color: '#3a75cd', fontFamily: 'Poppins-Medium' }]}>
+                        View on Google Maps
+                    </Text>
+                    <Ionicons name="open-outline" size={18} color="#3a75cd" style={{ marginLeft: 'auto' }} />
+                </TouchableOpacity>
+            )}
 
             {/* ========== DESCRIPTION ========== */}
             <View style={styles.descriptionBox}>

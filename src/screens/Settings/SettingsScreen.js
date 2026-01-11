@@ -59,6 +59,14 @@ const SettingsScreen = () => {
         />
 
         <SettingsItem
+          onPress={() => Navigator.navigate("MyPropertiesScreen")}
+          label="My Properties"
+          icon={<MaterialIcons name="list-alt" size={22} color="#000" />}
+        />
+
+
+
+        <SettingsItem
           onPress={() => Navigator.navigate("RegisterBrokerScreen")}
           label="Join with us?"
           icon={<AntDesign name="user-add" size={22} color="#000" />}
@@ -80,6 +88,22 @@ const SettingsScreen = () => {
           label="Contact Us"
           icon={<Feather name="user" size={22} color="#000" />}
         />
+
+        {userData?.role === 'admin' && (
+          <SettingsItem
+            onPress={() => Navigator.navigate("AnalyticsStack", { screen: "ViewAnalyticsScreen" })}
+            label="Analytics"
+            icon={<MaterialIcons name="analytics" size={22} color="#000" />}
+          />
+        )}
+
+        {userData?.role === 'admin' && (
+          <SettingsItem
+            onPress={() => Navigator.navigate("DeletedUserPropertiesScreen")}
+            label="Deleted User Properties"
+            icon={<MaterialIcons name="delete-sweep" size={22} color="#000" />}
+          />
+        )}
 
         <SettingsItem
           onPress={() => handleLogout(logout)}

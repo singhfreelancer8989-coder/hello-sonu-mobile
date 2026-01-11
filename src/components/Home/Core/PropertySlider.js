@@ -8,12 +8,13 @@ import {
 } from "react-native";
 // Assuming PropertyCard is in the same directory and is correctly implemented
 import PropertyCard from "./PropertyCard";
+import SkeletonPropertyCard from "./SkeletonPropertyCard";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useNavigation } from "@react-navigation/native";
 
 const MAX_SLIDER_CARDS = 5;
 
-const PropertySlider = ({ title = "Properties", data = [], category }) => {
+const PropertySlider = ({ title = "Properties", data = [], category, loading = false }) => {
   const navigation = useNavigation();
 
   const handleSeeAllPress = () => {
@@ -44,7 +45,17 @@ const PropertySlider = ({ title = "Properties", data = [], category }) => {
       </View>
 
       {/* Horizontal List */}
-      {displayedData.length > 0 ? (
+      {loading ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {[1, 2, 3].map((item) => (
+            <SkeletonPropertyCard key={item} style={{ marginRight: wp('4%') }} />
+          ))}
+        </ScrollView>
+      ) : displayedData.length > 0 ? (
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}

@@ -39,7 +39,7 @@ const PropertyCard = ({ item, style }) => {
       <View style={[styles.card, style]}>
         {/* IMAGE */}
         <Image
-          source={{ uri: item?.mainImage || item?.images?.[0]?.url || item?.image }}
+          source={{ uri: item?.coverImageUrl || item?.mainImage || item?.images?.[0]?.url || item?.image }}
           style={styles.image}
           resizeMode="cover"
         />

@@ -29,6 +29,7 @@ import { ActivityIndicator } from 'react-native';
 import { createProperty } from '../../services/property.service';
 import { useDispatch } from 'react-redux';
 import { fetchPropertiesAsync } from '../../store/slices/propertySlices';
+import { showErrorAlert } from '../../utility/error.utility';
 
 const SalesFormScreen = () => {
   const navigation = useNavigation();
@@ -41,7 +42,7 @@ const SalesFormScreen = () => {
     }
   }, [userData]);
 
-  const [formData, setFormData] = useState({
+  const getInitialFormState = () => ({
     userId: userData?.id || userData?._id || "",
     propertyName: '',
     propertyCategory: '',
@@ -53,7 +54,7 @@ const SalesFormScreen = () => {
     address: '',
     landmark: '',
     city: '',
-    mapLink: '',
+    googleMapLink: '',
     expectedPrice: '',
     sellingPreference: 'Normal',
     description: '',
@@ -63,14 +64,19 @@ const SalesFormScreen = () => {
     ownerName: '',
     ownerMobileNumber: '',
     createdBy: userData?.firstName + ' ' + userData?.lastName,
+    createdBy: userData?.firstName + ' ' + userData?.lastName,
     mainVideoUrl: '',//youtube video url
+    coverImageUrl: '',
+    coverImageKey: '',
   });
+
+  const [formData, setFormData] = useState(getInitialFormState());
 
   const [uploading, setUploading] = useState(false);
 
   const handleImagePick = async () => {
-    if (formData.images.length >= 5) {
-      Alert.alert("Limit Reached", "You can upload maximum 5 images.");
+    if (formData.images.length >= 4) {
+      Alert.alert("Limit Reached", "You can upload maximum 4 additional images.");
       return;
     }
 
@@ -80,10 +86,11 @@ const SalesFormScreen = () => {
       try {
         const response = await uploadImage(uri);
         // Response structure: { data: { url, publicId }, message }
-        if (response && response.data) {
+        if (response && response.data.data) {
+          console.log(response);
           const newImage = {
-            url: response.data.url,
-            publicId: response.data.publicId
+            url: response.data.data.url,
+            key: response.data.data.key
           };
           setFormData(prev => ({
             ...prev,
@@ -92,14 +99,14 @@ const SalesFormScreen = () => {
         }
       } catch (error) {
         console.log(error);
-        Alert.alert("Upload Failed", "Could not upload image. Please try again.");
+        showErrorAlert("Upload Failed", "Could not upload image. Please try again.");
       } finally {
         setUploading(false);
       }
     }
   };
 
-  const handleImageDelete = async (publicId) => {
+  const handleImageDelete = async (key) => {
     Alert.alert(
       "Delete Image",
       "Are you sure you want to delete this image?",
@@ -110,19 +117,67 @@ const SalesFormScreen = () => {
           style: "destructive",
           onPress: async () => {
             try {
-              await deleteImage(publicId);
+              // console.log(key)
+              await deleteImage(key);
               setFormData(prev => ({
                 ...prev,
-                images: prev.images.filter(img => img.publicId !== publicId)
+                images: prev.images.filter(img => img.key !== key)
               }));
-              console.log(formData);
+              // console.log(formData);
             } catch (error) {
-              Alert.alert("Error", "Failed to delete image.");
+              showErrorAlert("Error", "Failed to delete image.");
             }
           }
         }
       ]
     );
+  };
+
+  const handleCoverImagePick = async () => {
+    const uri = await pickImage();
+    if (uri) {
+      setUploading(true);
+      try {
+        const response = await uploadImage(uri);
+        if (response && response.data.data) {
+          // Assuming response.data.data includes url and key
+          setFormData(prev => ({
+            ...prev,
+            coverImageUrl: response.data.data.url,
+            coverImageKey: response.data.data.key
+          }));
+        }
+      } catch (error) {
+        console.log(error);
+        showErrorAlert("Upload Failed", "Could not upload cover image.");
+      } finally {
+        setUploading(false);
+      }
+    }
+  };
+
+  const handleCoverImageDelete = () => {
+    Alert.alert("Delete Cover Image", "Remove current cover image?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            if (formData.coverImageKey) {
+              await deleteImage(formData.coverImageKey);
+            }
+            setFormData(prev => ({ ...prev, coverImageUrl: '', coverImageKey: '' }));
+          } catch (err) {
+            console.error("Failed to delete cover image", err);
+            // Even if API fails, clear UI? Or show alert? Best to alert but clear UI for UX or retry.
+            // For now, let's clear it to not block the user, or just alert.
+            // Let's assume we want to force consistency:
+            Alert.alert("Error", "Failed to delete image from server.");
+          }
+        }
+      }
+    ]);
   };
 
   const updateField = (key, value) => {
@@ -172,7 +227,8 @@ const SalesFormScreen = () => {
       "city",
       "ownerName", // Updated from "name" as per formData key
       "ownerMobileNumber", // Updated from "mobile" as per formData key
-      "userId"
+      "userId",
+      "coverImageUrl"
     ];
 
     for (let key of requiredFields) {
@@ -192,11 +248,16 @@ const SalesFormScreen = () => {
       dispatch(fetchPropertiesAsync());
 
       Alert.alert("Success", "Sales form submitted successfully!", [
-        { text: "OK", onPress: () => navigation.goBack() }
+        {
+          text: "OK", onPress: () => {
+            setFormData(getInitialFormState());
+            navigation.goBack();
+          }
+        }
       ]);
     } catch (error) {
       console.error("Submission Error:", error);
-      Alert.alert("Error", "Failed to submit sales form. Please try again.");
+      showErrorAlert("Error", "Failed to submit sales form. Please try again.");
     } finally {
       setUploading(false);
     }
@@ -219,6 +280,26 @@ const SalesFormScreen = () => {
         {/* LOGO */}
         <View style={styles.logoHolder}>
           <Image style={styles.mainLogoImage} source={images.mainLogo} resizeMode="contain" />
+        </View>
+
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Cover Image (Main)</Text>
+          {formData.coverImageUrl ? (
+            <View style={styles.uploadedImageWrapper}>
+              <Image source={{ uri: formData.coverImageUrl }} style={styles.uploadedImage} resizeMode="cover" />
+              <TouchableOpacity
+                style={styles.deleteIcon}
+                onPress={handleCoverImageDelete}
+              >
+                <Ionicons name="close-circle" size={28} color="#ff4444" />
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity style={[styles.uploadButton, { width: '100%', justifyContent: 'center' }]} onPress={handleCoverImagePick} disabled={uploading}>
+              {uploading ? <ActivityIndicator color="#fff" /> : <MaterialIcons name="add-photo-alternate" size={22} color="#fff" />}
+              <Text style={styles.uploadButtonText}>{uploading ? "Uploading..." : "Upload Cover Image"}</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* title */}
@@ -350,10 +431,10 @@ const SalesFormScreen = () => {
           <Text style={styles.label}>Google Map Link</Text>
           <TextInput
             style={styles.input}
-            placeholder="Paste Link"
+            placeholder="Paste Google Map Link here"
             placeholderTextColor="#aaa"
-            value={formData.mapLink}
-            onChangeText={(v) => updateField("mapLink", v)}
+            value={formData.googleMapLink}
+            onChangeText={(v) => updateField("googleMapLink", v)}
           />
         </View>
 
@@ -372,7 +453,7 @@ const SalesFormScreen = () => {
 
         {/* UPLOAD IMAGES */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Upload Images (max 5)</Text>
+          <Text style={styles.label}>Upload Additional Images (Optional, max 4)</Text>
 
           <ScrollView horizontal style={{ marginTop: 8, paddingTop: 10, marginBottom: 8 }} contentContainerStyle={{ paddingRight: 10 }}>
             {formData.images.map((img, idx) => (
@@ -380,7 +461,7 @@ const SalesFormScreen = () => {
                 <Image source={{ uri: img.url }} style={styles.uploadedImage} />
                 <TouchableOpacity
                   style={styles.deleteIcon}
-                  onPress={() => handleImageDelete(img.publicId)}
+                  onPress={() => handleImageDelete(img.key)}
                 >
                   <Ionicons name="close-circle" size={24} color="#ff4444" />
                 </TouchableOpacity>
@@ -388,7 +469,7 @@ const SalesFormScreen = () => {
             ))}
           </ScrollView>
 
-          {formData.images.length < 5 && (
+          {formData.images.length < 4 && (
             <TouchableOpacity style={styles.uploadButton} onPress={handleImagePick} disabled={uploading}>
               {uploading ? <ActivityIndicator color="#fff" /> : <MaterialIcons name="file-upload" size={20} color="#fff" />}
               <Text style={styles.uploadButtonText}>{uploading ? "Uploading..." : "Upload"}</Text>

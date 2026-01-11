@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import AuthContext from "../contexts/AuthContext";
 import { globalApiRequest } from "../utility/api.utility";
 import secureStorage from "../utility/secureStorage.utility";
+import authEvents from "../utility/authEvents";
 import { user as userEndpoints } from "../constants/endpoint.constant";
 
 export const AuthProvider = ({ children }) => {
@@ -41,8 +42,10 @@ export const AuthProvider = ({ children }) => {
       // Adjust based on actual API response structure
       if (response && response.data) {
         // console.log("inside if:", response);
-        setUserToken(response.data);
+        // console.log("inside if:", response);
+        await getUser(response.data);
         await secureStorage.storeToken(response.data);
+        setUserToken(response.data);
       } else {
         throw new Error("Invalid response from server");
       }
@@ -59,7 +62,9 @@ export const AuthProvider = ({ children }) => {
     setIsLoading(true);
     try {
       setUserToken(null);
+      setUserData(null);
       await secureStorage.removeToken();
+      await secureStorage.removeData("me");
     } catch (error) {
       console.error("Logout Error:", error);
     } finally {
@@ -91,6 +96,15 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     isLoggedIn();
+
+    // Subscribe to Auto-Logout Events
+    const unsubscribe = authEvents.subscribeLogout(() => {
+      logout();
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   return (

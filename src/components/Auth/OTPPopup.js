@@ -14,6 +14,7 @@ import {
     Alert
 } from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { showErrorAlert } from '../../utility/error.utility';
 
 const OTPPopup = ({ visible, onClose, onVerify, mobile }) => {
     const Navigator = useNavigation();
@@ -90,7 +91,7 @@ const OTPPopup = ({ visible, onClose, onVerify, mobile }) => {
     const handleVerifyPress = () => {
         const finalOtp = otp.join('');
         if (finalOtp.length < 6) {
-            Alert.alert("Invalid OTP", "Please enter the valid 6-digit OTP.");
+            showErrorAlert("Invalid OTP", "Please enter the valid 6-digit OTP.");
             return;
         }
         onVerify(finalOtp);

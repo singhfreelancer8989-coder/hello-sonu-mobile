@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchListingPropertiesAsync, clearListingProperties } from '../../store/slices/propertySlices';
 import PropertyCard from '../../components/Home/Core/PropertyCard';
+import SkeletonPropertyCard from '../../components/Home/Core/SkeletonPropertyCard';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -139,25 +140,46 @@ const PropertyListingScreen = () => {
         <SafeAreaView style={styles.root} edges={['top', 'left', 'right']}>
             {renderHeader()}
 
-            <FlatList
-                data={listing}
-                renderItem={renderItem}
-                keyExtractor={(item, index) => item.id ? item.id.toString() : index.toString()}
-                onEndReached={handleLoadMore}
-                onEndReachedThreshold={0.5}
-                ListFooterComponent={renderFooter}
-                contentContainerStyle={styles.listContent}
-                columnWrapperStyle={styles.columnWrapper}
-                showsVerticalScrollIndicator={false}
-                numColumns={2}
-                ListEmptyComponent={
-                    listingStatus !== 'loading' && (
-                        <View style={styles.centerContainer}>
-                            <Text style={styles.emptyText}>No properties found.</Text>
-                        </View>
-                    )
-                }
-            />
+            {/* Show Skeletons if loading initially and no data */}
+            {listingStatus === 'loading' && listing.length === 0 ? (
+                <FlatList
+                    data={[1, 2, 3, 4, 5, 6, 7, 8]} // Dummy data for skeletons
+                    renderItem={() => (
+                        <SkeletonPropertyCard
+                            style={{
+                                width: wp('44%'),
+                                marginRight: 0,
+                                marginBottom: hp('2%')
+                            }}
+                        />
+                    )}
+                    keyExtractor={(item) => item.toString()}
+                    contentContainerStyle={styles.listContent}
+                    columnWrapperStyle={styles.columnWrapper}
+                    numColumns={2}
+                    showsVerticalScrollIndicator={false}
+                />
+            ) : (
+                <FlatList
+                    data={listing}
+                    renderItem={renderItem}
+                    keyExtractor={(item, index) => item.id ? item.id.toString() : index.toString()}
+                    onEndReached={handleLoadMore}
+                    onEndReachedThreshold={0.5}
+                    ListFooterComponent={renderFooter}
+                    contentContainerStyle={styles.listContent}
+                    columnWrapperStyle={styles.columnWrapper}
+                    showsVerticalScrollIndicator={false}
+                    numColumns={2}
+                    ListEmptyComponent={
+                        listingStatus !== 'loading' && (
+                            <View style={styles.centerContainer}>
+                                <Text style={styles.emptyText}>No properties found.</Text>
+                            </View>
+                        )
+                    }
+                />
+            )}
 
             {/* Simple Filter Modal for Budget/Size */}
             <Modal visible={isFilterModalVisible} animationType="slide" transparent>
