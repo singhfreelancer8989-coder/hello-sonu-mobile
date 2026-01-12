@@ -75,9 +75,9 @@ export const AuthProvider = ({ children }) => {
   const isLoggedIn = async () => {
     try {
       setIsSplashLoading(true);
-      // Minimum delay to allow splash animation to play (e.g. 2.5 seconds)
+      // Minimum delay to allow splash animation to play (e.g. 1.5 seconds)
       const minDelayPromise = new Promise((resolve) =>
-        setTimeout(resolve, 2500),
+        setTimeout(resolve, 1500),
       );
       const tokenPromise = secureStorage.getToken();
 

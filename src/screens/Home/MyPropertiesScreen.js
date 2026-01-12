@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -8,7 +8,8 @@ import {
     ActivityIndicator,
     TouchableOpacity,
     Image,
-    Alert
+    Alert,
+    RefreshControl
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
@@ -26,6 +27,16 @@ const MyPropertiesScreen = () => {
     const { userData } = useAuth();
 
     const { myProperties, myPropertiesStatus } = useSelector((state) => state.property);
+
+    const [refreshing, setRefreshing] = useState(false);
+
+    const onRefresh = React.useCallback(async () => {
+        setRefreshing(true);
+        if (userData?.id || userData?._id) {
+            await dispatch(fetchMyPropertiesAsync(userData.id || userData._id));
+        }
+        setRefreshing(false);
+    }, [dispatch, userData]);
 
     useEffect(() => {
         if (userData?.id || userData?._id) {
@@ -102,6 +113,7 @@ const MyPropertiesScreen = () => {
         );
     }
 
+
     return (
         <SafeAreaView style={styles.container}>
             {/* HEADER */}
@@ -114,7 +126,7 @@ const MyPropertiesScreen = () => {
             </View>
 
             {/* LIST */}
-            {myProperties.length === 0 ? (
+            {myProperties.length === 0 && myPropertiesStatus !== 'loading' ? (
                 <View style={styles.center}>
                     <Text style={styles.emptyText}>No properties posted yet.</Text>
                 </View>
@@ -125,6 +137,9 @@ const MyPropertiesScreen = () => {
                     renderItem={renderItem}
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#3a75cd"]} />
+                    }
                 />
             )}
         </SafeAreaView>

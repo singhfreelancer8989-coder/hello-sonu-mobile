@@ -9,7 +9,8 @@ import {
     ActivityIndicator,
     Linking,
     Alert,
-    FlatList
+    FlatList,
+    RefreshControl
 } from "react-native";
 import { Ionicons, MaterialIcons, FontAwesome5, FontAwesome } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
@@ -35,6 +36,16 @@ const PropertyDetailsScreen = () => {
     // Check if saved
     // Check if saved
     const isSaved = savedPropertyIds.includes(propertyId);
+
+    const [refreshing, setRefreshing] = useState(false);
+
+    const onRefresh = React.useCallback(async () => {
+        setRefreshing(true);
+        if (propertyId) {
+            await dispatch(fetchPropertyByIdAsync(propertyId));
+        }
+        setRefreshing(false);
+    }, [dispatch, propertyId]);
 
     // CAROUSEL REF
     const flatListRef = useRef(null);
@@ -180,7 +191,13 @@ const PropertyDetailsScreen = () => {
     };
 
     return (
-        <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        <ScrollView
+            style={styles.container}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4834d4"]} />
+            }
+        >
             {/* ========== HEADER BAR (Renamed to prevent conflict) ========== */}
             <View style={styles.topBar}>
                 <TouchableOpacity

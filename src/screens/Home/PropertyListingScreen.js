@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity, ScrollView, Modal } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity, ScrollView, Modal, RefreshControl } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchListingPropertiesAsync, clearListingProperties } from '../../store/slices/propertySlices';
 import PropertyCard from '../../components/Home/Core/PropertyCard';
 import SkeletonPropertyCard from '../../components/Home/Core/SkeletonPropertyCard';
+import { filterPropertiesByCategory, mapBudgetToParams } from '../../utility/propertyUtilities';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,10 +21,10 @@ const FILTER_CATEGORIES = [
 
 const BUDGET_OPTIONS = [
     { label: "Any Budget", value: "" },
-    { label: "10L", value: "10L" },
-    { label: "25L", value: "25L" },
-    { label: "50L", value: "50L" },
-    { label: "1Cr", value: "1Cr" },
+    { label: "10L+", value: "10L+" },
+    { label: "25L+", value: "25L+" },
+    { label: "50L+", value: "50L+" },
+    { label: "1Cr+", value: "1Cr+" },
 ];
 
 const SIZE_OPTIONS = [
@@ -31,6 +32,8 @@ const SIZE_OPTIONS = [
     { label: "1 BHK", value: "1 BHK" },
     { label: "2 BHK", value: "2 BHK" },
     { label: "3 BHK", value: "3 BHK" },
+    { label: "4 BHK", value: "4 BHK" },
+    { label: "5 BHK+", value: "5 BHK+" },
 ];
 
 const PropertyListingScreen = () => {
@@ -47,9 +50,16 @@ const PropertyListingScreen = () => {
     const [selectedSize, setSelectedSize] = useState(route.params?.filters?.flatSize || "");
     const [selectedCity, setSelectedCity] = useState(route.params?.filters?.city || "");
     const [isFilterModalVisible, setFilterModalVisible] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
 
     // Initial Load & Filter Changes
     useEffect(() => {
+        // Enforce House/Apartment if size is selected
+        if (selectedSize && selectedCategory !== "house_apartment") {
+            setSelectedCategory("house_apartment");
+            return;
+        }
+
         // Reset and Fetch whenever filters change (except page)
         dispatch(clearListingProperties());
         fetchData(1);
@@ -58,31 +68,55 @@ const PropertyListingScreen = () => {
             // Optional: clear on unmount if we want fresh state every time
             // dispatch(clearListingProperties());
         };
-    }, [selectedCategory, selectedBudget, selectedSize, selectedCity]);
+    }, [fetchData, selectedCategory, selectedSize]);
 
-    const fetchData = (pageNum) => {
+    const fetchData = useCallback((pageNum) => {
         const filters = {};
-        if (selectedCategory) filters.propertyCategory = selectedCategory; // API expects 'propertyCategory' or 'property_category'? Service handles mapping? User provided 'propertyCategory=plots' and 'property_category=plots'. Using the service's direct param passing.
-        // Actually, user's query example usage: property_category=plots.
-        // My previous dummy logic used property_category. The API response has propertyCategory.
-        // The URL param request example: property_category=plots
+        if (selectedCategory) filters.propertyCategory = selectedCategory;
         if (selectedCategory) filters.property_category = selectedCategory;
-        if (selectedBudget) filters.budget = selectedBudget;
+
+        // Map Budget String ("10L") to API Params ({ minPrice: 1000000 })
+        if (selectedBudget) {
+            const budgetParams = mapBudgetToParams(selectedBudget);
+            Object.assign(filters, budgetParams);
+        }
+
         if (selectedSize) filters.flatSize = selectedSize;
         if (selectedCity) filters.city = selectedCity;
 
-        dispatch(fetchListingPropertiesAsync({
+        // Return the promise so we can await it in onRefresh
+        return dispatch(fetchListingPropertiesAsync({
             page: pageNum,
             limit: 10,
             ...filters
         }));
-    };
+    }, [dispatch, selectedCategory, selectedSize, selectedCity]); // Removed selectedBudget dependency from fetchData params, but kept in dependency array if we want re-fetch? No, if we filter frontend, changing budget should NOT re-fetch.
+
+    // Filter Logic
+    const filteredListing = React.useMemo(() => {
+        if (!selectedBudget) return listing;
+        const params = mapBudgetToParams(selectedBudget);
+        const minPrice = params.minPrice || 0;
+
+        return listing.filter(item => {
+            // Ensure expectedPrice is treated as a number
+            const price = Number(item.expectedPrice) || 0;
+            return price >= minPrice;
+        });
+    }, [listing, selectedBudget]);
 
     const handleLoadMore = () => {
         if (listingStatus !== 'loading' && hasMore) {
             fetchData(page + 1);
         }
     };
+
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        dispatch(clearListingProperties());
+        await fetchData(1);
+        setRefreshing(false);
+    }, [dispatch, fetchData]);
 
     const toggleFilterModal = () => setFilterModalVisible(!isFilterModalVisible);
 
@@ -105,7 +139,14 @@ const PropertyListingScreen = () => {
                     <TouchableOpacity
                         key={cat.value}
                         style={[styles.filterChip, selectedCategory === cat.value && styles.activeChip]}
-                        onPress={() => setSelectedCategory(cat.value)}
+                        onPress={() => {
+                            // Smart Switching: If switching to a category that isn't House/Apartment,
+                            // clear the size filter so the user isn't forced back.
+                            if (cat.value !== "house_apartment") {
+                                setSelectedSize("");
+                            }
+                            setSelectedCategory(cat.value);
+                        }}
                     >
                         <Text style={[styles.chipText, selectedCategory === cat.value && styles.activeChipText]}>{cat.label}</Text>
                     </TouchableOpacity>
@@ -161,7 +202,7 @@ const PropertyListingScreen = () => {
                 />
             ) : (
                 <FlatList
-                    data={listing}
+                    data={filteredListing} // Use filtered list
                     renderItem={renderItem}
                     keyExtractor={(item, index) => item.id ? item.id.toString() : index.toString()}
                     onEndReached={handleLoadMore}
@@ -171,6 +212,9 @@ const PropertyListingScreen = () => {
                     columnWrapperStyle={styles.columnWrapper}
                     showsVerticalScrollIndicator={false}
                     numColumns={2}
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#007bff"]} />
+                    }
                     ListEmptyComponent={
                         listingStatus !== 'loading' && (
                             <View style={styles.centerContainer}>

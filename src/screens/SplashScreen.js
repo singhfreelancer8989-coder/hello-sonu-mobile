@@ -53,6 +53,14 @@ const SplashScreen = () => {
                     resizeMode="contain"
                 />
             </Animated.View>
+            <Animated.Text
+                style={[
+                    styles.loadingText,
+                    { opacity: fadeAnim }
+                ]}
+            >
+                Loading...
+            </Animated.Text>
         </View>
     );
 };
@@ -74,6 +82,13 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
     },
+    loadingText: {
+        marginTop: hp('2%'),
+        fontFamily: 'Poppins-Medium',
+        fontSize: wp('4.5%'),
+        color: '#000000',
+        letterSpacing: 1,
+    }
 });
 
 export default SplashScreen;

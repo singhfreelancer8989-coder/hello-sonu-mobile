@@ -23,5 +23,20 @@ export const filterPropertiesByCategory = (properties, category) => {
         }
 
         return normalizeCat === normalizedCategory;
+        return normalizeCat === normalizedCategory;
     });
+};
+
+export const mapBudgetToParams = (budgetLabel) => {
+    if (!budgetLabel) return {};
+    // Normalize: remove spaces, uppercase
+    const label = String(budgetLabel).replace(/\s/g, '').toUpperCase();
+
+    // conventions: "10L+", "25L", etc.
+    if (label.includes('10L')) return { minPrice: 1000000 };
+    if (label.includes('25L')) return { minPrice: 2500000 };
+    if (label.includes('50L')) return { minPrice: 5000000 };
+    if (label.includes('1CR')) return { minPrice: 10000000 };
+
+    return {};
 };

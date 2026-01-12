@@ -40,7 +40,7 @@ const SalesFormScreen = () => {
   useEffect(() => {
     if (userData?.id || userData?._id) {
       setFormData(prev => ({ ...prev, userId: userData.id || userData._id }));
-      console.log("userData:", JSON.stringify(userData, null, 2));
+      // console.log("userData:", JSON.stringify(userData, null, 2));
     }
   }, [userData]);
 
@@ -97,13 +97,13 @@ const SalesFormScreen = () => {
         const response = await uploadImage(uri);
         // Response structure: { data: { url, publicId }, message }
         if (response && response.data.data) {
-          // console.log(response);
+          console.log(response);
           const newImage = {
             url: response.data.data.url,
             key: response.data.data.key
           };
 
-          // console.log("[SalesForm] Image Uploaded:", newImage.url);
+          console.log("[SalesForm] Image Uploaded:", newImage.url);
           uploadedImagesSession.current.push(newImage.key);
           addOrphanedKey(newImage.key); // Persist for crash cleanup
 
@@ -113,7 +113,7 @@ const SalesFormScreen = () => {
           }));
         }
       } catch (error) {
-        // console.log(error);
+        console.log(error);
         showErrorAlert("Upload Failed", "Could not upload image. Please try again.");
       } finally {
         setUploading(false);
@@ -157,7 +157,7 @@ const SalesFormScreen = () => {
         if (response && response.data.data) {
           // Assuming response.data.data includes url and key
 
-          // console.log("[SalesForm] Cover Image Uploaded:", response.data.data.url);
+          console.log("[SalesForm] Cover Image Uploaded:", response.data.data.url);
           uploadedImagesSession.current.push(response.data.data.key);
           addOrphanedKey(response.data.data.key); // Persist for crash cleanup
 
@@ -168,7 +168,7 @@ const SalesFormScreen = () => {
           }));
         }
       } catch (error) {
-        // console.log(error);
+        console.log(error);
         showErrorAlert("Upload Failed", "Could not upload cover image.");
       } finally {
         setUploading(false);
@@ -212,8 +212,7 @@ const SalesFormScreen = () => {
     { label: 'Plots', value: 'plots' },
     { label: 'House/Apartment', value: 'house_apartment' },
     { label: 'Office/Shop', value: 'office_shop' },
-    { label: 'Agricultural Land', value: 'agriculture_land' },
-    { label: 'Flats', value: 'flats' }
+    { label: 'Agricultural Land', value: 'agriculture_land' }
   ];
   const relationList = ["owner", "relative", "friend", "broker"];
 
@@ -258,9 +257,11 @@ const SalesFormScreen = () => {
       }
     }
 
+
+
     setUploading(true);
     try {
-      // console.log("Submitting formData:", JSON.stringify(formData, null, 2));
+      console.log("Submitting formData:", JSON.stringify(formData, null, 2));
       const response = await createProperty(formData);
       // // console.log("Property Created:", response);
 
@@ -269,10 +270,12 @@ const SalesFormScreen = () => {
 
       Alert.alert("Success", "Sales form submitted successfully!", [
         {
-          text: "OK", onPress: () => {
+          text: "OK", onPress: async () => {
             isSubmitted.current = true;
             // Form success: These images are now permanent. Remove from orphaned list.
-            uploadedImagesSession.current.forEach(key => removeOrphanedKey(key));
+            for (const key of uploadedImagesSession.current) {
+              await removeOrphanedKey(key);
+            }
 
             setFormData(getInitialFormState());
             navigation.goBack();
@@ -300,19 +303,22 @@ const SalesFormScreen = () => {
           const imagesToDelete = [...uploadedImagesSession.current];
           uploadedImagesSession.current = []; // Clear immediately to prevent double delete
 
-          imagesToDelete.forEach(async (key) => {
-            try {
-              console.log("[SalesForm] Deleting orphaned image:", key);
-              await deleteImage(key);
-              await removeOrphanedKey(key); // Remove from persistent storage
-              console.log("[SalesForm] Successfully deleted:", key);
-            } catch (error) {
-              console.error("[SalesForm] Failed to delete image:", key, error);
+          // Serialize cleanup to prevent race conditions
+          (async () => {
+            for (const key of imagesToDelete) {
+              try {
+                console.log("[SalesForm] Deleting orphaned image:", key);
+                await deleteImage(key);
+                await removeOrphanedKey(key); // Remove from persistent storage
+                console.log("[SalesForm] Successfully deleted:", key);
+              } catch (error) {
+                console.error("[SalesForm] Failed to delete image:", key, error);
+              }
             }
-          });
+          })();
 
           // Reset Form Data on Exit/Interruption
-          // console.log("[SalesForm] Resetting form data.");
+          console.log("[SalesForm] Resetting form data.");
           setFormData({
             userId: userDataRef.current?.id || userDataRef.current?._id || "",
             propertyName: '',
@@ -418,7 +424,7 @@ const SalesFormScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {(formData.propertyCategory == 'flats' || formData.propertyCategory == 'house_apartment') && (
+        {(formData.propertyCategory == 'house_apartment') && (
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Flat size(in BHK)</Text>
             <TextInput
@@ -440,6 +446,7 @@ const SalesFormScreen = () => {
             placeholderTextColor="#aaa"
             value={formData.size}
             onChangeText={(v) => updateField("size", v)}
+            keyboardType="numeric"
           />
         </View>
 
@@ -532,9 +539,8 @@ const SalesFormScreen = () => {
           />
         </View>
 
-        {/* UPLOAD IMAGES */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Upload Additional Images (Optional, max 4)</Text>
+          <Text style={styles.label}>Upload Additional Images (Required, max 4)</Text>
 
           <ScrollView horizontal style={{ marginTop: 8, paddingTop: 10, marginBottom: 8 }} contentContainerStyle={{ paddingRight: 10 }}>
             {formData.images.map((img, idx) => (

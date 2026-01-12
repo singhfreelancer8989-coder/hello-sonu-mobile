@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, RefreshControl } from 'react-native'
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 import AppHeader from '../../components/Home/Layout/AppHeader'
 import SearchFiltersHeader from '../../components/Home/Layout/SearchFiltersHeader';
@@ -18,26 +18,35 @@ const HomePageScreen = () => {
   const properties = useSelector((state) => state.property.properties);
   const status = useSelector((state) => state.property.status);
   const [resetKey, setResetKey] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    // We don't necessarily set loading status to 'loading' if it's a background refresh on focus,
+    // but fetchPropertiesAsync handles its own status.
+    await dispatch(fetchPropertiesAsync());
+    if (userData?.id || userData?._id) {
+      dispatch(fetchSavedPropertiesAsync(userData.id || userData._id));
+    }
+  }, [dispatch, userData]);
 
   useFocusEffect(
     useCallback(() => {
-      // Logic to run when the screen is focused
+      fetchData();
       return () => {
-        // Logic to run when the screen loses focus (e.g., navigating away)
         setResetKey((prev) => prev + 1);
       };
-    }, [])
+    }, [fetchData])
   );
 
   useEffect(() => {
-    async function fetchProperties() {
-      await dispatch(fetchPropertiesAsync());
-      if (userData?.id || userData?._id) {
-        dispatch(fetchSavedPropertiesAsync(userData.id || userData._id));
-      }
-    }
-    fetchProperties();
-  }, [dispatch, userData]);
+    fetchData(); // Initial load
+  }, []);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  }, [fetchData]);
 
 
 
@@ -51,7 +60,11 @@ const HomePageScreen = () => {
   return (
     <View style={styles.root}>
       <AppHeader userName={userData ? `${userData.firstName} ${userData.lastName}` : "Welcome"} avatarUrl={"https://i.pinimg.com/736x/d0/00/fb/d000fb29aa999d3b97aeb648a88d8014.jpg"} />
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4834d4"]} />
+        }
+      >
         <SearchFiltersHeader key={resetKey} onSearch={handleSearch} />
         <PropertySlider loading={status === 'loading'} title={"Plots and Projects"} category="plots" data={filterPropertiesByCategory(properties, "plots")} />
         <PropertySlider loading={status === 'loading'} title={"Houses, Apartment and Flats"} category="house_apartment" data={filterPropertiesByCategory(properties, "House/Apartment/Flat")} />

@@ -10,7 +10,7 @@ export const addOrphanedKey = async (key) => {
         const keys = stored ? JSON.parse(stored) : [];
         if (!keys.includes(key)) {
             keys.push(key);
-            // console.log("[OrphanedUtility] Tracking key:", key);
+            console.log("[OrphanedUtility] Tracking key:", key);
             await secureStorage.storeData(ORPHANED_KEY, JSON.stringify(keys));
         }
     } catch (e) {
@@ -26,7 +26,7 @@ export const removeOrphanedKey = async (key) => {
         const initialLen = keys.length;
         keys = keys.filter(k => k !== key);
         if (keys.length !== initialLen) {
-            // console.log("[OrphanedUtility] Removed tracked key:", key);
+            console.log("[OrphanedUtility] Removed tracked key:", key);
             await secureStorage.storeData(ORPHANED_KEY, JSON.stringify(keys));
         }
     } catch (e) {
@@ -39,7 +39,7 @@ export const getAndClearOrphanedKeys = async () => {
         const stored = await secureStorage.getData(ORPHANED_KEY);
         const keys = stored ? JSON.parse(stored) : [];
         if (keys.length > 0) {
-            // console.log("[OrphanedUtility] Found orphaned keys from previous session:", keys.length);
+            console.log("[OrphanedUtility] Found orphaned keys from previous session:", keys.length);
             await secureStorage.removeData(ORPHANED_KEY);
             return keys;
         }

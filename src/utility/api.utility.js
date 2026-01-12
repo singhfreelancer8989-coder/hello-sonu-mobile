@@ -1,16 +1,19 @@
 import axios from "axios";
 import secureStorage from "./secureStorage.utility";
-import { API_URL, API_KEY } from "@env";
 import authEvents from "./authEvents";
 
 // Configure default instance
+// Configure default instance
 const api = axios.create({
-    baseURL: API_URL,
+    baseURL: "http://13.233.250.225/api/v1",
     headers: {
         "Content-Type": "application/json",
-        "x-api-key": API_KEY,
+        "x-api-key": "hello-sonu-582ef09-4f-8b0b-31124e-593e5ca",
     },
 });
+
+console.log('DEBUG: API_URL (Hardcoded):', "http://13.233.250.225/api/v1");
+
 
 /**
  * Core requester for all API calls

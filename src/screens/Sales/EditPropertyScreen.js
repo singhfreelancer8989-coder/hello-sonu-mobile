@@ -107,19 +107,19 @@ const EditPropertyScreen = () => {
                         setDeletedMediaIds(prev => [...prev, id]);
                     } else {
                         // It's a newly added image in this session, remove from newImages
-                        setNewImages(prev => prev.filter(img => img.key !== id));
+                        setNewImages(prev => prev.filter(img => img.imageKey !== id));
                     }
 
                     // Remove from UI list
-                    setMediaList(prev => prev.filter(img => img._id !== id && img.id !== id && img.key !== id));
+                    setMediaList(prev => prev.filter(img => (img._id || img.id || img.key) !== id));
                 }
             }
         ]);
     };
 
     const handleAddImage = async () => {
-        if (mediaList.length >= 5) {
-            Alert.alert("Limit Reached", "Max 5 images.");
+        if (mediaList.length >= 4) {
+            Alert.alert("Limit Reached", "Max 4 images.");
             return;
         }
         const uri = await pickImage();
@@ -194,6 +194,13 @@ const EditPropertyScreen = () => {
                 return;
             }
 
+            // Validation: At least one image required
+            // if (mediaList.length === 0) {
+            //     Alert.alert("Required", "Please add at least one image.");
+            //     setUploading(false);
+            //     return;
+            // }
+
             // Construct Property Object
             const propertyData = {
                 propertyName: formData.propertyName,
@@ -241,14 +248,16 @@ const EditPropertyScreen = () => {
 
             Alert.alert("Success", "Property updated successfully!", [
                 {
-                    text: "OK", onPress: () => {
+                    text: "OK", onPress: async () => {
                         isSubmitted.current = true;
                         // Determine which images are now permanent
                         // 1. Any image in newImages is permanent
-                        newImages.forEach(img => removeOrphanedKey(img.imageKey));
+                        for (const img of newImages) {
+                            await removeOrphanedKey(img.imageKey);
+                        }
                         // 2. The new cover image (if changed) is permanent
                         if (coverImageState.key && coverImageState.key !== originalCoverKey) {
-                            removeOrphanedKey(coverImageState.key);
+                            await removeOrphanedKey(coverImageState.key);
                         }
 
                         dispatch(fetchPropertyByIdAsync(propertyId));
@@ -313,16 +322,19 @@ const EditPropertyScreen = () => {
                     const imagesToDelete = [...uploadedImagesSession.current];
                     uploadedImagesSession.current = []; // Prevent double delete
 
-                    imagesToDelete.forEach(async (key) => {
-                        try {
-                            // console.log("[EditProperty] Deleting orphaned image:", key);
-                            await deleteImage(key);
-                            await removeOrphanedKey(key);
-                            // console.log("[EditProperty] Successfully deleted:", key);
-                        } catch (error) {
-                            // console.error("[EditProperty] Failed to cleanup image:", key, error);
+                    // Serialize cleanup to prevent race conditions
+                    (async () => {
+                        for (const key of imagesToDelete) {
+                            try {
+                                console.log("[EditProperty] Deleting orphaned image:", key);
+                                await deleteImage(key);
+                                await removeOrphanedKey(key);
+                                console.log("[EditProperty] Successfully deleted:", key);
+                            } catch (error) {
+                                console.error("[EditProperty] Failed to cleanup image:", key, error);
+                            }
                         }
-                    });
+                    })();
                 }
             };
         }, [])
@@ -365,7 +377,7 @@ const EditPropertyScreen = () => {
 
                 <View style={styles.inputGroup}>
                     <Text style={styles.label}>Size</Text>
-                    <TextInput style={styles.input} value={formData.size} onChangeText={v => updateField("size", v)} />
+                    <TextInput style={styles.input} value={formData.size} onChangeText={v => updateField("size", v)} keyboardType="numeric" />
                 </View>
 
                 <View style={styles.dimensionContainer}>
@@ -421,9 +433,9 @@ const EditPropertyScreen = () => {
                     <Text style={styles.label}>Property Images (max 4)</Text>
                     <ScrollView horizontal style={{ marginTop: 8, marginBottom: 8, paddingTop: 8 }} contentContainerStyle={{ paddingRight: 10 }}>
                         {mediaList.map((img, idx) => (
-                            <View key={img._id || img.id || idx} style={styles.uploadedImageWrapper}>
+                            <View key={img._id || img.id || img.key || idx} style={styles.uploadedImageWrapper}>
                                 <Image source={{ uri: img.imageUrl || img.url }} style={styles.uploadedImage} />
-                                <TouchableOpacity style={styles.deleteIcon} onPress={() => handleDeleteImage(img._id || img.id)}>
+                                <TouchableOpacity style={styles.deleteIcon} onPress={() => handleDeleteImage(img._id || img.id || img.key)}>
                                     <Ionicons name="close-circle" size={24} color="#ff4444" />
                                 </TouchableOpacity>
                             </View>
