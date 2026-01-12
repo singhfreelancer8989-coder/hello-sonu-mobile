@@ -32,7 +32,7 @@ const ContactUsScreen = () => {
                     onPress={() => navigation.goBack()}
                     style={styles.backButton}
                 >
-                    <Feather name="chevron-left" size={24} color="#2d3436" />
+                    <Ionicons name="chevron-back" size={24} color="#2d3436" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Contact Us</Text>
             </View>
@@ -68,10 +68,10 @@ const ContactUsScreen = () => {
                 {/* WhatsApp */}
                 <ContactItem
                     label="Chat on WhatsApp"
-                    subLabel="+91 XXXXX XXXXX"
+                    subLabel="+91 70008 51860"
                     icon={<FontAwesome name="whatsapp" size={24} color="#fff" />}
                     iconBg="#25D366"
-                    onPress={() => openLink("https://wa.me/message/NYY43FRJDUI4P1")}
+                    onPress={() => openLink("https://wa.me/917000851860")}
                 />
 
                 {/* Call */}

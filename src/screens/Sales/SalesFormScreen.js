@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   StyleSheet,
   View,
@@ -20,11 +20,12 @@ import Entypo from '@expo/vector-icons/Entypo';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Ionicons } from '@expo/vector-icons';
 
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { pickImage } from '../../utility/imagePicker';
 import images from '../../assets/images';
 import useAuth from '../../hooks/useAuth';
 import { uploadImage, deleteImage } from '../../services/imageUpload.service';
+import { addOrphanedKey, removeOrphanedKey } from '../../utility/orphanedImage.utility';
 import { ActivityIndicator } from 'react-native';
 import { createProperty } from '../../services/property.service';
 import { useDispatch } from 'react-redux';
@@ -39,6 +40,7 @@ const SalesFormScreen = () => {
   useEffect(() => {
     if (userData?.id || userData?._id) {
       setFormData(prev => ({ ...prev, userId: userData.id || userData._id }));
+      console.log("userData:", JSON.stringify(userData, null, 2));
     }
   }, [userData]);
 
@@ -72,6 +74,14 @@ const SalesFormScreen = () => {
 
   const [formData, setFormData] = useState(getInitialFormState());
 
+  const uploadedImagesSession = useRef([]); // Track all images uploaded in this session
+  const isSubmitted = useRef(false); // Track if form is successfully submitted
+  const userDataRef = useRef(userData);
+
+  useEffect(() => {
+    userDataRef.current = userData;
+  }, [userData]);
+
   const [uploading, setUploading] = useState(false);
 
   const handleImagePick = async () => {
@@ -87,18 +97,23 @@ const SalesFormScreen = () => {
         const response = await uploadImage(uri);
         // Response structure: { data: { url, publicId }, message }
         if (response && response.data.data) {
-          console.log(response);
+          // console.log(response);
           const newImage = {
             url: response.data.data.url,
             key: response.data.data.key
           };
+
+          // console.log("[SalesForm] Image Uploaded:", newImage.url);
+          uploadedImagesSession.current.push(newImage.key);
+          addOrphanedKey(newImage.key); // Persist for crash cleanup
+
           setFormData(prev => ({
             ...prev,
             images: [...prev.images, newImage]
           }));
         }
       } catch (error) {
-        console.log(error);
+        // console.log(error);
         showErrorAlert("Upload Failed", "Could not upload image. Please try again.");
       } finally {
         setUploading(false);
@@ -117,13 +132,13 @@ const SalesFormScreen = () => {
           style: "destructive",
           onPress: async () => {
             try {
-              // console.log(key)
+              // // console.log(key)
               await deleteImage(key);
               setFormData(prev => ({
                 ...prev,
                 images: prev.images.filter(img => img.key !== key)
               }));
-              // console.log(formData);
+              // // console.log(formData);
             } catch (error) {
               showErrorAlert("Error", "Failed to delete image.");
             }
@@ -141,6 +156,11 @@ const SalesFormScreen = () => {
         const response = await uploadImage(uri);
         if (response && response.data.data) {
           // Assuming response.data.data includes url and key
+
+          // console.log("[SalesForm] Cover Image Uploaded:", response.data.data.url);
+          uploadedImagesSession.current.push(response.data.data.key);
+          addOrphanedKey(response.data.data.key); // Persist for crash cleanup
+
           setFormData(prev => ({
             ...prev,
             coverImageUrl: response.data.data.url,
@@ -148,7 +168,7 @@ const SalesFormScreen = () => {
           }));
         }
       } catch (error) {
-        console.log(error);
+        // console.log(error);
         showErrorAlert("Upload Failed", "Could not upload cover image.");
       } finally {
         setUploading(false);
@@ -240,9 +260,9 @@ const SalesFormScreen = () => {
 
     setUploading(true);
     try {
-      console.log("Submitting formData:", JSON.stringify(formData, null, 2));
+      // console.log("Submitting formData:", JSON.stringify(formData, null, 2));
       const response = await createProperty(formData);
-      // console.log("Property Created:", response);
+      // // console.log("Property Created:", response);
 
       // RELOAD PROPERTIES
       dispatch(fetchPropertiesAsync());
@@ -250,6 +270,10 @@ const SalesFormScreen = () => {
       Alert.alert("Success", "Sales form submitted successfully!", [
         {
           text: "OK", onPress: () => {
+            isSubmitted.current = true;
+            // Form success: These images are now permanent. Remove from orphaned list.
+            uploadedImagesSession.current.forEach(key => removeOrphanedKey(key));
+
             setFormData(getInitialFormState());
             navigation.goBack();
           }
@@ -262,6 +286,63 @@ const SalesFormScreen = () => {
       setUploading(false);
     }
   };
+
+  // Cleanup effect using useFocusEffect to catch Tab Switching and Back Navigation
+  useFocusEffect(
+    useCallback(() => {
+      // Screen Focused
+      return () => {
+        // Screen Blurred (Tab switch, Back, or Navigate away)
+        if (!isSubmitted.current && uploadedImagesSession.current.length > 0) {
+          console.log("[SalesForm] Screen blurred/unmounted without submission. Cleanup started.");
+
+          // Clone the array to avoid concurrency issues if this runs multiple times
+          const imagesToDelete = [...uploadedImagesSession.current];
+          uploadedImagesSession.current = []; // Clear immediately to prevent double delete
+
+          imagesToDelete.forEach(async (key) => {
+            try {
+              console.log("[SalesForm] Deleting orphaned image:", key);
+              await deleteImage(key);
+              await removeOrphanedKey(key); // Remove from persistent storage
+              console.log("[SalesForm] Successfully deleted:", key);
+            } catch (error) {
+              console.error("[SalesForm] Failed to delete image:", key, error);
+            }
+          });
+
+          // Reset Form Data on Exit/Interruption
+          // console.log("[SalesForm] Resetting form data.");
+          setFormData({
+            userId: userDataRef.current?.id || userDataRef.current?._id || "",
+            propertyName: '',
+            propertyCategory: '',
+            relationToProperty: '',
+            flatSize: '',
+            size: '',
+            lengthFt: '',
+            widthFt: '',
+            address: '',
+            landmark: '',
+            city: '',
+            googleMapLink: '',
+            expectedPrice: '',
+            sellingPreference: 'Normal',
+            description: '',
+            imageUris: [],
+            images: [],
+            isVerified: false,
+            ownerName: '',
+            ownerMobileNumber: '',
+            createdBy: userDataRef.current?.firstName + ' ' + userDataRef.current?.lastName,
+            mainVideoUrl: '',
+            coverImageUrl: '',
+            coverImageKey: '',
+          });
+        }
+      };
+    }, [])
+  );
 
   return (
     <SafeAreaView style={styles.root}>

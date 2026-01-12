@@ -14,7 +14,7 @@ const SavedScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { userData } = useAuth();
-  const { savedPropertiesList, savedPropertiesStatus,  } = useSelector(state => state.property);
+  const { savedPropertiesList, savedPropertiesStatus, } = useSelector(state => state.property);
 
   const fetchSaved = useCallback(() => {
     if (userData?.id || userData?._id) {
@@ -29,7 +29,7 @@ const SavedScreen = () => {
   );
 
   // useEffect(()=>{
-  //   console.log(savedPropertiesList)
+  //   // console.log(savedPropertiesList)
   // }, [savedPropertiesList])
 
   const handleRemove = (propertyId) => {
@@ -76,7 +76,7 @@ const SavedScreen = () => {
             </View>
           ) : (
             savedPropertiesList.map((item, index) => (
-              <SavedCard key={item.id || item._id || index} property={{...item.property}} onRemove={handleRemove} />
+              <SavedCard key={item.id || item._id || index} property={{ ...item.property }} onRemove={handleRemove} />
             ))
           )}
           <View style={{ height: 50 }} />

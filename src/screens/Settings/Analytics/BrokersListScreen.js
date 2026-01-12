@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { StyleSheet, Text, View, FlatList, TouchableOpacity, ActivityIndicator, Alert, RefreshControl } from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
+import { MaterialIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { getAllBrokers, deleteBroker } from '../../../services/broker.service';
 import { showErrorAlert, getErrorMessage } from '../../../utility/error.utility';
@@ -110,7 +110,7 @@ const BrokersListScreen = () => {
                 </View>
 
                 <TouchableOpacity onPress={() => handleDelete(item.id)} style={styles.deleteButton}>
-                    <MaterialIcons name="delete-outline" size={20} color="#FF3B30" />
+                    <MaterialIcons name="delete" size={20} color="#FF3B30" />
                 </TouchableOpacity>
             </View>
         </View>
@@ -120,7 +120,7 @@ const BrokersListScreen = () => {
         <View style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <MaterialIcons name="arrow-back" size={24} color="#333" />
+                    <Ionicons name="chevron-back" size={24} color="#333" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Broker Management</Text>
             </View>

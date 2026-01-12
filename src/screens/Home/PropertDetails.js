@@ -55,7 +55,7 @@ const PropertyDetailsScreen = () => {
 
     useEffect(() => {
 
-        // console.log("Fetching property with ID:", propertyId);
+        // // console.log("Fetching property with ID:", propertyId);
         if (propertyId) {
             dispatch(fetchPropertyByIdAsync(propertyId));
         }
@@ -68,7 +68,7 @@ const PropertyDetailsScreen = () => {
 
     // HANDLER: Toggle Save
     const toggleSave = async () => {
-        // console.log("userData", userData);
+        // // console.log("userData", userData);
         if (!userData?.id && !userData?._id) {
             showErrorAlert("Login Required", "Please login to save properties.");
             return;
@@ -159,6 +159,25 @@ const PropertyDetailsScreen = () => {
     const images = imageList.length > 0
         ? imageList
         : ["https://via.placeholder.com/400x300?text=No+Image"];
+
+    // HANDLER: Open WhatsApp with Country Code
+    const openWhatsApp = () => {
+        let phone = property.ownerMobileNumber || '';
+        // Remove non-numeric characters
+        phone = phone.replace(/\D/g, '');
+
+        // Add India Country Code (91) if missing (assuming 10-digit number)
+        if (phone.length === 10) {
+            phone = '91' + phone;
+        }
+
+        const message = `Hi, I'm interested in your property: ${property.propertyName || ''}`;
+        const url = `whatsapp://send?phone=${phone}&text=${message}`;
+
+        Linking.openURL(url).catch(() => {
+            showErrorAlert("Error", "Could not open WhatsApp. Make sure it is installed.");
+        });
+    };
 
     return (
         <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -357,7 +376,7 @@ const PropertyDetailsScreen = () => {
 
                 <TouchableOpacity
                     style={[styles.btn, { backgroundColor: "#25D366" }]}
-                    onPress={() => Linking.openURL(`whatsapp://send?phone=${property.ownerMobileNumber}&text=Hi, I'm interested in your property: ${property.propertyName}`)}
+                    onPress={openWhatsApp}
                 >
                     <Ionicons name="logo-whatsapp" size={20} color="#fff" />
                     <Text style={styles.btnText}>WhatsApp</Text>

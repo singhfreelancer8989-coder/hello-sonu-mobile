@@ -11,6 +11,7 @@ import AnalyticsStack from './AnalyticsStack';
 import MyPropertiesScreen from '../screens/Home/MyPropertiesScreen';
 import PropertDetails from '../screens/Home/PropertDetails';
 import DeletedUserPropertiesScreen from '../screens/Settings/DeletedUserPropertiesScreen';
+import EditPropertyScreen from '../screens/Sales/EditPropertyScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -26,6 +27,7 @@ const SettingsStack = () => {
       <Stack.Screen name="AnalyticsStack" component={AnalyticsStack} />
       <Stack.Screen name="MyPropertiesScreen" component={MyPropertiesScreen} />
       <Stack.Screen name="DeletedUserPropertiesScreen" component={DeletedUserPropertiesScreen} />
+      <Stack.Screen name="EditProperty" component={EditPropertyScreen} />
       <Stack.Screen name="PropertyDetails" component={PropertDetails} />
 
     </Stack.Navigator>

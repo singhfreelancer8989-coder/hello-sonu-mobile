@@ -7,7 +7,7 @@ export const registerBroker = async (data) => {
 
 export const getAllBrokers = async () => {
     const response = await globalApiRequest(true, "GET", broker.list);
-    // console.log(response)
+    // // console.log(response)
     return response;
 };
 

@@ -15,7 +15,10 @@ const UsersListScreen = () => {
     const route = useRoute();
     const { role = 'customer' } = route.params || {};
 
-    const [users, setUsers] = useState([]);
+    const [activeUsers, setActiveUsers] = useState([]);
+    const [deletedUsers, setDeletedUsers] = useState([]);
+    const [activeTab, setActiveTab] = useState('active'); // 'active' | 'deleted'
+
     const [loading, setLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState(null);
@@ -28,8 +31,15 @@ const UsersListScreen = () => {
         try {
             const response = await getUsersByRole(role);
             if (response && response.data) {
-                // Map role for UI consistency
-                setUsers(response.data.map(u => ({ ...u, role })));
+                // Check if response has new structure { activeUsers, deletedUsers }
+                if (response.data.activeUsers && response.data.deletedUsers) {
+                    setActiveUsers(response.data.activeUsers.map(u => ({ ...u, role })));
+                    setDeletedUsers(response.data.deletedUsers.map(u => ({ ...u, role })));
+                } else {
+                    // Fallback for old structure (array only)
+                    setActiveUsers(response.data.map(u => ({ ...u, role })));
+                    setDeletedUsers([]);
+                }
             } else {
                 setError(response?.message || `Failed to fetch ${screenTitle}`);
             }
@@ -44,7 +54,7 @@ const UsersListScreen = () => {
     useFocusEffect(
         React.useCallback(() => {
             fetchUsers();
-            return () => { setUsers([]); setLoading(false); }; // Cleanup
+            return () => { setActiveUsers([]); setDeletedUsers([]); setLoading(false); }; // Cleanup
         }, [fetchUsers])
     );
 
@@ -66,7 +76,9 @@ const UsersListScreen = () => {
                         try {
                             const response = await deleteUser(role, id);
                             if (response) {
-                                setUsers(prev => prev.filter(item => item.id !== id));
+                                // Move user from active to deleted locally or just refetch
+                                // Refetch is safer to get updated lists
+                                fetchUsers();
                                 Alert.alert("Success", `${role === 'admin' ? 'Admin' : 'User'} deleted successfully`);
                             } else {
                                 showErrorAlert("Error", response?.message || "Failed to delete");
@@ -81,7 +93,7 @@ const UsersListScreen = () => {
     };
 
     const renderItem = ({ item }) => (
-        <View style={styles.userCard}>
+        <View style={[styles.userCard, activeTab === 'deleted' && { opacity: 0.7 }]}>
             <View style={[styles.avatar, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#E3F2FD' }]}>
                 <FontAwesome5 name={item.role === 'admin' ? "user-shield" : "user"} size={24} color="#007AFF" />
             </View>
@@ -91,36 +103,66 @@ const UsersListScreen = () => {
                     {item.role === 'admin' && <MaterialIcons name="admin-panel-settings" size={16} color="#FF9800" />}
                 </View>
                 <Text style={styles.userEmail}>{item.email || item.mobileNumber || 'No contact info'}</Text>
-                <Text style={styles.userDate}>Joined: {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'N/A'}</Text>
+                <Text style={styles.userDate}>
+                    {activeTab === 'deleted'
+                        ? `Deleted: ${item.deletedAt ? new Date(item.deletedAt).toLocaleDateString() : 'N/A'}`
+                        : `Joined: ${item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'N/A'}`
+                    }
+                </Text>
             </View>
             <View style={styles.statusContainer}>
                 <View style={[styles.statusBadge,
-                { backgroundColor: item.status === 'active' ? '#E8F5E9' : item.status === 'inactive' ? '#FFF3E0' : '#FFEBEE' }
+                { backgroundColor: activeTab === 'deleted' ? '#FFEBEE' : (item.status === 'active' ? '#E8F5E9' : '#FFF3E0') }
                 ]}>
                     <Text style={[styles.statusText,
-                    { color: item.status === 'active' ? '#2E7D32' : item.status === 'inactive' ? '#EF6C00' : '#C62828' }
-                    ]}>{item.status ? item.status.toUpperCase() : 'UNKNOWN'}</Text>
+                    { color: activeTab === 'deleted' ? '#C62828' : (item.status === 'active' ? '#2E7D32' : '#EF6C00') }
+                    ]}>{activeTab === 'deleted' ? 'DELETED' : (item.status ? item.status.toUpperCase() : 'UNKNOWN')}</Text>
                 </View>
-                <View style={[styles.statusBadge, { backgroundColor: '#F3E5F5', marginTop: 4 }]}>
-                    <Text style={[styles.statusText, { color: '#7B1FA2', fontSize: 10 }]}>{item.role ? item.role.toUpperCase() : 'USER'}</Text>
-                </View>
-                <TouchableOpacity onPress={() => handleDelete(item.id)} style={styles.actionButton}>
-                    <MaterialIcons name="delete-outline" size={24} color="#FF3B30" />
-                </TouchableOpacity>
+
+                {/* Only show delete action for active users */}
+                {activeTab === 'active' && (
+                    <TouchableOpacity onPress={() => handleDelete(item.id)} style={styles.actionButton}>
+                        <MaterialIcons name="delete-outline" size={24} color="#FF3B30" />
+                    </TouchableOpacity>
+                )}
             </View>
         </View>
     );
+
+    const dataToDisplay = activeTab === 'active' ? activeUsers : deletedUsers;
 
     return (
         <View style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <MaterialIcons name="arrow-back" size={24} color="#333" />
+                    <Ionicons name="chevron-back" size={24} color="#333" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>All {screenTitle}</Text>
+                <Text style={styles.headerTitle}>{screenTitle}</Text>
             </View>
 
-            {loading && !refreshing && !users.length ? (
+            {/* TAB SELECTOR */}
+            <View style={styles.tabContainer}>
+                <TouchableOpacity
+                    style={[styles.tabButton, activeTab === 'active' && styles.activeTabButton]}
+                    onPress={() => setActiveTab('active')}
+                >
+                    <Text style={[styles.tabText, activeTab === 'active' && styles.activeTabText]}>Active ({activeUsers.length})</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[
+                        styles.tabButton,
+                        activeTab === 'deleted' && styles.activeDeletedTabButton
+                    ]}
+                    onPress={() => setActiveTab('deleted')}
+                >
+                    <Text style={[
+                        styles.tabText,
+                        activeTab === 'deleted' && styles.activeDeletedTabText
+                    ]}>Deleted ({deletedUsers.length})</Text>
+                </TouchableOpacity>
+            </View>
+
+            {loading && !refreshing && !dataToDisplay.length ? (
                 <View style={styles.centerContainer}>
                     <ActivityIndicator size="large" color="#007AFF" />
                 </View>
@@ -133,7 +175,7 @@ const UsersListScreen = () => {
                 </View>
             ) : (
                 <FlatList
-                    data={users}
+                    data={dataToDisplay}
                     renderItem={renderItem}
                     keyExtractor={(item, index) => item.id || index.toString()}
                     contentContainerStyle={styles.listContent}
@@ -143,7 +185,7 @@ const UsersListScreen = () => {
                     }
                     ListEmptyComponent={
                         <View style={styles.centerContainer}>
-                            <Text style={styles.emptyText}>No {role === 'customer' ? 'users' : 'admins'} found.</Text>
+                            <Text style={styles.emptyText}>No {activeTab} {role === 'customer' ? 'users' : 'admins'} found.</Text>
                         </View>
                     }
                 />
@@ -267,4 +309,45 @@ const styles = StyleSheet.create({
         color: '#8E8E93',
         fontFamily: 'Poppins-Medium',
     },
+    tabContainer: {
+        flexDirection: 'row',
+        paddingHorizontal: wp('4%'),
+        marginVertical: hp('1%'),
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        marginHorizontal: wp('4%'),
+        padding: 4
+    },
+    tabButton: {
+        flex: 1,
+        paddingVertical: hp('1%'),
+        alignItems: 'center',
+        borderRadius: 6,
+    },
+    activeTabButton: {
+        backgroundColor: '#E3F2FD',
+    },
+    tabText: {
+        fontSize: wp('3.5%'),
+        fontFamily: 'Poppins-Regular',
+        color: '#757575',
+    },
+    activeTabText: {
+        fontFamily: 'Poppins-Medium',
+        color: '#007AFF',
+    },
+    activeDeletedTabButton: {
+        backgroundColor: 'rgba(255, 59, 48, 0.1)', // Red glass tint
+        borderWidth: 1,
+        borderColor: 'rgba(255, 59, 48, 0.2)',
+        shadowColor: "#FF3B30",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 3,
+    },
+    activeDeletedTabText: {
+        fontFamily: 'Poppins-Medium',
+        color: '#D32F2F',
+    }
 });

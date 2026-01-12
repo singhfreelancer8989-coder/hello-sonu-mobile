@@ -7,8 +7,20 @@ import { Alert } from 'react-native';
  * @returns {string} - A user-friendly error message.
  */
 export const getErrorMessage = (error) => {
+    if (error?.response?.status === 400) {
+        return "Notice: Please verify your email, password, or provided information.";
+    }
     if (error?.response?.data?.message) {
         return error.response.data.message;
+    }
+    if (error?.response?.status === 401) {
+        return "Incorrect email or password.";
+    }
+    if (error?.response?.status === 403) {
+        return "Your account is disabled or unverified.";
+    }
+    if (error?.response?.status === 404) {
+        return "User not found. Please sign up.";
     }
     if (error?.response?.status === 413) {
         return "The file is too large to upload. Please choose a smaller image.";

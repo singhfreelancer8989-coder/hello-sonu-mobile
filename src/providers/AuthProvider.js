@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
         const [headerB64, payloadB64, signature] = token.split(".");
         const payload = await JSON.parse(atob(payloadB64));
         setUserData(payload);
-        // console.log(payload)
+        // // console.log(payload)
         await secureStorage.storeData("me", JSON.stringify(payload));
       }
     } catch (error) {
@@ -36,13 +36,13 @@ export const AuthProvider = ({ children }) => {
         userEndpoints.login,
         { email, password },
       );
-      // console.log("outside if:", response);
+      // // console.log("outside if:", response);
 
       // Assuming response contains { token: '...', user: { ... } }
       // Adjust based on actual API response structure
       if (response && response.data) {
-        // console.log("inside if:", response);
-        // console.log("inside if:", response);
+        // // console.log("inside if:", response);
+        // // console.log("inside if:", response);
         await getUser(response.data);
         await secureStorage.storeToken(response.data);
         setUserToken(response.data);

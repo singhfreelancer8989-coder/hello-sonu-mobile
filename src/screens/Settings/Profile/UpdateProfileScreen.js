@@ -8,14 +8,14 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
-import { MaterialIcons, Feather } from "@expo/vector-icons";
+import { MaterialIcons, Feather, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import useAuth from "../../../hooks/useAuth";
 
 const UpdateProfileScreen = () => {
   const navigation = useNavigation();
-  const {userData} = useAuth();
+  const { userData } = useAuth();
 
   // Dummy user data — replace with your backend/auth state
   const [firstName, setFirstName] = useState(userData.firstName);
@@ -36,7 +36,7 @@ const UpdateProfileScreen = () => {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <MaterialIcons name="chevron-left" size={24} color="#007AFF" />
+          <Ionicons name="chevron-back" size={24} color="#007AFF" />
         </TouchableOpacity>
         <Text style={styles.title}>Update Profile</Text>
       </View>

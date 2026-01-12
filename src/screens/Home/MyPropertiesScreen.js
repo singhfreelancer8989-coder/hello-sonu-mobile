@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 import useAuth from '../../hooks/useAuth';
@@ -64,7 +64,7 @@ const MyPropertiesScreen = () => {
     };
 
     const renderItem = ({ item }) => {
-        const imageUri = item.media && item.media.length > 0 ? item.media[0].imageUrl : (item.coverImageUrl || item.mainImage || "https://via.placeholder.com/150");
+        const imageUri = item.mainImage || item.media?.[0]?.imageUrl || 'https://via.placeholder.com/150';
 
         return (
             <TouchableOpacity style={styles.card} onPress={() => handleCardPress(item)}>
@@ -80,9 +80,14 @@ const MyPropertiesScreen = () => {
                                 {item.isVerified ? 'Verified' : 'Pending'}
                             </Text>
                         </View>
-                        <TouchableOpacity onPress={() => handleDelete(item._id || item.id)} style={{ padding: 4 }}>
-                            <Ionicons name="trash-outline" size={20} color="#ff4444" />
-                        </TouchableOpacity>
+                        <View style={{ flexDirection: 'row', gap: 12 }}>
+                            <TouchableOpacity onPress={() => navigation.navigate('EditProperty', { property: item })} style={{ padding: 4 }}>
+                                <MaterialIcons name="edit" size={22} color="#3a75cd" />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => handleDelete(item._id || item.id)} style={{ padding: 4 }}>
+                                <MaterialIcons name="delete" size={22} color="#ff4444" />
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </TouchableOpacity>

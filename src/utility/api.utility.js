@@ -33,7 +33,7 @@ export const globalApiRequest = async (useToken, method, url, data = null, confi
 
     try {
         const response = await api.request(requestConfig);
-        // console.log(`[API Response] ${method} ${url}:`, response.data);
+        // // console.log(`[API Response] ${method} ${url}:`, response.data);
         return response.data;
     } catch (error) {
         // Log more specific error details

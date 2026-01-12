@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 import { getDeletedUserProperties, deleteProperty } from '../../services/property.service';
@@ -52,8 +52,9 @@ const DeletedUserPropertiesScreen = () => {
     );
 
     const handleCardPress = (property) => {
-        // Optional: Navigate to details if needed, or maybe just read-only?
-        // navigation.navigate('PropertyDetails', { propertyId: property._id || property.id });
+        if (property?._id || property?.id) {
+            navigation.navigate('PropertyDetails', { propertyId: property._id || property.id });
+        }
     };
 
     const handleDelete = (propertyId) => {
@@ -96,7 +97,7 @@ const DeletedUserPropertiesScreen = () => {
                             <Text style={styles.deletedText}>Deleted User Property</Text>
                         </View>
                         <TouchableOpacity onPress={() => handleDelete(item._id || item.id)} style={{ padding: 8 }}>
-                            <Ionicons name="trash" size={22} color="#ff4444" />
+                            <MaterialIcons name="delete" size={22} color="#ff4444" />
                         </TouchableOpacity>
                     </View>
                 </View>

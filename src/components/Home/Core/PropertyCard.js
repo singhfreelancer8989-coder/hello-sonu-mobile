@@ -55,6 +55,7 @@ const PropertyCard = ({ item, style }) => {
 
         {/* HEADER ROW */}
         <View style={styles.rowBetween}>
+          {/* Title takes available space */}
           <Text numberOfLines={1} style={styles.type}>{item?.propertyName || item?.propertyCategory || item?.propertyType}</Text>
 
           {/* VERIFIED BADGE */}
@@ -73,14 +74,14 @@ const PropertyCard = ({ item, style }) => {
         </View>
 
         {/* PRICE */}
-        <Text style={styles.price}>₹ {item?.expectedPrice || item?.demandPrice}</Text>
+        <Text numberOfLines={1} adjustsFontSizeToFit style={styles.price}>₹ {item?.expectedPrice || item?.demandPrice}</Text>
 
         {/* META INFO */}
         <View style={styles.metaRow}>
-          <Text style={styles.meta}>
+          <Text numberOfLines={1} style={[styles.meta, { flex: 1, marginRight: 4 }]}>
             {item?.lengthFt || item?.length} x {item?.widthFt || item?.width}
           </Text>
-          <Text style={styles.meta}>{item?.size}</Text>
+          <Text numberOfLines={1} style={[styles.meta, { flex: 0.8, textAlign: 'right' }]}>{item?.size}</Text>
         </View>
       </View>
     </TouchableOpacity>

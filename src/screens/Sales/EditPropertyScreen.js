@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
     StyleSheet,
     View,
@@ -8,15 +8,19 @@ import {
     ScrollView,
     Image,
     Alert,
-    ActivityIndicator
+    ActivityIndicator,
+    Modal,
+    FlatList,
+    TouchableWithoutFeedback
 } from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { Ionicons, MaterialIcons, Entypo } from '@expo/vector-icons';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import { pickImage } from '../../utility/imagePicker';
-import { uploadImage } from '../../services/imageUpload.service';
+import { uploadImage, deleteImage } from '../../services/imageUpload.service';
+import { addOrphanedKey, removeOrphanedKey } from '../../utility/orphanedImage.utility';
 import { deleteProperty, updateProperty, updatePropertyCoverImage } from '../../services/property.service';
 import { fetchPropertyByIdAsync, fetchListingPropertiesAsync, fetchPropertiesAsync } from '../../store/slices/propertySlices';
 
@@ -69,6 +73,27 @@ const EditPropertyScreen = () => {
     const [deletedMediaIds, setDeletedMediaIds] = useState([]);
     const [newImages, setNewImages] = useState([]);
 
+    const uploadedImagesSession = useRef([]); // Track all images uploaded in this session
+    const isSubmitted = useRef(false); // Track if form is successfully submitted
+
+    // Modal Logic for Dropdown
+    const [activeModalField, setActiveModalField] = useState(null);
+    const openModal = (field) => setActiveModalField(field);
+    const closeModal = () => setActiveModalField(null);
+
+    const relationList = ["owner", "relative", "friend", "broker"];
+
+    const getModalData = () => {
+        if (activeModalField === 'relationToProperty') return relationList;
+        return [];
+    };
+
+    const handleSelection = (item) => {
+        const value = item.value || item;
+        updateField(activeModalField, value);
+        closeModal();
+    };
+
     // UI-Only handlers for batch update
     const handleDeleteImage = (id) => {
         Alert.alert("Delete Image", "Remove this image?", [
@@ -106,6 +131,10 @@ const EditPropertyScreen = () => {
             if (res && res.data && res.data.data) {
                 const uploadedData = res.data.data; // { url, key, publicId }
 
+                // console.log("[EditProperty] Image Uploaded:", uploadedData.url);
+                uploadedImagesSession.current.push(uploadedData.key); // Track for cleanup
+                addOrphanedKey(uploadedData.key); // Persistent tracking
+
                 const newImageObj = {
                     imageUrl: uploadedData.url,
                     imageKey: uploadedData.key,
@@ -137,34 +166,19 @@ const EditPropertyScreen = () => {
             if (res && res.data && res.data.data) {
                 const uploadedData = res.data.data; // { url, key }
 
-                const propertyId = existingProperty?.id || existingProperty?._id;
-                if (!propertyId) {
-                    Alert.alert("Error", "Property ID missing");
-                    return;
-                }
+                // console.log("[EditProperty] Cover Image Uploaded:", uploadedData.url);
+                uploadedImagesSession.current.push(uploadedData.key); // Track for cleanup
+                addOrphanedKey(uploadedData.key); // Persistent tracking
 
-                const payload = {
-                    imageUrl: uploadedData.url,
-                    imageKey: uploadedData.key
-                };
-
-                // console.log(payload);
-
-                await updatePropertyCoverImage(propertyId, payload);
-
-                // Refresh Data
-                dispatch(fetchPropertyByIdAsync(propertyId));
+                // DEFERRED UPDATE: Update local state ONLY. Do not call API yet.
                 setCoverImageState({
                     url: uploadedData.url,
                     key: uploadedData.key
                 });
-
-                Alert.alert("Success", "Cover image updated successfully");
             }
         } catch (error) {
-            console.error("Change Cover Image Error:", error);
-            // Production-friendly error message
-            const msg = error.response?.data?.message || "Failed to update cover image. Please try again.";
+            console.error("Change Cover Image / Upload Error:", error);
+            const msg = error.response?.data?.message || "Failed to upload cover image.";
             Alert.alert("Error", msg);
         } finally {
             setUploading(false);
@@ -208,14 +222,35 @@ const EditPropertyScreen = () => {
                 newImages: newImages,
             };
 
-            console.log("Saving Changes Payload:", JSON.stringify(payload, null, 2));
+            // console.log("Saving Changes Payload:", JSON.stringify(payload, null, 2));
 
             // Call update API (which now handles this composite structure)
             await updateProperty(propertyId, payload);
 
+            // DEFERRED COVER IMAGE UPDATE Check
+            // If local state is different from existing, call the update API now
+            const originalCoverKey = existingProperty?.coverImageKey || existingProperty?.mainImageKey;
+            if (coverImageState.key && coverImageState.key !== originalCoverKey) {
+                // console.log("[EditProperty] Saving new cover image...");
+                const coverPayload = {
+                    imageUrl: coverImageState.url,
+                    imageKey: coverImageState.key
+                };
+                await updatePropertyCoverImage(propertyId, coverPayload);
+            }
+
             Alert.alert("Success", "Property updated successfully!", [
                 {
                     text: "OK", onPress: () => {
+                        isSubmitted.current = true;
+                        // Determine which images are now permanent
+                        // 1. Any image in newImages is permanent
+                        newImages.forEach(img => removeOrphanedKey(img.imageKey));
+                        // 2. The new cover image (if changed) is permanent
+                        if (coverImageState.key && coverImageState.key !== originalCoverKey) {
+                            removeOrphanedKey(coverImageState.key);
+                        }
+
                         dispatch(fetchPropertyByIdAsync(propertyId));
                         dispatch(fetchPropertiesAsync());
                         navigation.goBack();
@@ -266,6 +301,33 @@ const EditPropertyScreen = () => {
         );
     };
 
+    // Cleanup effect using useFocusEffect to catch Tab Switching and Back Navigation
+    useFocusEffect(
+        useCallback(() => {
+            // Screen Focused
+            return () => {
+                // Screen Blurred (Tab switch, Back, or Navigate away)
+                if (!isSubmitted.current && uploadedImagesSession.current.length > 0) {
+                    // console.log("[EditProperty] Screen blurred/unmounted without submission. Cleanup started.");
+
+                    const imagesToDelete = [...uploadedImagesSession.current];
+                    uploadedImagesSession.current = []; // Prevent double delete
+
+                    imagesToDelete.forEach(async (key) => {
+                        try {
+                            // console.log("[EditProperty] Deleting orphaned image:", key);
+                            await deleteImage(key);
+                            await removeOrphanedKey(key);
+                            // console.log("[EditProperty] Successfully deleted:", key);
+                        } catch (error) {
+                            // console.error("[EditProperty] Failed to cleanup image:", key, error);
+                        }
+                    });
+                }
+            };
+        }, [])
+    );
+
     if (!existingProperty) return null;
 
     return (
@@ -292,8 +354,13 @@ const EditPropertyScreen = () => {
                 </View>
 
                 <View style={styles.inputGroup}>
-                    <Text style={styles.label}>Relation</Text>
-                    <TextInput style={styles.input} value={formData.relationToProperty} onChangeText={v => updateField("relationToProperty", v)} />
+                    <Text style={styles.label}>Relation to Property</Text>
+                    <TouchableOpacity style={styles.dropdownInput} onPress={() => openModal('relationToProperty')}>
+                        <Text style={[styles.inputText, !formData.relationToProperty && styles.placeholder]}>
+                            {formData.relationToProperty || "Select"}
+                        </Text>
+                        <Entypo name="chevron-down" size={22} color="#333" />
+                    </TouchableOpacity>
                 </View>
 
                 <View style={styles.inputGroup}>
@@ -377,6 +444,17 @@ const EditPropertyScreen = () => {
                 </View>
 
                 <View style={styles.inputGroup}>
+                    <Text style={styles.label}>YouTube Video URL</Text>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="https://youtu.be/..."
+                        placeholderTextColor="#aaa"
+                        value={formData.mainVideoUrl}
+                        onChangeText={(v) => updateField("mainVideoUrl", v)}
+                    />
+                </View>
+
+                <View style={styles.inputGroup}>
                     <Text style={styles.label}>Price</Text>
                     <TextInput style={styles.input} value={formData.expectedPrice} onChangeText={v => updateField("expectedPrice", v)} keyboardType="numeric" />
                 </View>
@@ -408,6 +486,35 @@ const EditPropertyScreen = () => {
                 </TouchableOpacity>
 
             </ScrollView>
+
+            {/* MODAL */}
+            <Modal
+                visible={!!activeModalField}
+                animationType="fade"
+                transparent
+            >
+                <TouchableOpacity activeOpacity={1} style={styles.modalOverlay} onPressOut={closeModal}>
+                    <TouchableWithoutFeedback>
+                        <View style={styles.modalBox}>
+                            <Text style={styles.modalTitle}>Select {activeModalField}</Text>
+
+                            <FlatList
+                                data={getModalData()}
+                                keyExtractor={(item) => item.value || item}
+                                renderItem={({ item }) => (
+                                    <TouchableOpacity style={styles.modalItem} onPress={() => handleSelection(item)}>
+                                        <Text style={styles.modalItemText}>{item.label || item}</Text>
+                                    </TouchableOpacity>
+                                )}
+                            />
+
+                            <TouchableOpacity style={styles.closeBtn} onPress={closeModal}>
+                                <Text style={styles.closeBtnText}>Close</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </TouchableWithoutFeedback>
+                </TouchableOpacity>
+            </Modal>
         </SafeAreaView>
     );
 };
@@ -483,4 +590,57 @@ const styles = StyleSheet.create({
         fontFamily: "Poppins-Medium",
         fontSize: wp('3.5%'),
     },
+    dropdownInput: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderRadius: 6,
+        borderWidth: 1,
+        borderColor: "#ddd",
+        paddingHorizontal: wp('3%'),
+        paddingVertical: hp('1.25%'),
+    },
+    inputText: {
+        fontFamily: "Poppins-Regular",
+        fontSize: wp('3.8%'), // 15
+        color: "#000",
+    },
+    placeholder: { color: '#777' },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,.4)',
+        justifyContent: 'center',
+        padding: 18,
+    },
+    modalBox: {
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 14,
+        maxHeight: '70%',
+    },
+    modalTitle: {
+        fontFamily: "Poppins-Bold",
+        fontSize: wp('4%'),
+        marginBottom: 10,
+        color: "#000",
+    },
+    modalItem: {
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f0f0f0',
+    },
+    modalItemText: {
+        fontFamily: "Poppins-Regular",
+        fontSize: wp('4%'),
+        color: '#333',
+    },
+    closeBtn: {
+        marginTop: 14,
+        alignItems: 'center',
+        padding: 10,
+    },
+    closeBtnText: {
+        fontFamily: "Poppins-Bold",
+        color: '#ff4444',
+    }
 });

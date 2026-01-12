@@ -3,7 +3,7 @@ import { property, user, admin } from "../constants/endpoint.constant"
 
 export const createProperty = async (data) => {
     const response = await globalApiRequest(true, "POST", property.create, data);
-    console.log("Property Created:", response);
+    // console.log("Property Created:", response);
     return response;
 };
 
@@ -22,7 +22,7 @@ export const fetchMyProperties = async () => {
 export const getPropertyById = async (id) => {
     const url = `${property.list}/${id}`;
     const response = await globalApiRequest(true, "GET", url);
-    // console.log("Property's cover Image:", response);
+    // // console.log("Property's cover Image:", response);
     return response;
 };
 
@@ -50,13 +50,13 @@ export const getDeletedUserProperties = async () => {
 
 export const updateProperty = async (id, data) => {
     const response = await globalApiRequest(true, "PUT", `${property.update}/${id}`, data);
-    console.log(response);
+    // console.log(response);
     return response;
 };
 
 export const deleteProperty = async (id) => {
     const response = await globalApiRequest(true, "DELETE", `${property.delete}/${id}`, {});
-    console.log(response);
+    // console.log(response);
     return response;
 };
 
@@ -65,26 +65,26 @@ export const deleteProperty = async (id) => {
 export const addPropertyMedia = async (data) => {
     // data = { propertyId, imageUrl, videoUrl, isPrimary }
     const response = await globalApiRequest(true, "POST", property.media, data);
-    console.log(response);
+    // console.log(response);
     return response;
 };
 
 export const deletePropertyMedia = async (mediaId) => {
     const response = await globalApiRequest(true, "DELETE", `${property.media}/${mediaId}`, {});
-    console.log(response);
+    // console.log(response);
     return response;
 };
 
 export const updatePropertyMedia = async (mediaId, data) => {
     const response = await globalApiRequest(true, "PUT", `${property.media}/${mediaId}`, data);
-    console.log(response);
+    // console.log(response);
     return response;
 };
 
 export const updatePropertyCoverImage = async (propertyId, data) => {
     // data = { imageUrl, imageKey }
     const response = await globalApiRequest(true, "PUT", `${property.coverImage}/${propertyId}/cover-image`, data);
-    // console.log("Cover Image Updated:", response);
+    // // console.log("Cover Image Updated:", response);
     return response;
 };
 

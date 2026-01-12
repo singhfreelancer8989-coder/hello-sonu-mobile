@@ -71,7 +71,7 @@ export default function RegisterBrokerScreen() {
       handleClear();
     } catch (error) {
       const errorMessage = error.response?.data?.message || error.message || "Something went wrong.";
-      console.log("Registration Error:", errorMessage);
+      // console.log("Registration Error:", errorMessage);
       showErrorAlert("Registration Failed", errorMessage);
     }
   };

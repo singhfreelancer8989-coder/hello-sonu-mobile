@@ -35,7 +35,7 @@ export const pickImage = async () => {
     }
 
     if (fileSize) {
-      console.log(`[ImagePicker] Selected Image Size: ${fileSize} bytes (${(fileSize / (1024 * 1024)).toFixed(2)} MB)`);
+      // console.log(`[ImagePicker] Selected Image Size: ${fileSize} bytes (${(fileSize / (1024 * 1024)).toFixed(2)} MB)`);
     }
 
     if (fileSize && fileSize > MAX_FILE_SIZE) {

@@ -73,7 +73,7 @@ const ViewAnalyticsScreen = () => {
     useFocusEffect(
         React.useCallback(() => {
             getDashboardAnalytics();
-            console.log(dashboardData)
+            // // console.log(dashboardData)
         }, [getDashboardAnalytics])
     );
 
@@ -90,7 +90,7 @@ const ViewAnalyticsScreen = () => {
             {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Ionicons name="arrow-back" size={24} color="#333" />
+                    <Ionicons name="chevron-back" size={24} color="#333" />
                 </TouchableOpacity>
                 <View>
                     <Text style={styles.headerTitle}>Dashboard</Text>
@@ -158,6 +158,7 @@ const ViewAnalyticsScreen = () => {
                             <StatusRow label="Active Users" count={users?.active || 0} total={totalUsers} color="#34C759" />
                             <StatusRow label="Pending Approvals" count={users?.pending || 0} total={totalUsers} color="#FF9500" />
                             <StatusRow label="Inactive" count={users?.inactive || 0} total={totalUsers} color="#8E8E93" />
+                            <StatusRow label="Deleted" count={users?.deleted || 0} total={totalUsers} color="#FF3B30" />
                         </View>
                     </View>
 
@@ -173,6 +174,21 @@ const ViewAnalyticsScreen = () => {
                             <StatusRow label="Approved" count={brokers?.approved || 0} total={totalBrokers} color="#34C759" />
                             <StatusRow label="Pending" count={brokers?.pending || 0} total={totalBrokers} color="#FF3B30" />
                             <StatusRow label="Rejected" count={brokers?.rejected || 0} total={totalBrokers} color="#8E8E93" />
+                        </View>
+                    </View>
+
+                    {/* Properties Status Section */}
+                    <View style={styles.sectionContainer}>
+                        <View style={styles.sectionHeader}>
+                            <Text style={styles.sectionTitle}>Property Status</Text>
+                            <TouchableOpacity onPress={() => navigation.navigate('DeletedUserPropertiesScreen')}>
+                                <Text style={[styles.seeAllText, { color: '#FF3B30' }]}>View Deleted</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.card}>
+                            <StatusRow label="Active Properties" count={properties?.active || 0} total={totalProperties} color="#34C759" />
+                            <StatusRow label="Sold Properties" count={properties?.sold || 0} total={totalProperties} color="#007AFF" />
+                            <StatusRow label="Deleted Properties" count={properties?.deleted || 0} total={totalProperties} color="#FF3B30" />
                         </View>
                     </View>
 

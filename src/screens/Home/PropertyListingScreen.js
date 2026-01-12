@@ -91,7 +91,7 @@ const PropertyListingScreen = () => {
             {/* Nav Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Ionicons name="arrow-back" size={24} color="#333" />
+                    <Ionicons name="chevron-back" size={24} color="#333" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Properties</Text>
                 <TouchableOpacity onPress={toggleFilterModal} style={styles.filterBtn}>

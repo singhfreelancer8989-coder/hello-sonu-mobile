@@ -3,6 +3,6 @@ import { admin } from "../constants/endpoint.constant";
 
 export const fetchDashboardAnalytics = async () => {
     const response = await globalApiRequest(true, "GET", admin.dashboard);
-    // console.log(response)
+    // // console.log(response)
     return response;
 };

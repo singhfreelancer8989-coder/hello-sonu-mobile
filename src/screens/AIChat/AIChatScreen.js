@@ -10,7 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons'; // Assuming Expo or a similar icon library
+import { MaterialIcons, Ionicons } from '@expo/vector-icons'; // Assuming Expo or a similar icon library
 import { useNavigation } from '@react-navigation/native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
@@ -53,7 +53,7 @@ const AIChatScreen = () => {
   // Dummy send function
   const handleSend = () => {
     if (inputText.trim()) {
-      console.log('Sending message:', inputText.trim());
+      // console.log('Sending message:', inputText.trim());
       // In a real app, you would add the message to the state here
       setInputText('');
     }
@@ -64,7 +64,7 @@ const AIChatScreen = () => {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => Navigator.goBack()}>
-          <MaterialIcons name="chevron-left" size={24} color="#007AFF" />
+          <Ionicons name="chevron-back" size={24} color="#007AFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Agent Support</Text>
         <MaterialIcons name="more-vert" size={24} color="#007AFF" />

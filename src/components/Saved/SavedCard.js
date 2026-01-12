@@ -30,7 +30,7 @@ const SavedCard = ({ property, onRemove }) => {
       {/* Content */}
       <View style={styles.info}>
         <Text style={styles.title} numberOfLines={1}>{property.propertyName || property.propertyType}</Text>
-        <Text style={styles.price}>₹ {property.expectedPrice || property.demandPrice}</Text>
+        <Text style={styles.price} numberOfLines={1} adjustsFontSizeToFit>₹ {property.expectedPrice || property.demandPrice}</Text>
 
         <Text style={styles.subText} numberOfLines={1}>
           {property.city} • {property.size || property.flatSize}

@@ -37,9 +37,9 @@ const LoginScreen = () => {
       return;
     }
     try {
-      console.log("Login init");
+      // console.log("Login init");
       await login(email, password);
-      console.log("Login Success");
+      // console.log("Login Success");
     } catch (e) {
       showErrorAlert("Login Failed", e);
     }

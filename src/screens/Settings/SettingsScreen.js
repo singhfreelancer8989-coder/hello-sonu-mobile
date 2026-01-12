@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
-import { Entypo, MaterialIcons, Feather, AntDesign } from "@expo/vector-icons";
+import { Entypo, MaterialIcons, Feather, AntDesign, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { handleLogout } from "../../services/auth/auth.service";
@@ -29,7 +29,7 @@ const SettingsScreen = () => {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => Navigator.navigate("Home")}>
-          <MaterialIcons name="arrow-back" size={24} color="#007AFF" />
+          <Ionicons name="chevron-back" size={24} color="#007AFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Settings</Text>
       </View>

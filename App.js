@@ -8,6 +8,9 @@ import { store } from './src/store/store';
 import { AuthProvider } from './src/providers/AuthProvider';
 
 import { AnalyticsProvider } from './src/context/AnalyticsContext';
+import { getAndClearOrphanedKeys } from './src/utility/orphanedImage.utility';
+import { deleteImage } from './src/services/imageUpload.service';
+import React, { useEffect } from 'react';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -17,7 +20,28 @@ export default function App() {
     "Poppins-Bold": require("./src/assets/fonts/Poppins/Poppins-Bold.ttf"),
   });
 
+  useEffect(() => {
+    // STARTUP CLEANUP: Remove images left over from previous crashes
+    const cleanupOrphans = async () => {
+      const keys = await getAndClearOrphanedKeys();
+      if (keys.length > 0) {
+        // console.log("[App] Found orphaned images from previous session. Cleaning up...", keys);
+        keys.forEach(async (key) => {
+          try {
+            await deleteImage(key);
+            // console.log("[App] Cleaned up orphaned image:", key);
+          } catch (e) {
+            // console.error("[App] Failed to cleanup orphaned image:", key, e);
+          }
+        });
+      }
+    };
+    cleanupOrphans();
+  }, []);
+
   if (!fontsLoaded) return null;
+
+
 
   return (
     <Provider store={store}>
