@@ -21,8 +21,6 @@
         "foregroundImage": "./src/assets/icon.png",
         "backgroundColor": "#ffffff"
       },
-      "usesCleartextTraffic": true,
-      "networkSecurityConfig": "./src/network_security_config.xml",
       "edgeToEdgeEnabled": true,
       "softwareKeyboardLayoutMode": "pan",
       "permissions": [
@@ -49,7 +47,8 @@
             "usesCleartextTraffic": true
           }
         }
-      ]
+      ],
+      "expo-asset"
     ],
     "extra": {
       "eas": {

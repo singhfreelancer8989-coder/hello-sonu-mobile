@@ -69,6 +69,7 @@ const PropertyDetailsScreen = () => {
         // // console.log("Fetching property with ID:", propertyId);
         if (propertyId) {
             dispatch(fetchPropertyByIdAsync(propertyId));
+            // console.log(currentProperty)
         }
         return () => {
             dispatch(clearCurrentProperty());

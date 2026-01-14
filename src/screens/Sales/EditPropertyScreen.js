@@ -214,7 +214,7 @@ const EditPropertyScreen = () => {
                 landmark: formData.landmark,
                 city: formData.city,
                 googleMapLink: formData.googleMapLink,
-                expectedPrice: Number(formData.expectedPrice), // Parse as number
+                expectedPrice: String(formData.expectedPrice).replace(/,/g, ''), // Send as string, remove commas
                 sellingPreference: formData.sellingPreference,
                 description: formData.description,
                 mainVideoUrl: formData.mainVideoUrl,
@@ -229,7 +229,7 @@ const EditPropertyScreen = () => {
                 newImages: newImages,
             };
 
-            // console.log("Saving Changes Payload:", JSON.stringify(payload, null, 2));
+            console.log("Saving Changes Payload:", payload);
 
             // Call update API (which now handles this composite structure)
             await updateProperty(propertyId, payload);
