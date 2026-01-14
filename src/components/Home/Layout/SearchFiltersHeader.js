@@ -11,19 +11,19 @@ import {
 import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
+import { CITIES } from "../../../constants/data.constant";
+
 /* PROPERTY TYPE OPTIONS */
 const propertyTypes = [
   "Plots",
   "House/Apartment",
   "Office/Shop",
   "Agricultural Land",
-  "Flats",
 ];
 
 /* OPTIONS */
 const budgets = ["10L+", "25L+", "50L+", "1Cr+"];
 const sizes = ["1 BHK", "2 BHK", "3 BHK", "4+ BHK"];
-const cities = ["Udaipur", "Jaipur", "Jodhpur", "Kota", "Bhilwara"];
 
 /* THEME COLORS */
 const COLORS = {
@@ -198,7 +198,7 @@ const SearchFiltersHeader = ({ onSearch }) => {
         <DropdownChip
           id="city"
           title="Location"
-          data={cities}
+          data={CITIES}
           selected={city}
           onSelect={handleSelectCity}
           openDropdown={openDropdown}

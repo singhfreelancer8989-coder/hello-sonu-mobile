@@ -31,6 +31,7 @@ import { createProperty } from '../../services/property.service';
 import { useDispatch } from 'react-redux';
 import { fetchPropertiesAsync } from '../../store/slices/propertySlices';
 import { showErrorAlert } from '../../utility/error.utility';
+import { CITIES } from '../../constants/data.constant';
 
 const SalesFormScreen = () => {
   const navigation = useNavigation();
@@ -97,13 +98,13 @@ const SalesFormScreen = () => {
         const response = await uploadImage(uri);
         // Response structure: { data: { url, publicId }, message }
         if (response && response.data.data) {
-          console.log(response);
+          // console.log(response);
           const newImage = {
             url: response.data.data.url,
             key: response.data.data.key
           };
 
-          console.log("[SalesForm] Image Uploaded:", newImage.url);
+          // console.log("[SalesForm] Image Uploaded:", newImage.url);
           uploadedImagesSession.current.push(newImage.key);
           addOrphanedKey(newImage.key); // Persist for crash cleanup
 
@@ -113,7 +114,7 @@ const SalesFormScreen = () => {
           }));
         }
       } catch (error) {
-        console.log(error);
+        // console.log(error);
         showErrorAlert("Upload Failed", "Could not upload image. Please try again.");
       } finally {
         setUploading(false);
@@ -157,7 +158,7 @@ const SalesFormScreen = () => {
         if (response && response.data.data) {
           // Assuming response.data.data includes url and key
 
-          console.log("[SalesForm] Cover Image Uploaded:", response.data.data.url);
+          // console.log("[SalesForm] Cover Image Uploaded:", response.data.data.url);
           uploadedImagesSession.current.push(response.data.data.key);
           addOrphanedKey(response.data.data.key); // Persist for crash cleanup
 
@@ -168,7 +169,7 @@ const SalesFormScreen = () => {
           }));
         }
       } catch (error) {
-        console.log(error);
+        // console.log(error);
         showErrorAlert("Upload Failed", "Could not upload cover image.");
       } finally {
         setUploading(false);
@@ -219,6 +220,7 @@ const SalesFormScreen = () => {
   const getModalData = () => {
     if (activeModalField === 'propertyCategory') return propertyCategories;
     if (activeModalField === 'relationToProperty') return relationList;
+    if (activeModalField === 'city') return CITIES;
     return [];
   };
 
@@ -266,7 +268,7 @@ const SalesFormScreen = () => {
         ...formData,
         expectedPrice: String(formData.expectedPrice || '').replace(/,/g, '')
       };
-      console.log("Submitting formData:", JSON.stringify(payload, null, 2));
+      // console.log("Submitting formData:", JSON.stringify(payload, null, 2));
       const response = await createProperty(payload);
       // // console.log("Property Created:", response);
 
@@ -302,7 +304,7 @@ const SalesFormScreen = () => {
       return () => {
         // Screen Blurred (Tab switch, Back, or Navigate away)
         if (!isSubmitted.current && uploadedImagesSession.current.length > 0) {
-          console.log("[SalesForm] Screen blurred/unmounted without submission. Cleanup started.");
+          // console.log("[SalesForm] Screen blurred/unmounted without submission. Cleanup started.");
 
           // Clone the array to avoid concurrency issues if this runs multiple times
           const imagesToDelete = [...uploadedImagesSession.current];
@@ -312,10 +314,10 @@ const SalesFormScreen = () => {
           (async () => {
             for (const key of imagesToDelete) {
               try {
-                console.log("[SalesForm] Deleting orphaned image:", key);
+                // console.log("[SalesForm] Deleting orphaned image:", key);
                 await deleteImage(key);
                 await removeOrphanedKey(key); // Remove from persistent storage
-                console.log("[SalesForm] Successfully deleted:", key);
+                // console.log("[SalesForm] Successfully deleted:", key);
               } catch (error) {
                 console.error("[SalesForm] Failed to delete image:", key, error);
               }
@@ -323,7 +325,7 @@ const SalesFormScreen = () => {
           })();
 
           // Reset Form Data on Exit/Interruption
-          console.log("[SalesForm] Resetting form data.");
+          // console.log("[SalesForm] Resetting form data.");
           setFormData({
             userId: userDataRef.current?.id || userDataRef.current?._id || "",
             propertyName: '',
@@ -498,13 +500,12 @@ const SalesFormScreen = () => {
         {/* CITY */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>City</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter City"
-            placeholderTextColor="#aaa"
-            value={formData.city}
-            onChangeText={(v) => updateField("city", v)}
-          />
+          <TouchableOpacity style={styles.dropdownInput} onPress={() => openModal('city')}>
+            <Text style={[styles.inputText, !formData.city && styles.placeholder]}>
+              {formData.city || "Select City"}
+            </Text>
+            <Entypo name="chevron-down" size={22} color="#333" />
+          </TouchableOpacity>
         </View>
 
         {/* LANDMARK */}

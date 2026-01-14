@@ -23,6 +23,7 @@ import { uploadImage, deleteImage } from '../../services/imageUpload.service';
 import { addOrphanedKey, removeOrphanedKey } from '../../utility/orphanedImage.utility';
 import { deleteProperty, updateProperty, updatePropertyCoverImage } from '../../services/property.service';
 import { fetchPropertyByIdAsync, fetchListingPropertiesAsync, fetchPropertiesAsync } from '../../store/slices/propertySlices';
+import { CITIES } from '../../constants/data.constant';
 
 const EditPropertyScreen = () => {
     const dispatch = useDispatch();
@@ -85,6 +86,7 @@ const EditPropertyScreen = () => {
 
     const getModalData = () => {
         if (activeModalField === 'relationToProperty') return relationList;
+        if (activeModalField === 'city') return CITIES;
         return [];
     };
 
@@ -229,7 +231,7 @@ const EditPropertyScreen = () => {
                 newImages: newImages,
             };
 
-            console.log("Saving Changes Payload:", payload);
+            // console.log("Saving Changes Payload:", payload);
 
             // Call update API (which now handles this composite structure)
             await updateProperty(propertyId, payload);
@@ -326,10 +328,10 @@ const EditPropertyScreen = () => {
                     (async () => {
                         for (const key of imagesToDelete) {
                             try {
-                                console.log("[EditProperty] Deleting orphaned image:", key);
+                                // console.log("[EditProperty] Deleting orphaned image:", key);
                                 await deleteImage(key);
                                 await removeOrphanedKey(key);
-                                console.log("[EditProperty] Successfully deleted:", key);
+                                // console.log("[EditProperty] Successfully deleted:", key);
                             } catch (error) {
                                 console.error("[EditProperty] Failed to cleanup image:", key, error);
                             }
@@ -398,7 +400,12 @@ const EditPropertyScreen = () => {
 
                 <View style={styles.inputGroup}>
                     <Text style={styles.label}>City</Text>
-                    <TextInput style={styles.input} value={formData.city} onChangeText={v => updateField("city", v)} />
+                    <TouchableOpacity style={styles.dropdownInput} onPress={() => openModal('city')}>
+                        <Text style={[styles.inputText, !formData.city && styles.placeholder]}>
+                            {formData.city || "Select City"}
+                        </Text>
+                        <Entypo name="chevron-down" size={22} color="#333" />
+                    </TouchableOpacity>
                 </View>
 
                 <View style={styles.inputGroup}>

@@ -9,6 +9,7 @@ import { filterPropertiesByCategory, mapBudgetToParams } from '../../utility/pro
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { CITIES } from '../../constants/data.constant';
 
 const FILTER_CATEGORIES = [
     { label: "All", value: "" },
@@ -68,7 +69,7 @@ const PropertyListingScreen = () => {
             // Optional: clear on unmount if we want fresh state every time
             // dispatch(clearListingProperties());
         };
-    }, [fetchData, selectedCategory, selectedSize]);
+    }, [fetchData, selectedCategory]); // Removed selectedSize
 
     const fetchData = useCallback((pageNum) => {
         const filters = {};
@@ -81,8 +82,9 @@ const PropertyListingScreen = () => {
             Object.assign(filters, budgetParams);
         }
 
-        if (selectedSize) filters.flatSize = selectedSize;
-        if (selectedCity) filters.city = selectedCity;
+        // Frontend Only: City and Size are NOT sent to API
+        // if (selectedSize) filters.flatSize = selectedSize;
+        // if (selectedCity) filters.city = selectedCity;
 
         // Return the promise so we can await it in onRefresh
         return dispatch(fetchListingPropertiesAsync({
@@ -90,20 +92,37 @@ const PropertyListingScreen = () => {
             limit: 10,
             ...filters
         }));
-    }, [dispatch, selectedCategory, selectedSize, selectedCity]); // Removed selectedBudget dependency from fetchData params, but kept in dependency array if we want re-fetch? No, if we filter frontend, changing budget should NOT re-fetch.
+    }, [dispatch, selectedCategory]); // Removed selectedSize, selectedCity to prevent re-fetch
 
     // Filter Logic
     const filteredListing = React.useMemo(() => {
-        if (!selectedBudget) return listing;
-        const params = mapBudgetToParams(selectedBudget);
-        const minPrice = params.minPrice || 0;
+        let result = listing;
 
-        return listing.filter(item => {
-            // Ensure expectedPrice is treated as a number
-            const price = Number(item.expectedPrice) || 0;
-            return price >= minPrice;
-        });
-    }, [listing, selectedBudget]);
+        // Filter by City (Frontend)
+        if (selectedCity) {
+            result = result.filter(item =>
+                item.city && item.city.toLowerCase() === selectedCity.toLowerCase()
+            );
+        }
+
+        // Filter by Size (Frontend)
+        if (selectedSize) {
+            // Check flatSize (for House/Apt) or generic size if applicable
+            result = result.filter(item => item.flatSize === selectedSize);
+        }
+
+        // Filter by Budget (Frontend)
+        if (selectedBudget) {
+            const params = mapBudgetToParams(selectedBudget);
+            const minPrice = params.minPrice || 0;
+            result = result.filter(item => {
+                const price = Number(item.expectedPrice) || 0;
+                return price >= minPrice;
+            });
+        }
+
+        return result;
+    }, [listing, selectedBudget, selectedCity, selectedSize]);
 
     const handleLoadMore = () => {
         if (listingStatus !== 'loading' && hasMore) {
@@ -248,7 +267,7 @@ const PropertyListingScreen = () => {
                             ))}
                         </View>
 
-                        <Text style={styles.filterLabel}>Flat Size</Text>
+                        <Text style={styles.filterLabel}>Size</Text>
                         <View style={styles.optionRow}>
                             {SIZE_OPTIONS.map((opt) => (
                                 <TouchableOpacity key={opt.value}
@@ -256,6 +275,24 @@ const PropertyListingScreen = () => {
                                     onPress={() => setSelectedSize(opt.value)}
                                 >
                                     <Text style={[styles.modalChipText, selectedSize === opt.value && styles.activeModalChipText]}>{opt.label}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+
+                        <Text style={styles.filterLabel}>City</Text>
+                        <View style={styles.optionRow}>
+                            <TouchableOpacity
+                                style={[styles.modalChip, selectedCity === "" && styles.activeModalChip]}
+                                onPress={() => setSelectedCity("")}
+                            >
+                                <Text style={[styles.modalChipText, selectedCity === "" && styles.activeModalChipText]}>Any</Text>
+                            </TouchableOpacity>
+                            {CITIES.map((city) => (
+                                <TouchableOpacity key={city}
+                                    style={[styles.modalChip, selectedCity === city && styles.activeModalChip]}
+                                    onPress={() => setSelectedCity(city)}
+                                >
+                                    <Text style={[styles.modalChipText, selectedCity === city && styles.activeModalChipText]}>{city}</Text>
                                 </TouchableOpacity>
                             ))}
                         </View>
@@ -324,10 +361,11 @@ const styles = StyleSheet.create({
     chipText: {
         fontSize: 13,
         color: '#666',
-        fontWeight: '500',
+        fontFamily: 'Poppins-Medium',
     },
     activeChipText: {
         color: '#fff',
+        fontFamily: 'Poppins-Medium',
     },
     listContent: {
         paddingHorizontal: wp('4%'),
@@ -373,11 +411,12 @@ const styles = StyleSheet.create({
     },
     modalTitle: {
         fontSize: 18,
-        fontWeight: 'bold',
+        fontFamily: 'Poppins-Bold',
+        color: '#000',
     },
     filterLabel: {
         fontSize: 14,
-        fontWeight: '600',
+        fontFamily: 'Poppins-Medium',
         marginBottom: 10,
         marginTop: 10,
         color: '#333',
@@ -397,18 +436,19 @@ const styles = StyleSheet.create({
     activeModalChip: {
         backgroundColor: '#e6f0ff',
         borderWidth: 1,
-        borderColor: '#007bff',
+        borderColor: '#4834d4', // Updated to primary
     },
     modalChipText: {
         color: '#555',
+        fontFamily: 'Poppins-Regular',
     },
     activeModalChipText: {
-        color: '#007bff',
-        fontWeight: 'bold',
+        color: '#4834d4', // Updated to primary
+        fontFamily: 'Poppins-Medium',
     },
     applyBtn: {
         marginTop: 20,
-        backgroundColor: '#007bff',
+        backgroundColor: '#4834d4', // Updated to primary
         paddingVertical: 12,
         borderRadius: 8,
         alignItems: 'center',
@@ -416,7 +456,7 @@ const styles = StyleSheet.create({
     applyBtnText: {
         color: '#fff',
         fontSize: 16,
-        fontWeight: 'bold',
+        fontFamily: 'Poppins-Bold',
     },
 });
 
