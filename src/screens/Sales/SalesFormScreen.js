@@ -261,8 +261,13 @@ const SalesFormScreen = () => {
 
     setUploading(true);
     try {
-      console.log("Submitting formData:", JSON.stringify(formData, null, 2));
-      const response = await createProperty(formData);
+      // Create a payload with sanitized expectedPrice
+      const payload = {
+        ...formData,
+        expectedPrice: String(formData.expectedPrice || '').replace(/,/g, '')
+      };
+      console.log("Submitting formData:", JSON.stringify(payload, null, 2));
+      const response = await createProperty(payload);
       // // console.log("Property Created:", response);
 
       // RELOAD PROPERTIES
@@ -276,7 +281,7 @@ const SalesFormScreen = () => {
             for (const key of uploadedImagesSession.current) {
               await removeOrphanedKey(key);
             }
-
+            // Fully reset the form
             setFormData(getInitialFormState());
             navigation.goBack();
           }
