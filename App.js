@@ -7,7 +7,7 @@ import { Provider } from 'react-redux';
 import { store } from './src/store/store';
 import { AuthProvider } from './src/providers/AuthProvider';
 
-import { AnalyticsProvider } from './src/context/AnalyticsContext';
+import { AnalyticsProvider } from './src/contexts/AnalyticsContext';
 import { getAndClearOrphanedKeys } from './src/utility/orphanedImage.utility';
 import { deleteImage } from './src/services/imageUpload.service';
 import React, { useEffect } from 'react';

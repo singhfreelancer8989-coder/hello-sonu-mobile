@@ -57,6 +57,10 @@ const HomePageScreen = () => {
     });
   };
 
+  // useEffect(() => {
+  //   console.log("properties", properties);
+  // }, []);
+
   return (
     <View style={styles.root}>
       <AppHeader userName={userData ? `${userData.firstName} ${userData.lastName}` : "Welcome"} avatarUrl={"https://i.pinimg.com/736x/d0/00/fb/d000fb29aa999d3b97aeb648a88d8014.jpg"} />

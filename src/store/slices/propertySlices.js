@@ -7,8 +7,7 @@ export const fetchPropertiesAsync = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await fetchProperties();
-      // Adjust based on actual API response structure (e.g., response.data, or response.properties)
-      // Assuming response.data contains the array or response itself is the array
+      // console.log("response", response.data);
       let data = Array.isArray(response) ? response.data.properties : (response.data.properties || response.properties || []);
 
       return data;
