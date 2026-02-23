@@ -18,7 +18,7 @@ import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 import useAuth from '../../hooks/useAuth';
-import { fetchMyPropertiesAsync, fetchPropertiesAsync } from '../../store/slices/propertySlices';
+import { fetchMyPropertiesAsync, fetchPropertiesAsync, clearMyProperties } from '../../store/slices/propertySlices';
 import { deleteProperty } from '../../services/property.service';
 
 const MyPropertiesScreen = () => {
@@ -26,23 +26,34 @@ const MyPropertiesScreen = () => {
     const dispatch = useDispatch();
     const { userData } = useAuth();
 
-    const { myProperties, myPropertiesStatus } = useSelector((state) => state.property);
+    const { myProperties, myPropertiesStatus, myPropertiesPagination } = useSelector((state) => state.property);
 
     const [refreshing, setRefreshing] = useState(false);
+    const [loadingMore, setLoadingMore] = useState(false);
 
     const onRefresh = React.useCallback(async () => {
         setRefreshing(true);
         if (userData?.id || userData?._id) {
-            await dispatch(fetchMyPropertiesAsync(userData.id || userData._id));
+            dispatch(clearMyProperties());
+            await dispatch(fetchMyPropertiesAsync({ page: 1, limit: 10 }));
         }
         setRefreshing(false);
     }, [dispatch, userData]);
 
     useEffect(() => {
         if (userData?.id || userData?._id) {
-            dispatch(fetchMyPropertiesAsync(userData.id || userData._id));
+            dispatch(fetchMyPropertiesAsync({ page: 1, limit: 10 }));
         }
     }, [dispatch, userData]);
+
+    const handleLoadMore = async () => {
+        if (myPropertiesStatus !== 'loading' && myPropertiesPagination?.hasMore && !loadingMore) {
+            setLoadingMore(true);
+            const nextPage = (myPropertiesPagination?.page || 1) + 1;
+            await dispatch(fetchMyPropertiesAsync({ page: nextPage, limit: 10 }));
+            setLoadingMore(false);
+        }
+    };
 
     const handleCardPress = (property) => {
         navigation.navigate('PropertyDetails', { propertyId: property._id || property.id });
@@ -92,6 +103,9 @@ const MyPropertiesScreen = () => {
                             </Text>
                         </View>
                         <View style={{ flexDirection: 'row', gap: 12 }}>
+                            <TouchableOpacity onPress={() => navigation.navigate('AnalyticsStack', { screen: 'PropertyAnalyticsScreen', params: { propertyId: item._id || item.id, propertyName: item.propertyName || item.propertyType } })} style={{ padding: 4 }}>
+                                <Ionicons name="stats-chart" size={22} color="#9b59b6" />
+                            </TouchableOpacity>
                             <TouchableOpacity onPress={() => navigation.navigate('EditProperty', { property: item })} style={{ padding: 4 }}>
                                 <MaterialIcons name="edit" size={22} color="#3a75cd" />
                             </TouchableOpacity>
@@ -105,13 +119,22 @@ const MyPropertiesScreen = () => {
         );
     };
 
-    if (myPropertiesStatus === 'loading') {
+    if (myPropertiesStatus === 'loading' && myProperties.length === 0) {
         return (
             <View style={styles.center}>
                 <ActivityIndicator size="large" color="#3a75cd" />
             </View>
         );
     }
+
+    const renderFooter = () => {
+        if (!loadingMore) return null;
+        return (
+            <View style={{ paddingVertical: 20 }}>
+                <ActivityIndicator size="small" color="#3a75cd" />
+            </View>
+        );
+    };
 
 
     return (
@@ -137,6 +160,9 @@ const MyPropertiesScreen = () => {
                     renderItem={renderItem}
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
+                    onEndReached={handleLoadMore}
+                    onEndReachedThreshold={0.5}
+                    ListFooterComponent={renderFooter}
                     refreshControl={
                         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#3a75cd"]} />
                     }

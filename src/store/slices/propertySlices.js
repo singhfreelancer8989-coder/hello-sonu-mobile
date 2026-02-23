@@ -171,13 +171,16 @@ export const fetchSavedPropertiesAsync = createAsyncThunk(
 // Async Thunk to Fetch User's Properties
 export const fetchMyPropertiesAsync = createAsyncThunk(
   "property/fetchMyProperties",
-  async (userId, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      // Use dedicated endpoint
-      const response = await fetchMyProperties();
-      // Adjust structure if needed, usually response.data is the payload
-      let data = Array.isArray(response) ? response.data : (response.data?.properties || response.properties || response.data || []);
-      return data;
+      const response = await fetchMyProperties(params);
+      let data = Array.isArray(response) ? response : (response.data?.properties || response.properties || response.data || []);
+      
+      return {
+        data,
+        page: params.page || 1,
+        hasMore: data.length === (params.limit || 10)
+      };
     } catch (error) {
       console.error("Fetch My Properties Error:", error);
       return rejectWithValue(error.message);
@@ -217,6 +220,10 @@ const initialState = {
   myProperties: [],
   myPropertiesStatus: 'idle',
   myPropertiesError: null,
+  myPropertiesPagination: {
+    page: 1,
+    hasMore: true,
+  },
 };
 
 const propertySlice = createSlice({
@@ -232,6 +239,11 @@ const propertySlice = createSlice({
       state.listing = [];
       state.listingStatus = 'idle';
       state.listingPagination = { page: 1, hasMore: true };
+    },
+    clearMyProperties: (state) => {
+      state.myProperties = [];
+      state.myPropertiesStatus = 'idle';
+      state.myPropertiesPagination = { page: 1, hasMore: true };
     },
     clearCurrentProperty: (state) => {
       state.currentProperty = null;
@@ -329,7 +341,21 @@ const propertySlice = createSlice({
       })
       .addCase(fetchMyPropertiesAsync.fulfilled, (state, action) => {
         state.myPropertiesStatus = "succeeded";
-        state.myProperties = action.payload;
+        const { data, page, hasMore } = action.payload;
+
+        if (page === 1) {
+          state.myProperties = data;
+        } else {
+          state.myProperties = [...state.myProperties, ...data];
+        }
+
+        // Defensive initialization if not set
+        if (!state.myPropertiesPagination) {
+          state.myPropertiesPagination = { page: 1, hasMore: true };
+        }
+        
+        state.myPropertiesPagination.page = page;
+        state.myPropertiesPagination.hasMore = hasMore;
       })
       .addCase(fetchMyPropertiesAsync.rejected, (state, action) => {
         state.myPropertiesStatus = "failed";
@@ -340,6 +366,6 @@ const propertySlice = createSlice({
   },
 });
 
-export const { clearProperties, clearListingProperties, clearCurrentProperty } = propertySlice.actions;
+export const { clearProperties, clearListingProperties, clearMyProperties, clearCurrentProperty } = propertySlice.actions;
 
 export default propertySlice.reducer;

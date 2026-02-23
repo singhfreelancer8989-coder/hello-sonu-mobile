@@ -222,6 +222,16 @@ const PropertyDetailsScreen = () => {
                             </TouchableOpacity>
                         )}
 
+                    {/* ANALYTICS BUTTON (Admin Only) */}
+                    {userData?.role === 'admin' && (
+                        <TouchableOpacity
+                            style={{ padding: 6, marginRight: 0 }}
+                            onPress={() => navigation.navigate('AnalyticsStack', { screen: 'PropertyAnalyticsScreen', params: { propertyId: property._id || property.id, propertyName: property.propertyName || property.propertyType } })}
+                        >
+                            <Ionicons name="stats-chart" size={24} color="#9b59b6" />
+                        </TouchableOpacity>
+                    )}
+
                     {/* DELETE BUTTON (Admin Only) */}
                     {userData?.role === 'admin' && (
                         <TouchableOpacity
