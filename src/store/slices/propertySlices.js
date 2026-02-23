@@ -175,7 +175,7 @@ export const fetchMyPropertiesAsync = createAsyncThunk(
     try {
       const response = await fetchMyProperties(params);
       let data = Array.isArray(response) ? response : (response.data?.properties || response.properties || response.data || []);
-      
+
       return {
         data,
         page: params.page || 1,
@@ -353,7 +353,7 @@ const propertySlice = createSlice({
         if (!state.myPropertiesPagination) {
           state.myPropertiesPagination = { page: 1, hasMore: true };
         }
-        
+
         state.myPropertiesPagination.page = page;
         state.myPropertiesPagination.hasMore = hasMore;
       })

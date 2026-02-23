@@ -53,38 +53,19 @@ const PropertyListingScreen = () => {
     const [isFilterModalVisible, setFilterModalVisible] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
 
-    // Initial Load & Filter Changes
-    useEffect(() => {
-        // Enforce House/Apartment if size is selected
-        if (selectedSize && selectedCategory !== "house_apartment") {
-            setSelectedCategory("house_apartment");
-            return;
-        }
-
-        // Reset and Fetch whenever filters change (except page)
-        dispatch(clearListingProperties());
-        fetchData(1);
-
-        return () => {
-            // Optional: clear on unmount if we want fresh state every time
-            // dispatch(clearListingProperties());
-        };
-    }, [fetchData, selectedCategory]); // Removed selectedSize
-
     const fetchData = useCallback((pageNum) => {
         const filters = {};
         if (selectedCategory) filters.propertyCategory = selectedCategory;
-        if (selectedCategory) filters.property_category = selectedCategory;
 
-        // Map Budget String ("10L") to API Params ({ minPrice: 1000000 })
-        if (selectedBudget) {
-            const budgetParams = mapBudgetToParams(selectedBudget);
-            Object.assign(filters, budgetParams);
-        }
+        // Backend will handle the string mapping for '10L', '25L', etc.
+        if (selectedBudget) filters.budget = selectedBudget;
 
-        // Frontend Only: City and Size are NOT sent to API
-        // if (selectedSize) filters.flatSize = selectedSize;
-        // if (selectedCity) filters.city = selectedCity;
+        // Backend handles flatSize based on category
+        if (selectedSize) filters.flatSize = selectedSize;
+
+        // Note: City isn't supported by the backend controller from the snippet yet,
+        // but passing it won't break anything.
+        if (selectedCity) filters.city = selectedCity;
 
         // Return the promise so we can await it in onRefresh
         return dispatch(fetchListingPropertiesAsync({
@@ -92,37 +73,23 @@ const PropertyListingScreen = () => {
             limit: 10,
             ...filters
         }));
-    }, [dispatch, selectedCategory]); // Removed selectedSize, selectedCity to prevent re-fetch
+    }, [dispatch, selectedCategory, selectedBudget, selectedSize, selectedCity]);
 
-    // Filter Logic
-    const filteredListing = React.useMemo(() => {
-        let result = listing;
-
-        // Filter by City (Frontend)
-        if (selectedCity) {
-            result = result.filter(item =>
-                item.city && item.city.toLowerCase() === selectedCity.toLowerCase()
-            );
+    // Update effect to run when ANY filter changes
+    useEffect(() => {
+        // Enforce House/Apartment if size is selected
+        if (selectedSize && selectedCategory !== "house_apartment") {
+            setSelectedCategory("house_apartment");
+            return; // State update will trigger this effect again
         }
 
-        // Filter by Size (Frontend)
-        if (selectedSize) {
-            // Check flatSize (for House/Apt) or generic size if applicable
-            result = result.filter(item => item.flatSize === selectedSize);
-        }
+        dispatch(clearListingProperties());
+        fetchData(1);
 
-        // Filter by Budget (Frontend)
-        if (selectedBudget) {
-            const params = mapBudgetToParams(selectedBudget);
-            const minPrice = params.minPrice || 0;
-            result = result.filter(item => {
-                const price = Number(item.expectedPrice) || 0;
-                return price >= minPrice;
-            });
-        }
+    }, [fetchData]);
 
-        return result;
-    }, [listing, selectedBudget, selectedCity, selectedSize]);
+    // No need for frontend filtering, we use the raw listing from Redux (populated by API)
+    const filteredListing = listing;
 
     const handleLoadMore = () => {
         if (listingStatus !== 'loading' && hasMore) {
