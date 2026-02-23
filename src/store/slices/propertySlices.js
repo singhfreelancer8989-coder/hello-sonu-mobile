@@ -1,16 +1,85 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { fetchProperties, getPropertyById, saveProperty, removeSavedProperty, getSavedProperties, fetchMyProperties } from "../../services/property.service";
+import { fetchDashboardAnalytics } from "../../services/analytics.service";
 
 // Async Thunk to Fetch All Properties
 export const fetchPropertiesAsync = createAsyncThunk(
   "property/fetchProperties",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await fetchProperties();
-      // console.log("response", response.data);
-      let data = Array.isArray(response) ? response.data.properties : (response.data.properties || response.properties || []);
+      // 1. Fetch Analytics to know the target counts
+      let targetCounts = { agriculture_land: 5, house_apartment: 5, office_shop: 5, plots: 5 };
+      try {
+        const analyticsResponse = await fetchDashboardAnalytics();
+        const counts = analyticsResponse?.data?.properties?.categories || {};
+        targetCounts = {
+          agriculture_land: Math.min(counts.agriculture_land || 0, 5),
+          house_apartment: Math.min(counts.house_apartment || 0, 5),
+          office_shop: Math.min(counts.office_shop || 0, 5),
+          plots: Math.min(counts.plots || 0, 5),
+        };
+      } catch (err) {
+        console.warn("Could not fetch analytics, defaulting target counts to 5.", err);
+      }
 
-      return data;
+      let allProperties = [];
+      let page = 1;
+      const limit = 20;
+
+      const currentCounts = {
+        agriculture_land: 0,
+        house_apartment: 0,
+        office_shop: 0,
+        plots: 0,
+      };
+
+      const seenIds = new Set();
+      let hasMoreFromServer = true;
+
+      const checkCondition = () => {
+        return (
+          currentCounts.agriculture_land >= targetCounts.agriculture_land &&
+          currentCounts.house_apartment >= targetCounts.house_apartment &&
+          currentCounts.office_shop >= targetCounts.office_shop &&
+          currentCounts.plots >= targetCounts.plots
+        );
+      };
+
+      // Loop until we reach our target counts or run out of pages (limit to 10 iterations max)
+      while ((page === 1 || !checkCondition()) && hasMoreFromServer && page <= 10) {
+        const response = await fetchProperties({ page, limit });
+        let data = Array.isArray(response) ? response : (response?.data?.properties || response?.properties || []);
+
+        if (!data || data.length === 0) {
+          hasMoreFromServer = false;
+          break;
+        }
+
+        for (const prop of data) {
+          const id = prop._id || prop.id;
+          if (id && seenIds.has(id)) continue;
+          if (id) seenIds.add(id);
+
+          const cat = (prop.propertyCategory || prop.category || '').trim().toLowerCase();
+
+          // Categorize and track counts logically based on utils
+          if (['agriculture_land', 'agricultural', 'farm', 'land'].some(c => cat.includes(c))) currentCounts.agriculture_land++;
+          else if (['house_apartment', 'flats', 'house/apartment/flat', 'house', 'apartment', 'villa'].some(c => cat.includes(c))) currentCounts.house_apartment++;
+          else if (['office_shop', 'shop', 'office', 'godown'].some(c => cat.includes(c))) currentCounts.office_shop++;
+          else if (cat === 'plots' || cat.includes('plots')) currentCounts.plots++;
+
+          allProperties.push(prop);
+        }
+
+        // If returned data length is less than our requested limit, then we are at the end
+        if (data.length < limit) {
+          hasMoreFromServer = false;
+        }
+
+        page++;
+      }
+
+      return allProperties;
     } catch (error) {
       console.error("Fetch Error:", error);
       return rejectWithValue(error.message);
