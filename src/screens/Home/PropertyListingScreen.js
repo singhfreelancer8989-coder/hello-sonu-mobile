@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity, ScrollView, Modal, RefreshControl } from 'react-native';
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchListingPropertiesAsync, clearListingProperties } from '../../store/slices/propertySlices';
 import PropertyCard from '../../components/Home/Core/PropertyCard';
@@ -22,10 +22,10 @@ const FILTER_CATEGORIES = [
 
 const BUDGET_OPTIONS = [
     { label: "Any Budget", value: "" },
-    { label: "10L+", value: "10L+" },
-    { label: "25L+", value: "25L+" },
-    { label: "50L+", value: "50L+" },
-    { label: "1Cr+", value: "1Cr+" },
+    { label: "10L+", value: "10L" },
+    { label: "25L+", value: "25L" },
+    { label: "50L+", value: "50L" },
+    { label: "1Cr+", value: "1Cr" },
 ];
 
 const SIZE_OPTIONS = [
@@ -41,6 +41,7 @@ const PropertyListingScreen = () => {
     const dispatch = useDispatch();
     const navigation = useNavigation();
     const route = useRoute();
+    const insets = useSafeAreaInsets();
 
     const { listing, listingStatus, listingPagination } = useSelector((state) => state.property);
     const { page, hasMore } = listingPagination;
@@ -58,14 +59,14 @@ const PropertyListingScreen = () => {
         if (selectedCategory) filters.propertyCategory = selectedCategory;
 
         // Backend will handle the string mapping for '10L', '25L', etc.
-        if (selectedBudget) filters.budget = selectedBudget;
+        if (selectedBudget) filters.budget = selectedBudget.toUpperCase();
 
         // Backend handles flatSize based on category
         if (selectedSize) filters.flatSize = selectedSize;
 
         // Note: City isn't supported by the backend controller from the snippet yet,
         // but passing it won't break anything.
-        if (selectedCity) filters.city = selectedCity;
+        if (selectedCity) filters.city = selectedCity.toLowerCase();
 
         // Return the promise so we can await it in onRefresh
         return dispatch(fetchListingPropertiesAsync({
@@ -214,7 +215,7 @@ const PropertyListingScreen = () => {
             {/* Simple Filter Modal for Budget/Size */}
             <Modal visible={isFilterModalVisible} animationType="slide" transparent>
                 <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
+                    <View style={[styles.modalContent, { paddingBottom: Math.max(insets.bottom, 20), maxHeight: hp('90%') }]}>
                         <View style={styles.modalHeader}>
                             <Text style={styles.modalTitle}>Filters</Text>
                             <TouchableOpacity onPress={toggleFilterModal}>
@@ -222,51 +223,53 @@ const PropertyListingScreen = () => {
                             </TouchableOpacity>
                         </View>
 
-                        <Text style={styles.filterLabel}>Budget</Text>
-                        <View style={styles.optionRow}>
-                            {BUDGET_OPTIONS.map((opt) => (
-                                <TouchableOpacity key={opt.value}
-                                    style={[styles.modalChip, selectedBudget === opt.value && styles.activeModalChip]}
-                                    onPress={() => setSelectedBudget(opt.value)}
-                                >
-                                    <Text style={[styles.modalChipText, selectedBudget === opt.value && styles.activeModalChipText]}>{opt.label}</Text>
-                                </TouchableOpacity>
-                            ))}
-                        </View>
+                        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
+                            <Text style={styles.filterLabel}>Budget</Text>
+                            <View style={styles.optionRow}>
+                                {BUDGET_OPTIONS.map((opt) => (
+                                    <TouchableOpacity key={opt.value}
+                                        style={[styles.modalChip, selectedBudget === opt.value && styles.activeModalChip]}
+                                        onPress={() => setSelectedBudget(opt.value)}
+                                    >
+                                        <Text style={[styles.modalChipText, selectedBudget === opt.value && styles.activeModalChipText]}>{opt.label}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
 
-                        <Text style={styles.filterLabel}>Size</Text>
-                        <View style={styles.optionRow}>
-                            {SIZE_OPTIONS.map((opt) => (
-                                <TouchableOpacity key={opt.value}
-                                    style={[styles.modalChip, selectedSize === opt.value && styles.activeModalChip]}
-                                    onPress={() => setSelectedSize(opt.value)}
-                                >
-                                    <Text style={[styles.modalChipText, selectedSize === opt.value && styles.activeModalChipText]}>{opt.label}</Text>
-                                </TouchableOpacity>
-                            ))}
-                        </View>
+                            <Text style={styles.filterLabel}>Size</Text>
+                            <View style={styles.optionRow}>
+                                {SIZE_OPTIONS.map((opt) => (
+                                    <TouchableOpacity key={opt.value}
+                                        style={[styles.modalChip, selectedSize === opt.value && styles.activeModalChip]}
+                                        onPress={() => setSelectedSize(opt.value)}
+                                    >
+                                        <Text style={[styles.modalChipText, selectedSize === opt.value && styles.activeModalChipText]}>{opt.label}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
 
-                        <Text style={styles.filterLabel}>City</Text>
-                        <View style={styles.optionRow}>
-                            <TouchableOpacity
-                                style={[styles.modalChip, selectedCity === "" && styles.activeModalChip]}
-                                onPress={() => setSelectedCity("")}
-                            >
-                                <Text style={[styles.modalChipText, selectedCity === "" && styles.activeModalChipText]}>Any</Text>
+                            <Text style={styles.filterLabel}>City</Text>
+                            <View style={styles.optionRow}>
+                                <TouchableOpacity
+                                    style={[styles.modalChip, selectedCity === "" && styles.activeModalChip]}
+                                    onPress={() => setSelectedCity("")}
+                                >
+                                    <Text style={[styles.modalChipText, selectedCity === "" && styles.activeModalChipText]}>Any</Text>
+                                </TouchableOpacity>
+                                {CITIES.map((city) => (
+                                    <TouchableOpacity key={city}
+                                        style={[styles.modalChip, selectedCity === city && styles.activeModalChip]}
+                                        onPress={() => setSelectedCity(city)}
+                                    >
+                                        <Text style={[styles.modalChipText, selectedCity === city && styles.activeModalChipText]}>{city}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+
+                            <TouchableOpacity style={styles.applyBtn} onPress={toggleFilterModal}>
+                                <Text style={styles.applyBtnText}>Apply Filters</Text>
                             </TouchableOpacity>
-                            {CITIES.map((city) => (
-                                <TouchableOpacity key={city}
-                                    style={[styles.modalChip, selectedCity === city && styles.activeModalChip]}
-                                    onPress={() => setSelectedCity(city)}
-                                >
-                                    <Text style={[styles.modalChipText, selectedCity === city && styles.activeModalChipText]}>{city}</Text>
-                                </TouchableOpacity>
-                            ))}
-                        </View>
-
-                        <TouchableOpacity style={styles.applyBtn} onPress={toggleFilterModal}>
-                            <Text style={styles.applyBtnText}>Apply Filters</Text>
-                        </TouchableOpacity>
+                        </ScrollView>
                     </View>
                 </View>
             </Modal>
@@ -367,8 +370,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
-        padding: 20,
-        minHeight: hp('40%'),
+        paddingHorizontal: wp('5%'),
+        paddingTop: 20,
+        width: wp('100%'),
     },
     modalHeader: {
         flexDirection: 'row',

@@ -3,6 +3,7 @@ import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 import AppHeader from '../../components/Home/Layout/AppHeader'
 import SearchFiltersHeader from '../../components/Home/Layout/SearchFiltersHeader';
 import PropertySlider from '../../components/Home/Core/PropertySlider';
+import HomeBanner from '../../components/Home/Core/HomeBanner';
 import { useDispatch, useSelector } from 'react-redux';
 import { filterPropertiesByCategory } from '../../utility/propertyUtilities';
 import { useEffect, useState, useCallback } from 'react';
@@ -70,6 +71,7 @@ const HomePageScreen = () => {
         }
       >
         <SearchFiltersHeader key={resetKey} onSearch={handleSearch} />
+        <HomeBanner />
         <PropertySlider loading={status === 'loading'} title={"Plots and Projects"} category="plots" data={filterPropertiesByCategory(properties, "plots")} />
         <PropertySlider loading={status === 'loading'} title={"Houses, Apartment and Flats"} category="house_apartment" data={filterPropertiesByCategory(properties, "House/Apartment/Flat")} />
         <PropertySlider loading={status === 'loading'} title={"Shops, Godowns and Offices"} category="office_shop" data={filterPropertiesByCategory(properties, "Shop/Godown/Office")} />
