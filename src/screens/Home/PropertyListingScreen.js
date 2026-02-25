@@ -25,7 +25,7 @@ const BUDGET_OPTIONS = [
     { label: "10L+", value: "10L" },
     { label: "25L+", value: "25L" },
     { label: "50L+", value: "50L" },
-    { label: "1Cr+", value: "1Cr" },
+    { label: "1Cr+", value: "1Cr    " },
 ];
 
 const SIZE_OPTIONS = [

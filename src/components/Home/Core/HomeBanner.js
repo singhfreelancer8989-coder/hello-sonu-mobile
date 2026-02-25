@@ -1,7 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, FlatList, Dimensions } from 'react-native';
-
-const { width } = Dimensions.get('window');
+import { View, Text, Image, StyleSheet, FlatList, useWindowDimensions } from 'react-native';
 
 const BANNERS = [
     {
@@ -25,6 +23,7 @@ const BANNERS = [
 ];
 
 const HomeBanner = () => {
+    const { width } = useWindowDimensions();
     const [currentIndex, setCurrentIndex] = useState(0);
     const flatListRef = useRef(null);
 
@@ -45,7 +44,7 @@ const HomeBanner = () => {
     }, [currentIndex]);
 
     const renderItem = ({ item }) => (
-        <View style={styles.bannerItem}>
+        <View style={[styles.bannerItem, { width: width - 30 }]}>
             <Image source={{ uri: item.image }} style={styles.image} />
             <View style={styles.overlay} />
             <View style={styles.textContainer}>
@@ -98,7 +97,6 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     bannerItem: {
-        width: width - 30,
         height: 180,
         marginHorizontal: 15,
         borderRadius: 16,

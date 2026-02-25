@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { MaterialIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
@@ -86,7 +87,7 @@ const ViewAnalyticsScreen = () => {
 
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
             {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
@@ -207,7 +208,7 @@ const ViewAnalyticsScreen = () => {
 
                 </ScrollView>
             )}
-        </View>
+        </SafeAreaView>
     );
 };
 
@@ -265,7 +266,8 @@ const styles = StyleSheet.create({
     },
     summaryCard: {
         backgroundColor: '#fff',
-        width: wp('40%'),
+        width: 160,
+        minHeight: 140,
         padding: 15,
         borderRadius: 16,
         borderTopWidth: 4,
@@ -275,7 +277,6 @@ const styles = StyleSheet.create({
         shadowRadius: 6,
         elevation: 3,
         justifyContent: 'space-between',
-        height: hp('18%')
     },
     summaryIconBox: {
         alignItems: 'flex-start',
@@ -384,7 +385,7 @@ const styles = StyleSheet.create({
         fontSize: wp('3.5%'),
         fontWeight: '600',
         color: '#1c1c1e',
-        width: 25,
+        minWidth: 35,
         textAlign: 'right',
         fontFamily: 'Poppins-SemiBold',
     },

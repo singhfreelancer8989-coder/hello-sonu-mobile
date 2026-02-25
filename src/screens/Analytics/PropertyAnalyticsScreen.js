@@ -144,7 +144,9 @@ const styles = StyleSheet.create({
     sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#2c3e50', marginBottom: 12 },
     grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
     card: {
-        width: '48%',
+        minWidth: 140,
+        flexGrow: 1,
+        marginHorizontal: '1%',
         backgroundColor: '#fff',
         padding: 12,
         borderRadius: 8,
