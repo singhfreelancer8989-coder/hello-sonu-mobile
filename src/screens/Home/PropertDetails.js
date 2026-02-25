@@ -342,7 +342,7 @@ const PropertyDetailsScreen = () => {
                     <View style={styles.metaItem}>
                         <FontAwesome5 name="ruler-combined" size={18} color="#555" />
                         <Text style={styles.metaText}>
-                            {property.length || property.lengthFt} x {property.width || property.widthFt} ft
+                            {property.width || property.widthFt} x {property.length || property.lengthFt}  ft
                         </Text>
                     </View>
                 )}

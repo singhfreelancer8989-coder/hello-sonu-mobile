@@ -1,8 +1,12 @@
 export const CITIES = [
-    "Khachrod",
-    "Nagda",
-    "Badnagar",
-    "Ratlam",
-    "Ujjain",
-    "Indore"
+    'Ujjain',
+    'Ratlam',
+    'Mandsaur',
+    'Nagda',
+    'Khachrod',
+    'Badnagar',
+    'Dewas',
+    'Sailana',
+    'Manasa',
+    'Mahidpur'
 ];

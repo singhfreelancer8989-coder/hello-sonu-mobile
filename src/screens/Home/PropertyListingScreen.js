@@ -190,7 +190,7 @@ const PropertyListingScreen = () => {
                 <FlatList
                     data={filteredListing} // Use filtered list
                     renderItem={renderItem}
-                    keyExtractor={(item, index) => item.id ? item.id.toString() : index.toString()}
+                    keyExtractor={(item, index) => `${item.id || item._id || 'prop'}-${index}`}
                     onEndReached={handleLoadMore}
                     onEndReachedThreshold={0.5}
                     ListFooterComponent={renderFooter}

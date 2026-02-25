@@ -79,7 +79,7 @@ const PropertyCard = ({ item, style }) => {
         {/* META INFO */}
         <View style={styles.metaRow}>
           <Text numberOfLines={1} style={[styles.meta, { flex: 1, marginRight: 4 }]}>
-            {item?.lengthFt || item?.length} x {item?.widthFt || item?.width}
+            {item?.widthFt || item?.width} x {item?.lengthFt || item?.length}
           </Text>
           <Text numberOfLines={1} style={[styles.meta, { flex: 0.8, textAlign: 'right' }]}>{item?.size}</Text>
         </View>

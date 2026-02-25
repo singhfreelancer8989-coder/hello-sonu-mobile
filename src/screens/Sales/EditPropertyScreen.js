@@ -384,12 +384,12 @@ const EditPropertyScreen = () => {
 
                 <View style={styles.dimensionContainer}>
                     <View style={styles.dimWrapper}>
-                        <Text style={styles.label}>Length (ft)</Text>
-                        <TextInput style={styles.input} value={formData.lengthFt} onChangeText={v => updateField("lengthFt", v)} keyboardType="numeric" />
-                    </View>
-                    <View style={styles.dimWrapper}>
                         <Text style={styles.label}>Width (ft)</Text>
                         <TextInput style={styles.input} value={formData.widthFt} onChangeText={v => updateField("widthFt", v)} keyboardType="numeric" />
+                    </View>
+                    <View style={styles.dimWrapper}>
+                        <Text style={styles.label}>Length (ft)</Text>
+                        <TextInput style={styles.input} value={formData.lengthFt} onChangeText={v => updateField("lengthFt", v)} keyboardType="numeric" />
                     </View>
                 </View>
 

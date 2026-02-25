@@ -103,9 +103,6 @@ const MyPropertiesScreen = () => {
                             </Text>
                         </View>
                         <View style={{ flexDirection: 'row', gap: 12 }}>
-                            <TouchableOpacity onPress={() => navigation.navigate('AnalyticsStack', { screen: 'PropertyAnalyticsScreen', params: { propertyId: item._id || item.id, propertyName: item.propertyName || item.propertyType } })} style={{ padding: 4 }}>
-                                <Ionicons name="stats-chart" size={22} color="#9b59b6" />
-                            </TouchableOpacity>
                             <TouchableOpacity onPress={() => navigation.navigate('EditProperty', { property: item })} style={{ padding: 4 }}>
                                 <MaterialIcons name="edit" size={22} color="#3a75cd" />
                             </TouchableOpacity>

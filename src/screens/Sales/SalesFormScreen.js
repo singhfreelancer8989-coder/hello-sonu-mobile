@@ -460,18 +460,6 @@ const SalesFormScreen = () => {
         {/* Length / Width */}
         <View style={styles.dimensionContainer}>
           <View style={styles.dimWrapper}>
-            <Text style={styles.label}>Length (ft)</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Ex: 40"
-              placeholderTextColor="#aaa"
-              keyboardType="numeric"
-              value={formData.lengthFt}
-              onChangeText={(v) => updateField("lengthFt", v)}
-            />
-          </View>
-
-          <View style={styles.dimWrapper}>
             <Text style={styles.label}>Width (ft)</Text>
             <TextInput
               style={styles.input}
@@ -480,6 +468,18 @@ const SalesFormScreen = () => {
               keyboardType="numeric"
               value={formData.widthFt}
               onChangeText={(v) => updateField("widthFt", v)}
+            />
+          </View>
+
+          <View style={styles.dimWrapper}>
+            <Text style={styles.label}>Length (ft)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Ex: 40"
+              placeholderTextColor="#aaa"
+              keyboardType="numeric"
+              value={formData.lengthFt}
+              onChangeText={(v) => updateField("lengthFt", v)}
             />
           </View>
         </View>
