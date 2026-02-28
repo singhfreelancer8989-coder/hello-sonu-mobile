@@ -20,6 +20,7 @@ import { fetchPropertyByIdAsync, clearCurrentProperty, savePropertyAsync, remove
 import { deleteProperty } from "../../services/property.service";
 import useAuth from "../../hooks/useAuth";
 import { showErrorAlert } from "../../utility/error.utility";
+import { sendPropertyViewAnalytics } from "../../services/analytics.service";
 
 const PropertyDetailsScreen = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -64,14 +65,23 @@ const PropertyDetailsScreen = () => {
         setCurrentIndex(prevIndex);
     };
 
+    const startTimeRef = useRef(null);
+
+    
+
     useEffect(() => {
 
         // // console.log("Fetching property with ID:", propertyId);
         if (propertyId) {
             dispatch(fetchPropertyByIdAsync(propertyId));
             // console.log(currentProperty)
+            startTimeRef.current = Date.now();
         }
-        return () => {
+        return async () => {
+            const endTime = Date.now();
+            const durationSeconds = Math.floor((endTime - startTimeRef.current) / 1000);
+            // console.log(`User spent ${durationSeconds} seconds on property: ${propertyId}`);
+            await sendPropertyViewAnalytics(propertyId, durationSeconds);
             dispatch(clearCurrentProperty());
         };
     }, [dispatch, propertyId]);

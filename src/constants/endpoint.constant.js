@@ -28,7 +28,8 @@ export const property = {
 export const admin = {
     dashboard: '/admin/analytics/dashboard',
     deletedProperties: '/admin/properties',
-    propertyAnalytics: '/analytics/property'
+    propertyAnalytics: '/analytics/property',
+    propertyView: '/analytics/property/view'
 }
 
 export const broker = {

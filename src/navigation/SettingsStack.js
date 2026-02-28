@@ -9,7 +9,7 @@ import RegisterBrokerScreen from '../screens/Settings/brokerRegister/RegisterBro
 import ContactUsScreen from '../screens/Settings/Contact/ContactUsScreen';
 import AnalyticsStack from './AnalyticsStack';
 import MyPropertiesScreen from '../screens/Home/MyPropertiesScreen';
-import PropertDetails from '../screens/Home/PropertDetails';
+import PropertDetails from '../screens/Home/PropertyDetails';
 import DeletedUserPropertiesScreen from '../screens/Settings/DeletedUserPropertiesScreen';
 import EditPropertyScreen from '../screens/Sales/EditPropertyScreen';
 

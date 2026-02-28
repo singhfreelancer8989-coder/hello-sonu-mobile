@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { StyleSheet, Text, View, ScrollView, ActivityIndicator, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchPropertyAnalytics } from '../../services/analytics.service';
+import { globalApiRequest } from '../../utility/api.utility';
 
-const StatCard = ({ title, value, icon, color }) => (
-    <View style={[styles.card, { borderLeftColor: color }]}>
+const StatCard = ({ title, value, icon, color, cardWidth }) => (
+    <View style={[styles.card, { borderLeftColor: color, width: cardWidth }]}>
         <View style={styles.cardIconContainer}>
             <Ionicons name={icon} size={24} color={color} />
         </View>
@@ -18,12 +19,14 @@ const StatCard = ({ title, value, icon, color }) => (
 
 const VisitorItem = ({ visitor }) => {
     const dateStr = new Date(visitor.viewedAt).toLocaleString();
+    const userObj = visitor.user || visitor.User;
+
     return (
         <View style={styles.visitorCard}>
             <View style={styles.visitorHeader}>
                 <Ionicons name="person-circle-outline" size={40} color="#4834d4" />
                 <View style={styles.visitorInfo}>
-                    <Text style={styles.visitorName}>{visitor.User?.fullName || "Anonymous User"}</Text>
+                    <Text style={styles.visitorName}>{userObj?.fullName || "Anonymous User"}</Text>
                     <Text style={styles.visitorDate}>{dateStr}</Text>
                 </View>
                 <View style={styles.durationBadge}>
@@ -32,14 +35,14 @@ const VisitorItem = ({ visitor }) => {
                 </View>
             </View>
             <View style={styles.contactInfo}>
-                {visitor.User?.mobileNumber && (
+                {userObj?.mobileNumber && (
                     <Text style={styles.contactText}>
-                        <Ionicons name="call-outline" size={14} /> {visitor.User.mobileNumber}
+                        <Ionicons name="call-outline" size={14} /> {userObj.mobileNumber}
                     </Text>
                 )}
-                {visitor.User?.email && (
+                {userObj?.email && (
                     <Text style={styles.contactText}>
-                        <Ionicons name="mail-outline" size={14} /> {visitor.User.email}
+                        <Ionicons name="mail-outline" size={14} /> {userObj.email}
                     </Text>
                 )}
             </View>
@@ -48,20 +51,28 @@ const VisitorItem = ({ visitor }) => {
 };
 
 const PropertyAnalyticsScreen = ({ route, navigation }) => {
+    const { width } = useWindowDimensions();
+    const isTabletOrLandscape = width >= 600;
+    const cardWidth = isTabletOrLandscape ? '23%' : '48%';
+
     const { propertyId, propertyName } = route.params || {};
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+
 
     useEffect(() => {
         const loadAnalytics = async () => {
             try {
                 setLoading(true);
                 const res = await fetchPropertyAnalytics(propertyId);
-                if (res.success && res.data) {
+                if (res && res.data) {
                     setData(res.data);
+                } else if (res && res.totalViews !== undefined) {
+                    setData(res);
                 } else {
-                    setError(res.message || "Failed to load analytics");
+                    setError(res?.message || "Failed to load analytics");
                 }
             } catch (err) {
                 setError(err.message || "An error occurred");
@@ -70,12 +81,17 @@ const PropertyAnalyticsScreen = ({ route, navigation }) => {
             }
         };
 
-        if (propertyId) loadAnalytics();
+        if (propertyId) {
+            loadAnalytics();
+        }
         else {
             setLoading(false);
             setError("No Property ID provided");
         }
+
     }, [propertyId]);
+
+
 
     if (loading) {
         return (
@@ -85,11 +101,23 @@ const PropertyAnalyticsScreen = ({ route, navigation }) => {
         );
     }
 
-    if (error || !data) {
+    if (error || !data || data.totalViews === undefined || data.totalViews === 0) {
         return (
-            <View style={styles.center}>
-                <Text style={{ color: 'red' }}>{error || "Analytics not available"}</Text>
-            </View>
+            <SafeAreaView style={styles.root}>
+                <View style={styles.header}>
+                    <Ionicons name="arrow-back" size={24} color="#333" onPress={() => navigation.goBack()} />
+                    <Text style={styles.headerTitle}>{propertyName ? `${propertyName} Analytics` : 'Property Analytics'}</Text>
+                </View>
+                <View style={styles.emptyStateContainer}>
+                    <View style={styles.iconCircle}>
+                        <Ionicons name="bar-chart-outline" size={64} color="#4834d4" />
+                    </View>
+                    <Text style={styles.emptyStateTitle}>No Insights Yet</Text>
+                    <Text style={styles.emptyStateSubtitle}>
+                        Once people start viewing this property, their analytics and visitor details will appear here.
+                    </Text>
+                </View>
+            </SafeAreaView>
         );
     }
 
@@ -104,10 +132,10 @@ const PropertyAnalyticsScreen = ({ route, navigation }) => {
                 <Text style={styles.sectionTitle}>Overview</Text>
 
                 <View style={styles.grid}>
-                    <StatCard title="Total Views" value={data.totalViews || 0} icon="eye" color="#4834d4" />
-                    <StatCard title="Unique Visitors" value={data.uniqueVisitors || 0} icon="people" color="#2ecc71" />
-                    <StatCard title="Today's Views" value={data.todayViews || 0} icon="today" color="#e67e22" />
-                    <StatCard title="Last 7 Days" value={data.last7DaysViews || 0} icon="calendar" color="#e74c3c" />
+                    <StatCard title="Total Views" value={data.totalViews || 0} icon="eye" color="#4834d4" cardWidth={cardWidth} />
+                    <StatCard title="Unique Visitors" value={data.uniqueVisitors || 0} icon="people" color="#2ecc71" cardWidth={cardWidth} />
+                    <StatCard title="Today's Views" value={data.todayViews || 0} icon="today" color="#e67e22" cardWidth={cardWidth} />
+                    <StatCard title="Last 7 Days" value={data.last7DaysViews || 0} icon="calendar" color="#e74c3c" cardWidth={cardWidth} />
                 </View>
 
                 <View style={styles.durationContainer}>
@@ -144,9 +172,6 @@ const styles = StyleSheet.create({
     sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#2c3e50', marginBottom: 12 },
     grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
     card: {
-        minWidth: 140,
-        flexGrow: 1,
-        marginHorizontal: '1%',
         backgroundColor: '#fff',
         padding: 12,
         borderRadius: 8,
@@ -173,4 +198,8 @@ const styles = StyleSheet.create({
     durationText: { color: '#fff', fontSize: 12, fontWeight: 'bold', marginLeft: 4 },
     contactInfo: { borderTopWidth: 1, borderTopColor: '#eee', paddingTop: 12 },
     contactText: { fontSize: 13, color: '#7f8c8d', marginBottom: 4 },
+    emptyStateContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32, backgroundColor: '#f8f9fa' },
+    iconCircle: { width: 120, height: 120, borderRadius: 60, backgroundColor: '#ebe8fc', justifyContent: 'center', alignItems: 'center', marginBottom: 24, shadowColor: '#4834d4', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 4 },
+    emptyStateTitle: { fontSize: 22, fontWeight: 'bold', color: '#2c3e50', marginBottom: 12 },
+    emptyStateSubtitle: { fontSize: 15, color: '#7f8c8d', textAlign: 'center', lineHeight: 22 },
 });

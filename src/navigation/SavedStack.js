@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StyleSheet, Text, View } from 'react-native'
-import PropertyDetailsScreen from "../screens/Home/PropertDetails";
+import PropertyDetailsScreen from "../screens/Home/PropertyDetails";
 import SavedScreen from "../screens/Saved/SavedScreen";
 import EditPropertyScreen from "../screens/Sales/EditPropertyScreen";
 const Stack = createNativeStackNavigator();

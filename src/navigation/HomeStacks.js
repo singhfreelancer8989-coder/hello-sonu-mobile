@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomePageScreen from '../screens/Home/HomePageScreen';
-import PropertyDetailsScreen from '../screens/Home/PropertDetails';
+import PropertyDetailsScreen from '../screens/Home/PropertyDetails';
 import PropertyListingScreen from '../screens/Home/PropertyListingScreen';
 import EditPropertyScreen from '../screens/Sales/EditPropertyScreen';
 import AnalyticsStack from './AnalyticsStack';
