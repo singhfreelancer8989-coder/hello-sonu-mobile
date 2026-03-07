@@ -10,8 +10,8 @@ export const createProperty = async (data) => {
 export const fetchProperties = async (params = {}) => {
     const queryParams = new URLSearchParams(params).toString();
     const url = queryParams ? `${property.list}?${queryParams}` : property.list;
-    // console.log("Properties:", url);
     const response = await globalApiRequest(true, "GET", url);
+    console.log("Properties:", response.data);
     return response;
 };
 

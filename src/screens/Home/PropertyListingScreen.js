@@ -66,12 +66,12 @@ const PropertyListingScreen = () => {
 
         // Note: City isn't supported by the backend controller from the snippet yet,
         // but passing it won't break anything.
-        if (selectedCity) filters.city = selectedCity.toLowerCase();
+        if (selectedCity) filters.city = selectedCity;
 
         // Return the promise so we can await it in onRefresh
         return dispatch(fetchListingPropertiesAsync({
             page: pageNum,
-            limit: 10,
+            limit: 20,
             ...filters
         }));
     }, [dispatch, selectedCategory, selectedBudget, selectedSize, selectedCity]);

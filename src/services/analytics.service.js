@@ -8,13 +8,13 @@ export const fetchDashboardAnalytics = async () => {
 };
 
 export const fetchPropertyAnalytics = async (propertyId) => {
-    const response = await globalApiRequest(true, "GET", `admin${admin.propertyAnalytics}/${propertyId}`);
+    const response = await globalApiRequest(true, "GET", `/admin${admin.propertyAnalytics}/${propertyId}`);
     // console.log(response.data);
     return response;
 };
 
 export const sendPropertyViewAnalytics = async (propertyId, durationSeconds) => {
-    const response = await globalApiRequest(true, "POST", `admin${admin.propertyView}`, {
+    const response = await globalApiRequest(true, "POST", `/admin${admin.propertyView}`, {
         propertyId,
         durationSeconds
     });

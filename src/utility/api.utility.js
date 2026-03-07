@@ -36,10 +36,10 @@ export const globalApiRequest = async (useToken, method, url, data = null, confi
 
     try {
         const response = await api.request(requestConfig);
-        // console.log(`[API Response] ${method} ${api.defaults.baseURL}/${url}:`, response);
+        // console.log(`[API Response] ${method} ${api.defaults.baseURL}${url}:`, response.data);
         return response.data;
     } catch (error) {
-        console.log(`[API Response] ${method} ${api.defaults.baseURL}/${url}:`, error);
+        // console.log(`[API Response] ${method} ${api.defaults.baseURL}/${url}:`, error);
         // Log more specific error details
         const errorMsg = error.response?.data?.message || error.message || "API Request Failed";
 
