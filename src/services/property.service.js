@@ -1,5 +1,5 @@
 import { globalApiRequest } from "../utility/api.utility";
-import { property, user, admin } from "../constants/endpoint.constant"
+import { property, user, admin, location } from "../constants/endpoint.constant"
 
 export const createProperty = async (data) => {
     const response = await globalApiRequest(true, "POST", property.create, data);
@@ -11,7 +11,7 @@ export const fetchProperties = async (params = {}) => {
     const queryParams = new URLSearchParams(params).toString();
     const url = queryParams ? `${property.list}?${queryParams}` : property.list;
     const response = await globalApiRequest(true, "GET", url);
-    console.log("Properties:", response.data);
+    // console.log("Properties:", response.data);
     return response;
 };
 
@@ -88,6 +88,11 @@ export const updatePropertyCoverImage = async (propertyId, data) => {
     // data = { imageUrl, imageKey }
     const response = await globalApiRequest(true, "PUT", `${property.coverImage}/${propertyId}/cover-image`, data);
     // // console.log("Cover Image Updated:", response);
+    return response;
+};
+
+export const getNearbyProperties = async (data) => {
+    const response = await globalApiRequest(true, "GET", `${location.nearby}/${data.longitude}/${data.latitude}`);
     return response;
 };
 

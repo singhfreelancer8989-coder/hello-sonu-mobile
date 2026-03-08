@@ -43,3 +43,7 @@ export const adminUsers = {
     customer: '/admin/users/customer',
     admin: '/admin/users/admin'
 }
+
+export const location = {
+    nearby: '/properties/nearby'
+}

@@ -73,6 +73,7 @@ const SettingsScreen = () => {
         />
 
         <SettingsItem
+          onPress={() => Navigator.navigate("MapScreen")}
           label="Map at Hello Sonu"
           icon={<Entypo name="location-pin" size={22} color="#000" />}
         />

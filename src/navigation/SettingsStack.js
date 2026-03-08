@@ -12,6 +12,7 @@ import MyPropertiesScreen from '../screens/Home/MyPropertiesScreen';
 import PropertDetails from '../screens/Home/PropertyDetails';
 import DeletedUserPropertiesScreen from '../screens/Settings/DeletedUserPropertiesScreen';
 import EditPropertyScreen from '../screens/Sales/EditPropertyScreen';
+import MapScreen from '../screens/Settings/Map/MapScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -29,6 +30,7 @@ const SettingsStack = () => {
       <Stack.Screen name="DeletedUserPropertiesScreen" component={DeletedUserPropertiesScreen} />
       <Stack.Screen name="EditProperty" component={EditPropertyScreen} />
       <Stack.Screen name="PropertyDetails" component={PropertDetails} />
+      <Stack.Screen name="MapScreen" component={MapScreen} />
 
     </Stack.Navigator>
   )

@@ -12,7 +12,7 @@ const api = axios.create({
     },
 });
 
-console.log('DEBUG: API_URL (Hardcoded):', "http://13.233.250.225/api/v1");
+// console.log('DEBUG: API_URL (Hardcoded):', "http://13.233.250.225/api/v1");
 
 
 /**
@@ -26,6 +26,7 @@ export const globalApiRequest = async (useToken, method, url, data = null, confi
         ...config,
         headers: { ...config.headers },
     };
+    // console.log(requestConfig);
 
     if (useToken) {
         const sessionToken = await secureStorage.getToken();
@@ -37,9 +38,9 @@ export const globalApiRequest = async (useToken, method, url, data = null, confi
     try {
         const response = await api.request(requestConfig);
         // console.log(`[API Response] ${method} ${api.defaults.baseURL}${url}:`, response.data);
-        return response.data;
+        return response.data;    
     } catch (error) {
-        // console.log(`[API Response] ${method} ${api.defaults.baseURL}/${url}:`, error);
+        console.log(`[API Response] ${method} ${api.defaults.baseURL}/${url}:`, error);
         // Log more specific error details
         const errorMsg = error.response?.data?.message || error.message || "API Request Failed";
 
