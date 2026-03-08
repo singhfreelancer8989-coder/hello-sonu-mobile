@@ -3,6 +3,7 @@ export const user = {
     register: '/user/auth/signup',
     fogotPassword: '/user/auth/forgot-password',
     resetPassword: '/user/auth/reset-password',
+    changePassword: '/change-password',
     savedProperties: '/user/saved-properties'
 }
 

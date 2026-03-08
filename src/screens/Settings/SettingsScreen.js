@@ -53,6 +53,12 @@ const SettingsScreen = () => {
       {/* Settings List */}
       <ScrollView style={{ marginTop: hp('3%') }}>
         <SettingsItem
+          onPress={() => Navigator.navigate("ChangePasswordScreen")}
+          label="Change Password"
+          icon={<Feather name="lock" size={22} color="#000" />}
+        />
+
+        <SettingsItem
           onPress={() => Navigator.navigate("AboutUsScreen")}
           label="About Us"
           icon={<Entypo name="info-with-circle" size={22} color="#000" />}

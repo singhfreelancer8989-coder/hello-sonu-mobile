@@ -8,7 +8,11 @@ export const fetchPropertiesAsync = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await fetchProperties({ page: 1, limit: 20 });
-      let data = Array.isArray(response) ? response : (response?.data?.properties || response?.properties || []);
+      let data = [];
+      if (Array.isArray(response)) data = response;
+      else if (Array.isArray(response?.data)) data = response?.data;
+      else if (Array.isArray(response?.properties)) data = response?.properties;
+      else if (Array.isArray(response?.data?.properties)) data = response?.data?.properties;
 
       return data;
     } catch (error) {
@@ -24,12 +28,31 @@ export const fetchListingPropertiesAsync = createAsyncThunk(
   async (params, { rejectWithValue }) => {
     try {
       const response = await fetchProperties(params);
-      let data = Array.isArray(response) ? response.data.properties : (response.data?.properties || response.properties || []);
+      let data = [];
+      if (Array.isArray(response)) data = response;
+      else if (Array.isArray(response?.data)) data = response?.data;
+      else if (Array.isArray(response?.properties)) data = response?.properties;
+      else if (Array.isArray(response?.data?.properties)) data = response?.data?.properties;
 
+      const limit = params.limit || 20;
+      const currentPage = params.page || 1;
+      let hasMore = false;
+
+      // Prefer server-provided total pages if available (e.g., response.totalPages or response.data.totalPages)
+      const totalPages = response?.totalPages || response?.data?.totalPages || response?.pagination?.totalPages;
+      if (typeof totalPages === 'number') {
+        hasMore = currentPage < totalPages;
+        console.log(hasMore);
+      } else {
+        // Fallback to array length heuristic
+        hasMore = data.length === limit;
+        console.log(hasMore);
+      }
+      
       return {
         data,
-        page: params.page || 1,
-        hasMore: data.length === (params.limit || 20) // Simple heuristic
+        page: currentPage, 
+        hasMore
       };
     } catch (error) {
       console.error("Listing Fetch Error:", error);
@@ -105,12 +128,27 @@ export const fetchMyPropertiesAsync = createAsyncThunk(
   async (params = {}, { rejectWithValue }) => {
     try {
       const response = await fetchMyProperties(params);
-      let data = Array.isArray(response) ? response : (response.data?.properties || response.properties || response.data || []);
+      let data = [];
+      if (Array.isArray(response)) data = response;
+      else if (Array.isArray(response?.data)) data = response?.data;
+      else if (Array.isArray(response?.properties)) data = response?.properties;
+      else if (Array.isArray(response?.data?.properties)) data = response?.data?.properties;
+
+      const limit = params.limit || 10;
+      const currentPage = params.page || 1;
+      let hasMore = false;
+
+      const totalPages = response?.totalPages || response?.data?.totalPages || response?.pagination?.totalPages;
+      if (typeof totalPages === 'number') {
+        hasMore = currentPage < totalPages;
+      } else {
+        hasMore = data.length === limit;
+      }
 
       return {
         data,
-        page: params.page || 1,
-        hasMore: data.length === (params.limit || 10)
+        page: currentPage,
+        hasMore
       };
     } catch (error) {
       console.error("Fetch My Properties Error:", error);

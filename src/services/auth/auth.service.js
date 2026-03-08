@@ -11,6 +11,15 @@ export const registerUser = async (userData) => {
     }
 };
 
+export const changePassword = async (payload) => {
+    try {
+        const response = await globalApiRequest(true, "PUT", user.changePassword, payload);
+        return response;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const handleLogout = (logout) => {
     Alert.alert(
         "Logout",
