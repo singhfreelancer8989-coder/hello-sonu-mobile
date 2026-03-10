@@ -153,16 +153,12 @@ const PropertyListingScreen = () => {
         return <View style={{ height: 50 }} />;
     };
 
-    const renderItem = ({ item }) => (
+    const renderItem = useCallback(({ item }) => (
         <PropertyCard
             item={item}
-            style={{
-                width: wp('44%'),
-                marginRight: 0,
-                marginBottom: hp('2%')
-            }}
+            style={styles.propertyCard}
         />
-    );
+    ), []);
 
     return (
         <SafeAreaView style={styles.root} edges={['top', 'left', 'right']}>
@@ -173,13 +169,7 @@ const PropertyListingScreen = () => {
                 <FlatList
                     data={[1, 2, 3, 4, 5, 6, 7, 8]} // Dummy data for skeletons
                     renderItem={() => (
-                        <SkeletonPropertyCard
-                            style={{
-                                width: wp('44%'),
-                                marginRight: 0,
-                                marginBottom: hp('2%')
-                            }}
-                        />
+                        <SkeletonPropertyCard style={styles.propertyCard} />
                     )}
                     keyExtractor={(item) => item.toString()}
                     contentContainerStyle={styles.listContent}
@@ -199,6 +189,10 @@ const PropertyListingScreen = () => {
                     columnWrapperStyle={styles.columnWrapper}
                     showsVerticalScrollIndicator={false}
                     numColumns={2}
+                    initialNumToRender={8}
+                    maxToRenderPerBatch={8}
+                    windowSize={5}
+                    removeClippedSubviews={true}
                     refreshControl={
                         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#007bff"]} />
                     }
@@ -278,6 +272,11 @@ const PropertyListingScreen = () => {
 };
 
 const styles = StyleSheet.create({
+    propertyCard: {
+        width: wp('44%'),
+        marginRight: 0,
+        marginBottom: hp('2%'),
+    },
     root: {
         flex: 1,
         backgroundColor: '#f8f9fa',

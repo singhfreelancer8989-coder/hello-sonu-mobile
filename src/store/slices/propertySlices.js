@@ -42,11 +42,11 @@ export const fetchListingPropertiesAsync = createAsyncThunk(
       const totalPages = response?.totalPages || response?.data?.totalPages || response?.pagination?.totalPages;
       if (typeof totalPages === 'number') {
         hasMore = currentPage < totalPages;
-        console.log(hasMore);
+        // console.log(hasMore);
       } else {
         // Fallback to array length heuristic
         hasMore = data.length === limit;
-        console.log(hasMore);
+        // console.log(hasMore);
       }
       
       return {

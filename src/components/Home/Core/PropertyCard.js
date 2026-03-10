@@ -7,14 +7,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { savePropertyAsync, removeSavedPropertyAsync } from '../../../store/slices/propertySlices';
 import useAuth from '../../../hooks/useAuth';
 
-const PropertyCard = ({ item, style }) => {
+const PropertyCard = React.memo(({ item, style }) => {
   const Navigator = useNavigation();
   const dispatch = useDispatch();
   const { userData } = useAuth();
-  const { savedPropertyIds } = useSelector((state) => state.property);
-
+  
   const propertyId = item?.id || item?._id;
-  const isSaved = savedPropertyIds.includes(propertyId);
+  
+  // Select only the specific state needed for this card to prevent all cards from re-rendering
+  // when the saved list changes.
+  const isSaved = useSelector((state) => state.property.savedPropertyIds.includes(propertyId));
 
   const handleSaveToggle = () => {
     if (!userData) {
@@ -86,7 +88,7 @@ const PropertyCard = ({ item, style }) => {
       </View>
     </TouchableOpacity>
   );
-};
+});
 
 export default PropertyCard;
 

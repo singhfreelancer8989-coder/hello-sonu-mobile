@@ -25,10 +25,10 @@ const MapScreen = () => {
       setLoading(true);
       try {
         const response = await getNearbyProperties({
-          latitude: location.latitude,
-          longitude: location.longitude,
-          // latitude: 23.3315,
-          // longitude: 75.0367,
+          // latitude: location.latitude,
+          // longitude: location.longitude,
+          latitude: 23.3315,
+          longitude: 75.0367,
         });
         if (response && response.data) {
           // Filter out properties that don't have valid coordinates
@@ -57,7 +57,7 @@ const MapScreen = () => {
           <Ionicons name="chevron-back" size={24} color="#333" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Map at Hello Sonu</Text>
-        <View style={{ width: 24 }} /> {/* Balance for back button */}
+        <View style={{ width: 24 }} />
       </View>
     </View>
   );
@@ -84,8 +84,8 @@ const MapScreen = () => {
             initialRegion={{
               latitude: location.latitude,
               longitude: location.longitude,
-              latitudeDelta: 0.05,
-              longitudeDelta: 0.05,
+              latitudeDelta: 2,
+              longitudeDelta: 2,
             }}
           >
             {/* User Current Location Marker */}
