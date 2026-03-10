@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, ScrollView, ActivityIndicator, useWindowDimensions } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { StyleSheet, Text, View, ScrollView, ActivityIndicator, useWindowDimensions, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchPropertyAnalytics } from '../../services/analytics.service';
@@ -59,37 +59,41 @@ const PropertyAnalyticsScreen = ({ route, navigation }) => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [refreshing, setRefreshing] = useState(false);
 
-
-
-    useEffect(() => {
-        const loadAnalytics = async () => {
-            try {
-                setLoading(true);
-                const res = await fetchPropertyAnalytics(propertyId);
-                if (res && res.data) {
-                    setData(res.data);
-                } else if (res && res.totalViews !== undefined) {
-                    setData(res);
-                } else {
-                    setError(res?.message || "Failed to load analytics");
-                }
-            } catch (err) {
-                setError(err.message || "An error occurred");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        if (propertyId) {
-            loadAnalytics();
-        }
-        else {
+    const loadAnalytics = useCallback(async () => {
+        if (!propertyId) {
             setLoading(false);
             setError("No Property ID provided");
+            return;
         }
-
+        
+        try {
+            const res = await fetchPropertyAnalytics(propertyId);
+            if (res && res.data) {
+                setData(res.data);
+            } else if (res && res.totalViews !== undefined) {
+                setData(res);
+            } else {
+                setError(res?.message || "Failed to load analytics");
+            }
+        } catch (err) {
+            setError(err.message || "An error occurred");
+        } finally {
+            setLoading(false);
+        }
     }, [propertyId]);
+
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await loadAnalytics();
+        setRefreshing(false);
+    }, [loadAnalytics]);
+
+    useEffect(() => {
+        setLoading(true);
+        loadAnalytics();
+    }, [loadAnalytics]);
 
 
 
@@ -108,7 +112,12 @@ const PropertyAnalyticsScreen = ({ route, navigation }) => {
                     <Ionicons name="arrow-back" size={24} color="#333" onPress={() => navigation.goBack()} />
                     <Text style={styles.headerTitle}>{propertyName ? `${propertyName} Analytics` : 'Property Analytics'}</Text>
                 </View>
-                <View style={styles.emptyStateContainer}>
+                <ScrollView 
+                    contentContainerStyle={styles.emptyStateContainer}
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4834d4"]} />
+                    }
+                >
                     <View style={styles.iconCircle}>
                         <Ionicons name="bar-chart-outline" size={64} color="#4834d4" />
                     </View>
@@ -116,7 +125,7 @@ const PropertyAnalyticsScreen = ({ route, navigation }) => {
                     <Text style={styles.emptyStateSubtitle}>
                         Once people start viewing this property, their analytics and visitor details will appear here.
                     </Text>
-                </View>
+                </ScrollView>
             </SafeAreaView>
         );
     }
@@ -128,7 +137,12 @@ const PropertyAnalyticsScreen = ({ route, navigation }) => {
                 <Text style={styles.headerTitle}>{propertyName ? `${propertyName} Analytics` : 'Property Analytics'}</Text>
             </View>
 
-            <ScrollView contentContainerStyle={styles.scrollContent}>
+            <ScrollView 
+                contentContainerStyle={styles.scrollContent}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4834d4"]} />
+                }
+            >
                 <Text style={styles.sectionTitle}>Overview</Text>
 
                 <View style={styles.grid}>

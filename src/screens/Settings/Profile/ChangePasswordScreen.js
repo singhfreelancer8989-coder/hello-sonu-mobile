@@ -18,7 +18,7 @@ import { changePassword } from "../../../services/auth/auth.service";
 const ChangePasswordScreen = () => {
   const navigation = useNavigation();
   const { userData, logout } = useAuth();
-  
+
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -55,9 +55,9 @@ const ChangePasswordScreen = () => {
         new_password: newPassword
       };
       console.log(payload);
-      
+
       const response = await changePassword(payload);
-      
+
       Alert.alert("Success", "Your password has been changed successfully.", [
         { text: "OK", onPress: () => logout() }
       ]);
@@ -78,16 +78,14 @@ const ChangePasswordScreen = () => {
           <Ionicons name="chevron-back" size={24} color="#007AFF" />
         </TouchableOpacity>
         <Text style={styles.title}>Change Password</Text>
-        <View style={{ width: 32 }} /> {/* Balance Spacer */}
+        <View style={{ width: 32 }} />
       </View>
 
       <ScrollView contentContainerStyle={{ padding: wp('4.5%') }} keyboardShouldPersistTaps="handled">
-        
+
         <View style={styles.infoContainer}>
-            <Ionicons name="lock-closed-outline" size={wp('15%')} color="#007AFF" style={styles.lockIcon} />
-            <Text style={styles.infoText}>
-                Your new password must be securely formed and at least 6 characters long.
-            </Text>
+          <Ionicons name="lock-closed-outline" size={wp('15%')} color="#007AFF" style={styles.lockIcon} />
+          <Text style={styles.infoText}>Your new password must be securely formed and at least 6 characters long.</Text>
         </View>
 
         {/* Form */}
@@ -102,7 +100,7 @@ const ChangePasswordScreen = () => {
               secureTextEntry={!showOldPassword}
             />
             <TouchableOpacity onPress={() => setShowOldPassword(!showOldPassword)} style={styles.eyeIcon}>
-                <Ionicons name={showOldPassword ? "eye-off" : "eye"} size={20} color="#777" />
+              <Ionicons name={showOldPassword ? "eye-off" : "eye"} size={20} color="#777" />
             </TouchableOpacity>
           </View>
 
@@ -116,7 +114,7 @@ const ChangePasswordScreen = () => {
               secureTextEntry={!showNewPassword}
             />
             <TouchableOpacity onPress={() => setShowNewPassword(!showNewPassword)} style={styles.eyeIcon}>
-                <Ionicons name={showNewPassword ? "eye-off" : "eye"} size={20} color="#777" />
+              <Ionicons name={showNewPassword ? "eye-off" : "eye"} size={20} color="#777" />
             </TouchableOpacity>
           </View>
 
@@ -130,23 +128,23 @@ const ChangePasswordScreen = () => {
               secureTextEntry={!showConfirmPassword}
             />
             <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={styles.eyeIcon}>
-                <Ionicons name={showConfirmPassword ? "eye-off" : "eye"} size={20} color="#777" />
+              <Ionicons name={showConfirmPassword ? "eye-off" : "eye"} size={20} color="#777" />
             </TouchableOpacity>
           </View>
 
           {/* Save Button */}
-          <TouchableOpacity 
-            style={[styles.saveBtn, loading && styles.saveBtnDisabled]} 
+          <TouchableOpacity
+            style={[styles.saveBtn, loading && styles.saveBtnDisabled]}
             onPress={handleSave}
             disabled={loading}
           >
             {loading ? (
-                <ActivityIndicator color="#fff" size="small" />
+              <ActivityIndicator color="#fff" size="small" />
             ) : (
-                <>
-                    <Feather name="check" size={18} color="#fff" />
-                    <Text style={styles.saveBtnText}>Update Password</Text>
-                </>
+              <>
+                <Feather name="check" size={18} color="#fff" />
+                <Text style={styles.saveBtnText}>Update Password</Text>
+              </>
             )}
           </TouchableOpacity>
         </View>
@@ -174,7 +172,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "#EAEAEA",
   },
   title: {
-    fontSize: wp('4.5%'), 
+    fontSize: wp('4.5%'),
     color: "#222",
     fontFamily: "Poppins-SemiBold",
   },
