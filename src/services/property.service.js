@@ -4,9 +4,9 @@ import { extractCoordinates } from "../utility/location.utility";
 
 export const createProperty = async (data) => {
     // console.log("Property Data:", data);
-    const coordinates = await extractCoordinates(data.googleMapLink);
-    data.latitude = coordinates?.latitude || null;
-    data.longitude = coordinates?.longitude || null;
+    // const coordinates = await extractCoordinates(data.googleMapLink);
+    // data.latitude = coordinates?.latitude || null;
+    // data.longitude = coordinates?.longitude || null;
     // console.log("Property Data:", data);
     const response = await globalApiRequest(true, "POST", property.create, data);
     // console.log("Property Created:", response);
