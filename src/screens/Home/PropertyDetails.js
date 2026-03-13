@@ -338,6 +338,33 @@ const PropertyDetailsScreen = () => {
                 )}
             </View>
 
+            {/* ========== SELLING PREFERENCE ========== */}
+            {property.sellingPreference && (
+                <View style={styles.preferenceContainer}>
+                    <View style={[
+                        styles.preferenceBadge,
+                        property.sellingPreference.toLowerCase() === 'urgent' && styles.urgentBadge,
+                        property.sellingPreference.toLowerCase() === 'flexible' && styles.flexibleBadge,
+                        property.sellingPreference.toLowerCase() === 'normal' && styles.normalBadge,
+                    ]}>
+                        <View style={[
+                            styles.preferenceIconDot,
+                            property.sellingPreference.toLowerCase() === 'urgent' && { backgroundColor: '#FF4444' },
+                            property.sellingPreference.toLowerCase() === 'flexible' && { backgroundColor: '#3a75cd' },
+                            property.sellingPreference.toLowerCase() === 'normal' && { backgroundColor: '#4834d4' },
+                        ]} />
+                        <Text style={[
+                            styles.preferenceText,
+                            property.sellingPreference.toLowerCase() === 'urgent' && { color: '#FF4444' },
+                            property.sellingPreference.toLowerCase() === 'flexible' && { color: '#3a75cd' },
+                            property.sellingPreference.toLowerCase() === 'normal' && { color: '#4834d4' },
+                        ]}>
+                            {property.sellingPreference.toUpperCase()}
+                        </Text>
+                    </View>
+                </View>
+            )}
+
             {/* CITY + ADDRESS */}
             <Text style={styles.city}>{property.city}</Text>
             <Text style={styles.address}>{property.address}</Text>
@@ -530,6 +557,33 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     verifiedText: { marginLeft: 4, color: "#2E7D32", fontFamily: "Poppins-Regular", fontSize: wp('3.5%') },
+
+    preferenceContainer: {
+        paddingHorizontal: wp('4%'),
+        marginTop: hp('0.5%'),
+    },
+    preferenceBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        alignSelf: 'flex-start',
+        paddingHorizontal: wp('3%'),
+        paddingVertical: hp('0.5%'),
+        borderRadius: 20,
+        gap: 6,
+    },
+    preferenceIconDot: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+    },
+    urgentBadge: { backgroundColor: '#FFF0F0' },
+    flexibleBadge: { backgroundColor: '#F0F5FF' },
+    normalBadge: { backgroundColor: '#F5F3FF' },
+    preferenceText: {
+        fontSize: wp('3%'),
+        fontFamily: 'Poppins-Bold',
+        letterSpacing: 0.5,
+    },
 
     city: { fontSize: wp('4%'), color: "#666", paddingHorizontal: wp('4%'), marginTop: hp('0.5%'), fontFamily: "Poppins-Regular" },
     address: { fontSize: wp('3.5%'), color: "#777", paddingHorizontal: wp('4%'), marginTop: hp('0.25%'), fontFamily: "Poppins-Regular" },

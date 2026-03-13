@@ -33,6 +33,7 @@ import { fetchPropertiesAsync } from '../../store/slices/propertySlices';
 import { showErrorAlert } from '../../utility/error.utility';
 import { CITIES } from '../../constants/data.constant';
 
+
 const SalesFormScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
