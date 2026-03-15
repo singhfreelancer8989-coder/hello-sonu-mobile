@@ -26,14 +26,14 @@ export const globalApiRequest = async (useToken, method, url, data = null, confi
         ...config,
         headers: { ...config.headers },
     };
-    // console.log(requestConfig);
-
+    
     if (useToken) {
         const sessionToken = await secureStorage.getToken();
         if (sessionToken) {
             requestConfig.headers.Authorization = `Bearer ${sessionToken}`;
         }
     }
+    console.log(requestConfig);
 
     try {
         const response = await api.request(requestConfig);

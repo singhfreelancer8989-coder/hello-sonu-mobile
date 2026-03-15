@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, Text, View, ScrollView, ActivityIndicator, useWindowDimensions, RefreshControl } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, ActivityIndicator, useWindowDimensions, RefreshControl, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchPropertyAnalytics } from '../../services/analytics.service';
-import { globalApiRequest } from '../../utility/api.utility';
 
 const StatCard = ({ title, value, icon, color, cardWidth }) => (
     <View style={[styles.card, { borderLeftColor: color, width: cardWidth }]}>
@@ -18,8 +17,11 @@ const StatCard = ({ title, value, icon, color, cardWidth }) => (
 );
 
 const VisitorItem = ({ visitor }) => {
-    const dateStr = new Date(visitor.viewedAt).toLocaleString();
+    const [isExpanded, setIsExpanded] = useState(false);
+    const latestView = visitor.latestView || visitor;
+    const dateStr = new Date(latestView.viewedAt).toLocaleString();
     const userObj = visitor.user || visitor.User;
+    const phone = userObj?.phone || userObj?.mobileNumber;
 
     return (
         <View style={styles.visitorCard}>
@@ -27,17 +29,17 @@ const VisitorItem = ({ visitor }) => {
                 <Ionicons name="person-circle-outline" size={40} color="#4834d4" />
                 <View style={styles.visitorInfo}>
                     <Text style={styles.visitorName}>{userObj?.fullName || "Anonymous User"}</Text>
-                    <Text style={styles.visitorDate}>{dateStr}</Text>
+                    <Text style={styles.visitorDate}>{visitor.latestView ? 'Latest: ' : ''}{dateStr}</Text>
                 </View>
                 <View style={styles.durationBadge}>
                     <Ionicons name="time-outline" size={14} color="#fff" />
-                    <Text style={styles.durationText}>{visitor.durationSeconds}s</Text>
+                    <Text style={styles.durationText}>{latestView.durationSeconds}s</Text>
                 </View>
             </View>
             <View style={styles.contactInfo}>
-                {userObj?.mobileNumber && (
+                {phone && (
                     <Text style={styles.contactText}>
-                        <Ionicons name="call-outline" size={14} /> {userObj.mobileNumber}
+                        <Ionicons name="call-outline" size={14} /> {phone}
                     </Text>
                 )}
                 {userObj?.email && (
@@ -46,6 +48,43 @@ const VisitorItem = ({ visitor }) => {
                     </Text>
                 )}
             </View>
+            {visitor.views && visitor.views.length > 0 && (
+                <View style={styles.viewsContainer}>
+                    <TouchableOpacity 
+                        style={styles.dropdownHeader} 
+                        onPress={() => setIsExpanded(!isExpanded)}
+                        activeOpacity={0.7}
+                    >
+                        <Text style={styles.viewsHeader}>
+                            View History (Total: {visitor.totalViews || visitor.views.length})
+                        </Text>
+                        <Ionicons 
+                            name={isExpanded ? "chevron-up" : "chevron-down"} 
+                            size={18} 
+                            color="#34495e" 
+                        />
+                    </TouchableOpacity>
+                    
+                    {isExpanded && (
+                        <View style={styles.dropdownContent}>
+                            {visitor.views.map((v, index) => (
+                                <View key={index.toString()} style={styles.viewHistoryRow}>
+                                    <View style={styles.viewHistoryDateWrapper}>
+                                        <Ionicons name="calendar-outline" size={12} color="#7f8c8d" />
+                                        <Text style={styles.viewHistoryDate}>
+                                            {new Date(v.viewedAt).toLocaleString()}
+                                        </Text>
+                                    </View>
+                                    <View style={styles.viewHistoryDurationWrapper}>
+                                        <Ionicons name="timer-outline" size={12} color="#7f8c8d" />
+                                        <Text style={styles.viewHistoryDuration}>{v.durationSeconds}s</Text>
+                                    </View>
+                                </View>
+                            ))}
+                        </View>
+                    )}
+                </View>
+            )}
         </View>
     );
 };
@@ -67,7 +106,7 @@ const PropertyAnalyticsScreen = ({ route, navigation }) => {
             setError("No Property ID provided");
             return;
         }
-        
+
         try {
             const res = await fetchPropertyAnalytics(propertyId);
             if (res && res.data) {
@@ -112,7 +151,7 @@ const PropertyAnalyticsScreen = ({ route, navigation }) => {
                     <Ionicons name="arrow-back" size={24} color="#333" onPress={() => navigation.goBack()} />
                     <Text style={styles.headerTitle}>{propertyName ? `${propertyName} Analytics` : 'Property Analytics'}</Text>
                 </View>
-                <ScrollView 
+                <ScrollView
                     contentContainerStyle={styles.emptyStateContainer}
                     refreshControl={
                         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4834d4"]} />
@@ -137,7 +176,7 @@ const PropertyAnalyticsScreen = ({ route, navigation }) => {
                 <Text style={styles.headerTitle}>{propertyName ? `${propertyName} Analytics` : 'Property Analytics'}</Text>
             </View>
 
-            <ScrollView 
+            <ScrollView
                 contentContainerStyle={styles.scrollContent}
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4834d4"]} />
@@ -164,8 +203,8 @@ const PropertyAnalyticsScreen = ({ route, navigation }) => {
                 </View>
 
                 <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Recent Visitors</Text>
-                {(data.visitors || []).map((visitor) => (
-                    <VisitorItem key={visitor.id} visitor={visitor} />
+                {(data.visitors || []).map((visitor, index) => (
+                    <VisitorItem key={visitor?.user?.id || visitor?.User?.id || index.toString()} visitor={visitor} />
                 ))}
                 {!(data.visitors && data.visitors.length > 0) && (
                     <Text style={{ color: '#7f8c8d' }}>No analytics views recorded yet.</Text>
@@ -216,4 +255,13 @@ const styles = StyleSheet.create({
     iconCircle: { width: 120, height: 120, borderRadius: 60, backgroundColor: '#ebe8fc', justifyContent: 'center', alignItems: 'center', marginBottom: 24, shadowColor: '#4834d4', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 4 },
     emptyStateTitle: { fontSize: 22, fontWeight: 'bold', color: '#2c3e50', marginBottom: 12 },
     emptyStateSubtitle: { fontSize: 15, color: '#7f8c8d', textAlign: 'center', lineHeight: 22 },
+    viewsContainer: { marginTop: 12, backgroundColor: '#f8f9fa', borderRadius: 8, overflow: 'hidden' },
+    dropdownHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 12 },
+    viewsHeader: { fontSize: 13, fontWeight: 'bold', color: '#34495e' },
+    dropdownContent: { paddingHorizontal: 12, paddingBottom: 12, paddingTop: 4, borderTopWidth: 1, borderTopColor: '#ebebeb' },
+    viewHistoryRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#eee' },
+    viewHistoryDateWrapper: { flexDirection: 'row', alignItems: 'center' },
+    viewHistoryDate: { fontSize: 12, color: '#7f8c8d', marginLeft: 6 },
+    viewHistoryDurationWrapper: { flexDirection: 'row', alignItems: 'center' },
+    viewHistoryDuration: { fontSize: 12, color: '#7f8c8d', marginLeft: 6 },
 });

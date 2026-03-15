@@ -25,14 +25,14 @@ const MapScreen = () => {
       setLoading(true);
       try {
         const response = await getNearbyProperties({
-          // latitude: location.latitude,
-          // longitude: location.longitude,
-          latitude: 23.3315,
-          longitude: 75.0367,
+          latitude: location.latitude,
+          longitude: location.longitude,
+          // latitude: 23.3315,
+          // longitude: 75.0367,
         });
         if (response && response.data) {
           // Filter out properties that don't have valid coordinates
-          // console.log(response.data);
+          console.log(response.data);
           setProperties(response.data);
         } else {
           setProperties([]);
