@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const GOOGLE_API_KEY =
-  process.env.EXPO_PUBLIC_GOOGLE_API_KEY || "AIzaSyDRvvxGH6LCKDudyaNXKN4dcUmfTYxn-5E";
+  process.env.EXPO_PUBLIC_GOOGLE_API_KEY ;
 
 // 🔁 Resolve shortened URLs (maps.app.goo.gl → full URL)
 async function resolveUrl(url) {
