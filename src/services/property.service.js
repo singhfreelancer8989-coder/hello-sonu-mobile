@@ -3,14 +3,24 @@ import { property, user, admin, location } from "../constants/endpoint.constant"
 import { extractCoordinates } from "../utility/location.utility";
 
 export const createProperty = async (data) => {
-    console.log("Property Data:", data);
+    console.log("Property Data before extraction:", data);
     const coordinates = await extractCoordinates(data.googleMapLink);
-    data.latitude = coordinates.latitude;
-    data.longitude = coordinates.longitude;
-    console.log("Property Data:", data);
-    const response = await globalApiRequest(true, "POST", property.create, data);
-    // console.log("Property Created:", response);
-    return response;
+    
+    if (coordinates) {
+        console.log("Extracted coordinates:", coordinates);
+        data.latitude = coordinates.latitude;
+        data.longitude = coordinates.longitude;
+        console.log("Property Data after processing:", data);
+        const response = await globalApiRequest(true, "POST", property.create, data);
+        return response;
+    } else {
+        console.error("Coordinate extraction failed for link:", data.googleMapLink);
+        // Throwing or returning error so handleSubmit can catch it
+        return { 
+            success: false, 
+            message: "Could not extract location from the Google Map link. Please ensure it is a valid link." 
+        };
+    }
 };
 
 export const fetchProperties = async (params = {}) => {

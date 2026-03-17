@@ -33,7 +33,7 @@ export const globalApiRequest = async (useToken, method, url, data = null, confi
             requestConfig.headers.Authorization = `Bearer ${sessionToken}`;
         }
     }
-    console.log(requestConfig);
+    // console.log(requestConfig);
 
     try {
         const response = await api.request(requestConfig);

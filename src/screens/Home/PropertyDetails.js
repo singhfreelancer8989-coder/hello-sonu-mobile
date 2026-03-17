@@ -66,6 +66,7 @@ const PropertyDetailsScreen = () => {
     };
 
     const startTimeRef = useRef(null);
+    const isDeletedRef = useRef(false);
 
     
 
@@ -78,11 +79,20 @@ const PropertyDetailsScreen = () => {
             startTimeRef.current = Date.now();
         }
         return async () => {
-            const endTime = Date.now();
-            const durationSeconds = Math.floor((endTime - startTimeRef.current) / 1000);
-            // console.log(`User spent ${durationSeconds} seconds on property: ${propertyId}`);
-            await sendPropertyViewAnalytics(propertyId, durationSeconds);
-            dispatch(clearCurrentProperty());
+            try {
+                const endTime = Date.now();
+                const durationSeconds = Math.floor((endTime - startTimeRef.current) / 1000);
+                
+                // Only send analytics if the property wasn't just deleted
+                if (propertyId && !isDeletedRef.current) {
+                    await sendPropertyViewAnalytics(propertyId, durationSeconds);
+                }
+            } catch (error) {
+                // Silently fail analytics if it fails during unmount/deletion
+                // console.error("Analytics cleanup error:", error);
+            } finally {
+                dispatch(clearCurrentProperty());
+            }
         };
     }, [dispatch, propertyId]);
 
@@ -127,6 +137,7 @@ const PropertyDetailsScreen = () => {
                                 return;
                             }
                             await deleteProperty(propertyId);
+                            isDeletedRef.current = true; // Mark as deleted to skip analytics
                             dispatch(fetchListingPropertiesAsync({ page: 1, limit: 10 })); // Refresh listing
                             dispatch(fetchPropertiesAsync()); // Refresh home screen
                             Alert.alert("Success", "Property deleted by Admin", [

@@ -32,7 +32,7 @@ const MapScreen = () => {
         });
         if (response && response.data) {
           // Filter out properties that don't have valid coordinates
-          console.log(response.data);
+          // console.log(response.data);
           setProperties(response.data);
         } else {
           setProperties([]);

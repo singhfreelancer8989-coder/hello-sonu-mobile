@@ -273,7 +273,12 @@ const SalesFormScreen = () => {
       const response = await createProperty(payload);
       // // console.log("Property Created:", response);
 
-      // RELOAD PROPERTIES
+      if (response && response.success === false) {
+        Alert.alert("Location Error", response.message || "Could not process coordinates.");
+        return;
+      }
+
+      // RELOAD PROPERTIES  
       dispatch(fetchPropertiesAsync());
 
       Alert.alert("Success", "Sales form submitted successfully!", [
