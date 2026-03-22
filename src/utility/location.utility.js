@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const GOOGLE_API_KEY =
-  process.env.EXPO_PUBLIC_GOOGLE_API_KEY ;
+  process.env.EXPO_PUBLIC_GOOGLE_API;
 
 // 🔁 Resolve shortened URLs (maps.app.goo.gl → full URL)
 async function resolveUrl(url) {
@@ -12,7 +12,7 @@ async function resolveUrl(url) {
     });
     return response.url || url;
   } catch (err) {
-    console.error("Resolve Error:", err.message);
+    // console.error("Resolve Error:", err.message);
     return url;
   }
 }
@@ -22,7 +22,7 @@ export async function extractCoordinates(inputUrl, apiKey = GOOGLE_API_KEY) {
 
   try {
     const longUrl = await resolveUrl(inputUrl);
-    console.log("--- Debug: Resolved URL ---", longUrl);
+    // console.log("--- Debug: Resolved URL ---", longUrl);
 
     let match;
 
@@ -79,14 +79,14 @@ export async function extractCoordinates(inputUrl, apiKey = GOOGLE_API_KEY) {
     if (placeIdMatch && apiKey) {
       const rawId = placeIdMatch[1];
 
-      console.log(`--- Debug: Found internal ID ${rawId} ---`);
+      // console.log(`--- Debug: Found internal ID ${rawId} ---`);
 
       // 🔥 Use it as search query instead of place_id
       const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${rawId}&key=${apiKey}`;
 
       const res = await fetch(searchUrl);
       const data = await res.json();
-      console.log("API RESPONSE:", data);
+      // console.log("API RESPONSE:", data);
 
       if (data.status === "OK" && data.results.length > 0) {
         const loc = data.results[0].geometry.location;
@@ -97,12 +97,12 @@ export async function extractCoordinates(inputUrl, apiKey = GOOGLE_API_KEY) {
     // ✅ 7. CID-based links
     const cidMatch = longUrl.match(/cid=(\d+)/);
     if (cidMatch && apiKey) {
-      console.log(`--- Debug: Found CID ${cidMatch[1]} ---`);
+      // console.log(`--- Debug: Found CID ${cidMatch[1]} ---`);
 
       const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=cid:${cidMatch[1]}&key=${apiKey}`;
       const res = await fetch(searchUrl);
       const data = await res.json();
-      console.log("API RESPONSE:", data);
+      // console.log("API RESPONSE:", data);
 
       if (data.status === "OK" && data.results.length > 0) {
         const loc = data.results[0].geometry.location;
@@ -117,7 +117,7 @@ export async function extractCoordinates(inputUrl, apiKey = GOOGLE_API_KEY) {
         placeMatch[1].replace(/\+/g, " ")
       );
 
-      console.log(`--- Debug: Searching by name "${placeName}" ---`);
+      // console.log(`--- Debug: Searching by name "${placeName}" ---`);
 
       const apiUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(
         placeName
@@ -132,10 +132,10 @@ export async function extractCoordinates(inputUrl, apiKey = GOOGLE_API_KEY) {
       }
     }
 
-    console.warn("❌ No coordinates found.");
+    // console.warn("❌ No coordinates found.");
     return null;
   } catch (error) {
-    console.error("Extraction failed:", error.message);
+    // console.error("Extraction failed:", error.message);
     return null;
   }
 }

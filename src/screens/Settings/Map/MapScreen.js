@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { getNearbyProperties } from '../../../services/property.service';
 import { useLocation } from '../../../hooks/useLocation';
 
@@ -14,40 +14,28 @@ const MapScreen = () => {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
   const loadProperties = async () => {
+    if (!location) return;
+    setLoading(true);
+    try {
+      const response = await getNearbyProperties({
+        latitude: location.latitude,
+        longitude: location.longitude,
+      });
+      if (response && response.data) {
+        setProperties(response.data);
+      } else {
+        setProperties([]);
+      }
+    } catch (error) {
+      console.log('Error fetching properties for map:', error);
+      setProperties([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    if (!location) return;
-
-    // console.log(location.latitude, location.longitude)
-
-    const fetchProperties = async () => {
-      setLoading(true);
-      try {
-        const response = await getNearbyProperties({
-          latitude: location.latitude,
-          longitude: location.longitude,
-          // latitude: 23.3315,
-          // longitude: 75.0367,
-        });
-        if (response && response.data) {
-          // Filter out properties that don't have valid coordinates
-          // console.log(response.data);
-          setProperties(response.data);
-        } else {
-          setProperties([]);
-        }
-      } catch (error) {
-        console.log("Error fetching properties for map:", error);
-        setProperties([]);
-      } finally {
-        setLoading(false);
-      }
-
-    };
-
-    fetchProperties();
-
+    loadProperties();
   }, [location]);
 
   const renderHeader = () => (
@@ -80,6 +68,7 @@ const MapScreen = () => {
           </View>
         ) : (
           <MapView
+            provider={PROVIDER_GOOGLE}
             style={styles.map}
             initialRegion={{
               latitude: location.latitude,

@@ -7,10 +7,10 @@ export const createProperty = async (data) => {
     const coordinates = await extractCoordinates(data.googleMapLink);
     
     if (coordinates) {
-        console.log("Extracted coordinates:", coordinates);
+        // console.log("Extracted coordinates:", coordinates);
         data.latitude = coordinates.latitude;
         data.longitude = coordinates.longitude;
-        console.log("Property Data after processing:", data);
+        // console.log("Property Data after processing:", data);
         const response = await globalApiRequest(true, "POST", property.create, data);
         return response;
     } else {

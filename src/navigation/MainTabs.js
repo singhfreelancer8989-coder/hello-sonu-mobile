@@ -8,7 +8,7 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 import HomeStack from './HomeStacks';
 import SettingsStack from './SettingsStack';
 import SavedStack from './SavedStack';
-import AIChat from '../screens/AIChat/AIChatScreen';
+import MapStack from './MapStack';
 import SalesFormScreen from '../screens/Sales/SalesFormScreen';
 
 const Tab = createBottomTabNavigator();
@@ -93,15 +93,16 @@ const MainTabs = () => {
         }}
       />
 
-      {/* MESSAGES */}
+
+      {/* MAP */}
       <Tab.Screen
-        name="Messages"
-        component={AIChat}
+        name="Map"
+        component={MapStack}
         options={{
           tabBarIcon: ({ focused, color }) => (
             <View style={[styles.iconContainer, focused && styles.activeIconContainer]}>
               <Ionicons
-                name={focused ? "chatbubble-ellipses" : "chatbubble-ellipses-outline"}
+                name={focused ? "map" : "map-outline"}
                 size={24}
                 color={color}
               />

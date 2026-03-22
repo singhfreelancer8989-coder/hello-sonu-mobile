@@ -24,6 +24,7 @@ import { addOrphanedKey, removeOrphanedKey } from '../../utility/orphanedImage.u
 import { deleteProperty, updateProperty, updatePropertyCoverImage } from '../../services/property.service';
 import { fetchPropertyByIdAsync, fetchListingPropertiesAsync, fetchPropertiesAsync } from '../../store/slices/propertySlices';
 import { CITIES } from '../../constants/data.constant';
+import { extractCoordinates } from '../../utility/location.utility';
 
 const EditPropertyScreen = () => {
     const dispatch = useDispatch();
@@ -230,6 +231,10 @@ const EditPropertyScreen = () => {
                 deleteMediaIds: deletedMediaIds,
                 newImages: newImages,
             };
+
+            const coords = await extractCoordinates(payload.property.googleMapLink);
+            payload.property.latitude = coords.latitude;
+            payload.property.longitude = coords.longitude;
 
             // console.log("Saving Changes Payload:", payload);
 

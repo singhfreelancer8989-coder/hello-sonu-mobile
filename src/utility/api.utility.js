@@ -5,14 +5,13 @@ import authEvents from "./authEvents";
 // Configure default instance
 // Configure default instance
 const api = axios.create({
-    baseURL: "http://13.233.250.225/api/v1",
+    baseURL: process.env.EXPO_PUBLIC_API_URL,
     headers: {
         "Content-Type": "application/json",
-        "x-api-key": "hello-sonu-582ef09-4f-8b0b-31124e-593e5ca",
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY,
     },
 });
 
-// console.log('DEBUG: API_URL (Hardcoded):', "http://13.233.250.225/api/v1");
 
 
 /**

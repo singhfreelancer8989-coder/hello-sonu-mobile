@@ -10,7 +10,7 @@ export const addOrphanedKey = async (key) => {
         const keys = stored ? JSON.parse(stored) : [];
         if (!keys.includes(key)) {
             keys.push(key);
-            console.log("[OrphanedUtility] Tracking key:", key);
+            // console.log("[OrphanedUtility] Tracking key:", key);
             await secureStorage.storeData(ORPHANED_KEY, JSON.stringify(keys));
         }
     } catch (e) {

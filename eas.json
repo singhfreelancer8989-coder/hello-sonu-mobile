@@ -6,20 +6,12 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal",
-      "env": {
-        "EXPO_PUBLIC_API_URL": "http://13.233.250.225/api/v1",
-        "EXPO_PUBLIC_API_KEY": "hello-sonu-582ef09-4f-8b0b-31124e-593e5ca"
-      }
+      "distribution": "internal"
     },
     "preview": {
       "distribution": "internal",
       "android": {
         "buildType": "apk"
-      },
-      "env": {
-        "EXPO_PUBLIC_API_URL": "http://13.233.250.225/api/v1",
-        "EXPO_PUBLIC_API_KEY": "hello-sonu-582ef09-4f-8b0b-31124e-593e5ca"
       }
     },
     "production": {
