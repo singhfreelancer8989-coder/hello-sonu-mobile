@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
-import { Entypo, MaterialIcons, Feather, AntDesign, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Entypo, MaterialIcons, Feather, AntDesign, Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useNavigation } from "@react-navigation/native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { handleLogout } from "../../services/auth/auth.service";
@@ -116,7 +117,7 @@ const SettingsScreen = () => {
           <SettingsItem
             onPress={() => Navigator.navigate("UserPermissionsScreen")}
             label="User Permissions"
-            icon={<MaterialCommunityIcons name="user-lock" size={22} color="#000" />}
+            icon={<MaterialCommunityIcons name="account-lock" size={22} color="#000" />}
           />
         )}
 

@@ -6,17 +6,15 @@ import {
   TouchableOpacity,
   ScrollView,
   Switch,
-  SafeAreaView,
   TextInput,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import {
-  Ionicons,
-  Feather,
-  MaterialCommunityIcons,
-  FontAwesome5,
-} from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Ionicons from '@expo/vector-icons/Ionicons';
+import Feather from '@expo/vector-icons/Feather';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { useNavigation } from "@react-navigation/native";
 import {
   widthPercentageToDP as wp,
