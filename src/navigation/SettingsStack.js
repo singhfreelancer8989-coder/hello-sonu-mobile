@@ -14,6 +14,7 @@ import DeletedUserPropertiesScreen from '../screens/Settings/DeletedUserProperti
 import EditPropertyScreen from '../screens/Sales/EditPropertyScreen';
 import MapScreen from '../screens/Settings/Map/MapScreen';
 import ChangePasswordScreen from '../screens/Settings/Profile/ChangePasswordScreen';
+import UserPermissionsScreen from '../screens/Settings/Admin/UserPermissionsScreen';
 
 const Stack = createNativeStackNavigator();
 const SettingsStack = () => {
@@ -32,6 +33,7 @@ const SettingsStack = () => {
       <Stack.Screen name="PropertyDetails" component={PropertDetails} />
       <Stack.Screen name="MapScreen" component={MapScreen} />
       <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
+      <Stack.Screen name="UserPermissionsScreen" component={UserPermissionsScreen} />
 
     </Stack.Navigator>
   )
