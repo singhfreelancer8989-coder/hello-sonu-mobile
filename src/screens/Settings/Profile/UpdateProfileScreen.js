@@ -38,7 +38,7 @@ const UpdateProfileScreen = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back" size={24} color="#007AFF" />
         </TouchableOpacity>
-        <Text style={styles.title}>Update Profile</Text>
+        <Text style={styles.title}>View Profile</Text>
       </View>
 
       <ScrollView contentContainerStyle={{ padding: wp('4.5%') }}>
@@ -53,7 +53,7 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             value={firstName}
-            onChangeText={setFirstName}
+            editable={false}
             placeholder="Enter First Name"
           />
 
@@ -61,7 +61,7 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             value={lastName}
-            onChangeText={setLastName}
+            editable={false}
             placeholder="Enter Last Name"
           />
 
@@ -69,7 +69,7 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             value={email}
-            onChangeText={setEmail}
+            editable={false}
             placeholder="Enter Email"
             keyboardType="email-address"
           />
@@ -78,16 +78,11 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             value={phone}
-            onChangeText={setPhone}
+            editable={false}
             placeholder="Enter Phone Number"
             keyboardType="phone-pad"
           />
 
-          {/* Save Button */}
-          <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
-            <Feather name="save" size={18} color="#fff" />
-            <Text style={styles.saveBtnText}>Save Changes</Text>
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>

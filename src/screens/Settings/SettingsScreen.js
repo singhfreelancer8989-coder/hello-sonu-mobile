@@ -47,7 +47,7 @@ const SettingsScreen = () => {
 
         <View>
           <Text style={styles.profileName}>{firstName} {lastName}</Text>
-          <Text style={styles.profileSubText}>View & Edit Profile</Text>
+          <Text style={styles.profileSubText}>View Profile</Text>
         </View>
       </TouchableOpacity>
 
