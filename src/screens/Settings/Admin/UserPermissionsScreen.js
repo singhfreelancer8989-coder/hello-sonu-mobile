@@ -15,92 +15,82 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import Feather from '@expo/vector-icons/Feather';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
+import { getPropertyAccessSummary, updatePropertyAccess } from "../../../services/user.service";
+import { ActivityIndicator, Alert, RefreshControl } from "react-native";
+import { showErrorAlert } from "../../../utility/error.utility";
 
 const UserPermissionsScreen = () => {
   const navigation = useNavigation();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [summary, setSummary] = useState({
+    totalUsers: 0,
+    totalWithAccess: 0,
+    totalWithoutAccess: 0
+  });
 
-  // Dummy user data
-  const [users, setUsers] = useState([
-    {
-      id: "1",
-      name: "John Doe",
-      email: "john@example.com",
-      canCreateProperty: true,
-      role: "broker",
-    },
-    {
-      id: "2",
-      name: "Jane Smith",
-      email: "jane@example.com",
-      canCreateProperty: false,
-      role: "user",
-    },
-    {
-      id: "3",
-      name: "Robert Brown",
-      email: "robert@example.com",
-      canCreateProperty: true,
-      role: "broker",
-    },
-    {
-      id: "4",
-      name: "Emily Davis",
-      email: "emily@example.com",
-      canCreateProperty: false,
-      role: "user",
-    },
-    {
-      id: "5",
-      name: "Michael Wilson",
-      email: "michael@example.com",
-      canCreateProperty: false,
-      role: "user",
-    },
-    {
-      id: "6",
-      name: "Sarah Miller",
-      email: "sarah@example.com",
-      canCreateProperty: true,
-      role: "broker",
-    },
-    {
-      id: "7",
-      name: "David Garcia",
-      email: "david@example.com",
-      canCreateProperty: false,
-      role: "user",
-    },
-  ]);
-
-  const togglePermission = (userId) => {
-    setUsers(
-      users.map((user) =>
-        user.id === userId
-          ? { ...user, canCreateProperty: !user.canCreateProperty }
-          : user
-      )
-    );
+  const fetchData = async () => {
+    try {
+      const response = await getPropertyAccessSummary();
+      if (response && response.data) {
+        setUsers(response.data.users || []);
+        setSummary({
+          totalUsers: response.data.totalUsers || 0,
+          totalWithAccess: response.data.totalWithAccess || 0,
+          totalWithoutAccess: response.data.totalWithoutAccess || 0
+        });
+      }
+    } catch (err) {
+      showErrorAlert("Error", "Failed to fetch permissions summary");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   };
 
-  const filteredUsers = useMemo(() => {
-    return users.filter(
-      (user) =>
-        user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [users, searchQuery]);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchData();
+    }, [])
+  );
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchData();
+  };
+
+  const togglePermission = async (userId, currentStatus) => {
+    const newStatus = !currentStatus;
+    try {
+      const response = await updatePropertyAccess(userId, newStatus);
+      if (response) {
+        // Optimistic update or just refetch
+        setUsers(prev => prev.map(u => u.id === userId ? { ...u, canCreateProperty: newStatus } : u));
+        // Update summary locally to avoid jumpiness
+        setSummary(prev => ({
+          ...prev,
+          totalWithAccess: newStatus ? prev.totalWithAccess + 1 : prev.totalWithAccess - 1,
+          totalWithoutAccess: newStatus ? prev.totalWithoutAccess - 1 : prev.totalWithoutAccess + 1
+        }));
+      }
+    } catch (err) {
+      showErrorAlert("Error", "Failed to update permission");
+    }
+  };
 
   const stats = useMemo(() => {
-    const total = users.length;
-    const permitted = users.filter((u) => u.canCreateProperty).length;
-    return { total, permitted };
-  }, [users]);
+    return {
+      total: summary.totalUsers,
+      permitted: summary.totalWithAccess,
+      pending: summary.totalWithoutAccess
+    };
+  }, [summary]);
 
   const renderHeader = () => (
     <View style={styles.header}>
@@ -111,9 +101,7 @@ const UserPermissionsScreen = () => {
         <Ionicons name="chevron-back" size={24} color="#333" />
       </TouchableOpacity>
       <Text style={styles.headerTitle}>Permissions Manager</Text>
-      <TouchableOpacity style={styles.headerAction}>
-        <Feather name="more-vertical" size={22} color="#333" />
-      </TouchableOpacity>
+      <View style={{ width: 40 }} />
     </View>
   );
 
@@ -147,112 +135,104 @@ const UserPermissionsScreen = () => {
           </View>
         </View>
 
-        {/* Search Bar */}
-        <View style={styles.searchContainer}>
-          <View style={styles.searchWrapper}>
-            <Feather name="search" size={20} color="#999" />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search by name or email..."
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              placeholderTextColor="#999"
-            />
-            {searchQuery.length > 0 && (
-              <TouchableOpacity onPress={() => setSearchQuery("")}>
-                <Ionicons name="close-circle" size={20} color="#CCC" />
-              </TouchableOpacity>
-            )}
+
+        {loading && !refreshing ? (
+          <View style={styles.emptyContainer}>
+            <ActivityIndicator size="large" color="#4834d4" />
+            <Text style={[styles.emptySubText, { marginTop: 10 }]}>Loading permissions...</Text>
           </View>
-        </View>
-
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContainer}
-        >
-          {filteredUsers.length > 0 ? (
-            filteredUsers.map((user) => (
-              <View key={user.id} style={styles.userCard}>
-                <View style={styles.userMainInfo}>
-                  <View style={styles.avatarContainer}>
-                    <View style={styles.avatar}>
-                      <Text style={styles.avatarText}>
-                        {user.name.charAt(0)}
-                      </Text>
-                    </View>
-                    <View
-                      style={[
-                        styles.statusDot,
-                        {
-                          backgroundColor: user.canCreateProperty
-                            ? "#27ae60"
-                            : "#bdc3c7",
-                        },
-                      ]}
-                    />
-                  </View>
-
-                  <View style={styles.userDetails}>
-                    <View style={styles.nameRow}>
-                      <Text style={styles.userName}>{user.name}</Text>
+        ) : (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContainer}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+          >
+            {users.length > 0 ? (
+              users.map((user) => (
+                <View key={user.id} style={styles.userCard}>
+                  <View style={styles.userMainInfo}>
+                    <View style={styles.avatarContainer}>
+                      <View style={styles.avatar}>
+                        <Text style={styles.avatarText}>
+                          {(user.firstName || "?").charAt(0)}
+                        </Text>
+                      </View>
                       <View
                         style={[
-                          styles.roleBadge,
+                          styles.statusDot,
                           {
-                            backgroundColor:
-                              user.role === "broker" ? "#4834d415" : "#f1f3f5",
+                            backgroundColor: user.canCreateProperty
+                              ? "#27ae60"
+                              : "#bdc3c7",
                           },
                         ]}
-                      >
-                        <Text
+                      />
+                    </View>
+
+                    <View style={styles.userDetails}>
+                      <View style={styles.nameRow}>
+                        <Text style={styles.userName}>{user.firstName} {user.lastName}</Text>
+                        <View
                           style={[
-                            styles.roleText,
+                            styles.roleBadge,
                             {
-                              color:
-                                user.role === "broker" ? "#4834d4" : "#666",
+                              backgroundColor:
+                                user.role === "admin" ? "#FF980015" : (user.role === "broker" ? "#4834d415" : "#f1f3f5"),
                             },
                           ]}
                         >
-                          {user.role.toUpperCase()}
-                        </Text>
+                          <Text
+                            style={[
+                              styles.roleText,
+                              {
+                                color:
+                                  user.role === "admin" ? "#FF9800" : (user.role === "broker" ? "#4834d4" : "#666"),
+                              },
+                            ]}
+                          >
+                            {(user.role || "USER").toUpperCase()}
+                          </Text>
+                        </View>
                       </View>
+                      <Text style={styles.userEmail}>{user.email}</Text>
                     </View>
-                    <Text style={styles.userEmail}>{user.email}</Text>
-                  </View>
 
-                  <Switch
-                    trackColor={{ false: "#dfe6e9", true: "#4834d480" }}
-                    thumbColor={user.canCreateProperty ? "#4834d4" : "#f1f2f6"}
-                    onValueChange={() => togglePermission(user.id)}
-                    value={user.canCreateProperty}
-                    style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
-                  />
-                </View>
-
-                {user.canCreateProperty && (
-                  <View style={styles.permissionInfo}>
-                    <MaterialCommunityIcons
-                      name="check-decagram"
-                      size={14}
-                      color="#27ae60"
+                    <Switch
+                      trackColor={{ false: "#dfe6e9", true: "#4834d480" }}
+                      thumbColor={user.canCreateProperty ? "#4834d4" : "#f1f2f6"}
+                      onValueChange={() => togglePermission(user.id, user.canCreateProperty)}
+                      value={user.canCreateProperty}
+                      style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
                     />
-                    <Text style={styles.permissionStatusText}>
-                      Authorized to list properties
-                    </Text>
                   </View>
-                )}
+
+                  {user.canCreateProperty && (
+                    <View style={styles.permissionInfo}>
+                      <MaterialCommunityIcons
+                        name="check-decagram"
+                        size={14}
+                        color="#27ae60"
+                      />
+                      <Text style={styles.permissionStatusText}>
+                        Authorized to list properties
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              ))
+            ) : (
+              <View style={styles.emptyContainer}>
+                <FontAwesome5 name="user-slash" size={48} color="#EEE" />
+                <Text style={styles.emptyText}>No users found</Text>
+                <Text style={styles.emptySubText}>
+                  Try searching for a different name or email
+                </Text>
               </View>
-            ))
-          ) : (
-            <View style={styles.emptyContainer}>
-              <FontAwesome5 name="user-slash" size={48} color="#EEE" />
-              <Text style={styles.emptyText}>No users found</Text>
-              <Text style={styles.emptySubText}>
-                Try searching for a different name or email
-              </Text>
-            </View>
-          )}
-        </ScrollView>
+            )}
+          </ScrollView>
+        )}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

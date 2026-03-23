@@ -1,7 +1,7 @@
 export const user = {
     login: '/user/auth/signin',
     register: '/user/auth/signup',
-    fogotPassword: '/user/auth/forgot-password',
+    forgotPassword: '/user/auth/forgot-password',
     resetPassword: '/user/auth/reset-password',
     changePassword: '/change-password',
     savedProperties: '/user/saved-properties'
@@ -30,7 +30,8 @@ export const admin = {
     dashboard: '/admin/analytics/dashboard',
     deletedProperties: '/admin/properties',
     propertyAnalytics: '/analytics/property',
-    propertyView: '/analytics/property/view'
+    propertyView: '/analytics/property/view',
+    propertyAccess: '/admin/property-access'
 }
 
 export const broker = {

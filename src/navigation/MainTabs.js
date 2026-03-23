@@ -10,10 +10,15 @@ import SettingsStack from './SettingsStack';
 import SavedStack from './SavedStack';
 import MapStack from './MapStack';
 import SalesFormScreen from '../screens/Sales/SalesFormScreen';
+import useAuth from '../hooks/useAuth';
 
 const Tab = createBottomTabNavigator();
 
 const MainTabs = () => {
+  const { userData } = useAuth();
+
+  const canCreateProperty = userData?.role === 'admin' || userData?.canCreateProperty === true;
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -80,18 +85,20 @@ const MainTabs = () => {
         }}
       />
 
-      {/* CENTER ADD BUTTON (MENU) */}
-      <Tab.Screen
-        name="Menu"
-        component={SalesFormScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <View style={styles.floatingButton}>
-              <Ionicons name="add" size={32} color="#fff" />
-            </View>
-          ),
-        }}
-      />
+      {/* CENTER ADD BUTTON (MENU) - Restricted Visibility */}
+      {canCreateProperty && (
+        <Tab.Screen
+          name="Menu"
+          component={SalesFormScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <View style={styles.floatingButton}>
+                <Ionicons name="add" size={32} color="#fff" />
+              </View>
+            ),
+          }}
+        />
+      )}
 
 
       {/* MAP */}

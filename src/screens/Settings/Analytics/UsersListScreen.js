@@ -5,7 +5,7 @@ import { MaterialIcons, Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 
-import { getUsersByRole, deleteUser } from '../../../services/user.service';
+import { getUsersByRole, deleteUser, updatePropertyAccess } from '../../../services/user.service';
 import { useFocusEffect } from '@react-navigation/native';
 import { ActivityIndicator, Alert, RefreshControl } from 'react-native';
 import { showErrorAlert, getErrorMessage } from '../../../utility/error.utility';
@@ -63,6 +63,40 @@ const UsersListScreen = () => {
         fetchUsers();
     };
 
+    const handleTogglePermission = async (user) => {
+        const newStatus = !user.canCreateProperty;
+        try {
+            const response = await updatePropertyAccess(user.id, newStatus);
+            if (response) {
+                Alert.alert("Success", `Property creation access ${newStatus ? 'granted' : 'revoked'} for ${user.firstName}`);
+                fetchUsers();
+            }
+        } catch (err) {
+            showErrorAlert("Error", err);
+        }
+    };
+
+    const handleMenu = (item) => {
+        const options = [
+            { text: "Cancel", style: "cancel" },
+            {
+                text: item.canCreateProperty ? "Revoke Property Access" : "Give Property Access",
+                onPress: () => handleTogglePermission(item)
+            },
+            {
+                text: "Delete User",
+                style: "destructive",
+                onPress: () => handleDelete(item.id)
+            }
+        ];
+
+        Alert.alert(
+            "User Options",
+            `Manage permissions for ${item.firstName} ${item.lastName}`,
+            options
+        );
+    };
+
     const handleDelete = (id) => {
         Alert.alert(
             `Delete ${role === 'admin' ? 'Admin' : 'User'}`,
@@ -101,6 +135,7 @@ const UsersListScreen = () => {
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                     <Text style={styles.userName}>{item.firstName + " " + item.lastName || 'Unknown User'}</Text>
                     {item.role === 'admin' && <MaterialIcons name="admin-panel-settings" size={16} color="#FF9800" />}
+                    {item.canCreateProperty && <MaterialIcons name="check-circle" size={16} color="#4CAF50" />}
                 </View>
                 <Text style={styles.userEmail}>{item.email || item.mobileNumber || 'No contact info'}</Text>
                 <Text style={styles.userDate}>
@@ -119,10 +154,10 @@ const UsersListScreen = () => {
                     ]}>{activeTab === 'deleted' ? 'DELETED' : (item.status ? item.status.toUpperCase() : 'UNKNOWN')}</Text>
                 </View>
 
-                {/* Only show delete action for active users */}
+                {/* Only show menu for active users */}
                 {activeTab === 'active' && (
-                    <TouchableOpacity onPress={() => handleDelete(item.id)} style={styles.actionButton}>
-                        <MaterialIcons name="delete-outline" size={24} color="#FF3B30" />
+                    <TouchableOpacity onPress={() => handleMenu(item)} style={styles.actionButton}>
+                        <MaterialIcons name="more-vert" size={24} color="#333" />
                     </TouchableOpacity>
                 )}
             </View>

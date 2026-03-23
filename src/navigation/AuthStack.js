@@ -6,6 +6,7 @@ import useAuth from '../hooks/useAuth';
 import LoginScreen from '../screens/Auth/LoginScreen';
 import RegisterScreen from '../screens/Auth/RegisterScreen';
 import OnboardingScreen from '../screens/Auth/OnboardingScreen';
+import ForgotPasswordScreen from '../screens/Auth/ForgotPasswordScreen';
 import SplashScreen from '../screens/SplashScreen';
 import MainTabs from './MainTabs';
 
@@ -29,6 +30,7 @@ const AuthStack = () => {
           <Stack.Screen name="Onboarding" component={OnboardingScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Register" component={RegisterScreen} />
+          <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
         </>
       )}
     </Stack.Navigator>
