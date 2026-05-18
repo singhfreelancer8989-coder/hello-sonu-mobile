@@ -5,6 +5,7 @@ import { extractCoordinates } from "../utility/location.utility";
 export const createProperty = async (data) => {
     console.log("Property Data before extraction:", data);
     const coordinates = await extractCoordinates(data.googleMapLink);
+    console.log("Extracted coordinates:", coordinates);
     
     if (coordinates) {
         // console.log("Extracted coordinates:", coordinates);

@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
         const [headerB64, payloadB64, signature] = token.split(".");
         const payload = await JSON.parse(atob(payloadB64));
         setUserData(payload);
-        // // console.log(payload)
+        // console.log(payload)
         await secureStorage.storeData("me", JSON.stringify(payload));
       }
     } catch (error) {

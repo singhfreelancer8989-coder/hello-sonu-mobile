@@ -9,11 +9,17 @@ async function resolveUrl(url) {
     const response = await fetch(url, {
       method: "GET",
       redirect: "follow",
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+      }
     });
-    return response.url || url;
+    const finalUrl = response.url || url;
+    const html = await response.text();
+    // console.log("RESOLVED URL:", finalUrl);
+    return { url: finalUrl, html };
   } catch (err) {
     // console.error("Resolve Error:", err.message);
-    return url;
+    return { url, html: "" };
   }
 }
 
@@ -21,10 +27,21 @@ export async function extractCoordinates(inputUrl, apiKey = GOOGLE_API_KEY) {
   if (!inputUrl) return null;
 
   try {
-    const longUrl = await resolveUrl(inputUrl);
+    const { url: longUrl, html } = await resolveUrl(inputUrl);
     // console.log("--- Debug: Resolved URL ---", longUrl);
 
     let match;
+
+    // ✅ 0. HTML scraping for og:image center (Bypasses API restrictions)
+    if (html) {
+      const metaMatch = html.match(/center=([-+]?\d+\.\d+)(?:%2C|,)([-+]?\d+\.\d+)/);
+      if (metaMatch) {
+        return {
+          latitude: parseFloat(metaMatch[1]),
+          longitude: parseFloat(metaMatch[2]),
+        };
+      }
+    }
 
     // ✅ 1. !3dLAT!4dLNG (best precision)
     match = longUrl.match(/!3d([-+]?\d+\.\d+)!4d([-+]?\d+\.\d+)/);
@@ -142,5 +159,5 @@ export async function extractCoordinates(inputUrl, apiKey = GOOGLE_API_KEY) {
 
 // // 🧪 Test
 // extractCoordinates(
-//   "https://maps.app.goo.gl/9vKDwB9GYbTfGUbf9"
+//   "https://maps.app.goo.gl/CP6wz9gWrXpygEHbA?g_st=ac"
 // ).then(console.log);

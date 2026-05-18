@@ -13,6 +13,7 @@ import { deleteImage } from './src/services/imageUpload.service';
 import React, { useEffect } from 'react';
 
 import * as SplashScreen from 'expo-splash-screen';
+// import { extractCoordinates } from './src/utility/location.utility';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -52,6 +53,9 @@ export default function App() {
         });
       }
     };
+    // extractCoordinates(
+    //   "https://maps.app.goo.gl/CP6wz9gWrXpygEHbA?g_st=ac"
+    // ).then(console.log);
     cleanupOrphans();
   }, []);
 
