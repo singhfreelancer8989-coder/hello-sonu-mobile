@@ -11,7 +11,8 @@ import {
   TouchableWithoutFeedback,
   Alert,
   Image,
-  Switch
+  Switch,
+  Linking
 } from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
@@ -58,7 +59,7 @@ const SalesFormScreen = () => {
     address: '',
     landmark: '',
     city: '',
-    googleMapLink: '',
+    latLong: '',
     expectedPrice: '',
     sellingPreference: 'Normal',
     description: '',
@@ -260,13 +261,36 @@ const SalesFormScreen = () => {
       }
     }
 
+    // Phone Number Validation
+    if (formData.ownerMobileNumber && formData.ownerMobileNumber.length !== 10) {
+      Alert.alert("Invalid Input", "Owner mobile number must be exactly 10 digits.");
+      return;
+    }
 
+    if (!formData.latLong) {
+      Alert.alert("Missing Details", "Please provide Latitude and Longitude.");
+      return;
+    }
+
+    const [latStr, lonStr] = formData.latLong.split(',').map(s => s.trim());
+    const latitude = parseFloat(latStr);
+    const longitude = parseFloat(lonStr);
+
+    if (isNaN(latitude) || isNaN(longitude)) {
+      Alert.alert("Invalid Input", "Latitude and Longitude must be valid numbers separated by a comma.");
+      return;
+    }
+
+    const googleMapLink = `https://maps.google.com/?q=${latitude},${longitude}`;
 
     setUploading(true);
     try {
       // Create a payload with sanitized expectedPrice
       const payload = {
         ...formData,
+        latitude,
+        longitude,
+        googleMapLink,
         expectedPrice: String(formData.expectedPrice || '').replace(/,/g, '')
       };
       // console.log("Submitting formData:", JSON.stringify(payload, null, 2));
@@ -344,7 +368,7 @@ const SalesFormScreen = () => {
             address: '',
             landmark: '',
             city: '',
-            googleMapLink: '',
+            latLong: '',
             expectedPrice: '',
             sellingPreference: 'Normal',
             description: '',
@@ -526,16 +550,26 @@ const SalesFormScreen = () => {
           />
         </View>
 
-        {/* GOOGLE MAP LINK */}
+        {/* LATITUDE & LONGITUDE */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Google Map Link</Text>
+          <Text style={styles.label}>Latitude & Longitude</Text>
           <TextInput
             style={styles.input}
-            placeholder="Paste Google Map Link here"
+            placeholder="Ex: 28.7041, 77.1025"
             placeholderTextColor="#aaa"
-            value={formData.googleMapLink}
-            onChangeText={(v) => updateField("googleMapLink", v)}
+            value={formData.latLong}
+            onChangeText={(v) => updateField("latLong", v)}
           />
+          <View style={{ marginTop: 8, flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
+            <Text style={{ fontSize: wp('3.2%'), color: '#555', fontFamily: 'Poppins-Regular' }}>How to extract coordinates? </Text>
+            <TouchableOpacity onPress={() => Linking.openURL('https://www.youtube.com/watch?v=riFODip2tYY')}>
+              <Text style={{ fontSize: wp('3.2%'), color: '#3a75cd', fontFamily: 'Poppins-Medium', textDecorationLine: 'underline' }}>iOS</Text>
+            </TouchableOpacity>
+            <Text style={{ fontSize: wp('3.2%'), color: '#555', fontFamily: 'Poppins-Regular' }}> | </Text>
+            <TouchableOpacity onPress={() => Linking.openURL('https://www.youtube.com/watch?v=2NuSSWGzHlo')}>
+              <Text style={{ fontSize: wp('3.2%'), color: '#3a75cd', fontFamily: 'Poppins-Medium', textDecorationLine: 'underline' }}>Android</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Description */}

@@ -3,9 +3,16 @@ import { property, user, admin, location } from "../constants/endpoint.constant"
 import { extractCoordinates } from "../utility/location.utility";
 
 export const createProperty = async (data) => {
-    console.log("Property Data before extraction:", data);
+    // console.log("Property Data before extraction:", data);
+
+    // If latitude and longitude are already provided, bypass extraction
+    if (data.latitude && data.longitude) {
+        const response = await globalApiRequest(true, "POST", property.create, data);
+        return response;
+    }
+
     const coordinates = await extractCoordinates(data.googleMapLink);
-    console.log("Extracted coordinates:", coordinates);
+    // console.log("Extracted coordinates:", coordinates);
     
     if (coordinates) {
         // console.log("Extracted coordinates:", coordinates);
