@@ -1,14 +1,14 @@
 export default ({ config }) => ({
   ...config,
   expo: {
-    name: "hello-sonu-mobile",
+    name: "hello sonu",
     slug: "hello-sonu-mobile",
-    version: "1.0.0",
+    version: "9.0.0",
     orientation: "portrait",
-    userInterfaceStyle: "light",
+    userIunterfaceStyle: "light",
     newArchEnabled: false,
 
-    icon: "./src/assets/icon.png",
+    icon: "./src/assets/icon.jpeg",
 
     splash: {
       image: "./src/assets/splash.png",
@@ -28,7 +28,7 @@ export default ({ config }) => ({
     android: {
       package: "com.mohit_56.hellosonumobile",
       adaptiveIcon: {
-        foregroundImage: "./src/assets/icon.png",
+        foregroundImage: "./src/assets/icon.jpeg",
         backgroundColor: "#ffffff",
       },
       edgeToEdgeEnabled: true,

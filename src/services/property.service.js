@@ -11,24 +11,24 @@ export const createProperty = async (data) => {
         return response;
     }
 
-    const coordinates = await extractCoordinates(data.googleMapLink);
+    // const coordinates = await extractCoordinates(data.googleMapLink);
     // console.log("Extracted coordinates:", coordinates);
     
-    if (coordinates) {
-        // console.log("Extracted coordinates:", coordinates);
-        data.latitude = coordinates.latitude;
-        data.longitude = coordinates.longitude;
-        // console.log("Property Data after processing:", data);
-        const response = await globalApiRequest(true, "POST", property.create, data);
-        return response;
-    } else {
-        console.error("Coordinate extraction failed for link:", data.googleMapLink);
-        // Throwing or returning error so handleSubmit can catch it
-        return { 
-            success: false, 
-            message: "Could not extract location from the Google Map link. Please ensure it is a valid link." 
-        };
-    }
+    // if (coordinates) {
+    //     // console.log("Extracted coordinates:", coordinates);
+    //     data.latitude = coordinates.latitude;
+    //     data.longitude = coordinates.longitude;
+    //     // console.log("Property Data after processing:", data);
+    //     const response = await globalApiRequest(true, "POST", property.create, data);
+    //     return response;
+    // } else {
+    //     console.error("Coordinate extraction failed for link:", data.googleMapLink);
+    //     // Throwing or returning error so handleSubmit can catch it
+    //     return { 
+    //         success: false, 
+    //         message: "Could not extract location from the Google Map link. Please ensure it is a valid link." 
+    //     };
+    // }
 };
 
 export const fetchProperties = async (params = {}) => {
@@ -49,7 +49,7 @@ export const fetchMyProperties = async (params = {}) => {
 export const getPropertyById = async (id) => {
     const url = `${property.list}/${id}`;
     const response = await globalApiRequest(true, "GET", url);
-    // // console.log("Property's cover Image:", response);
+    console.log("Property's cover Image:", response);
     return response;
 };
 
@@ -117,6 +117,7 @@ export const updatePropertyCoverImage = async (propertyId, data) => {
 
 export const getNearbyProperties = async (data) => {
     const response = await globalApiRequest(true, "GET", `${location.nearby}/${data.longitude}/${data.latitude}`);
+    console.log("Nearby Properties:", response.data);
     return response;
 };
 
