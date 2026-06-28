@@ -54,7 +54,7 @@ const ChangePasswordScreen = () => {
         old_password: oldPassword,
         new_password: newPassword
       };
-      console.log(payload);
+      // console.log(payload);
 
       const response = await changePassword(payload);
 

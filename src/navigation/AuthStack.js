@@ -9,6 +9,7 @@ import OnboardingScreen from '../screens/Auth/OnboardingScreen';
 import ForgotPasswordScreen from '../screens/Auth/ForgotPasswordScreen';
 import SplashScreen from '../screens/SplashScreen';
 import MainTabs from './MainTabs';
+import LocationPickerScreen from '../screens/Sales/LocationPickerScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -23,7 +24,10 @@ const AuthStack = () => {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {userToken ? (
         // User is logged in - show home screens
-        <Stack.Screen name="MainTabs" component={MainTabs} />
+        <>
+          <Stack.Screen name="MainTabs" component={MainTabs} />
+          <Stack.Screen name="LocationPickerScreen" component={LocationPickerScreen} />
+        </>
       ) : (
         // User is not logged in - show auth screens
         <>
