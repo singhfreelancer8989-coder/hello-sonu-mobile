@@ -191,6 +191,12 @@ const ViewAnalyticsScreen = () => {
                             <StatusRow label="Sold Properties" count={properties?.sold || 0} total={totalProperties} color="#007AFF" />
                             <StatusRow label="Deleted Properties" count={properties?.deleted || 0} total={totalProperties} color="#FF3B30" />
                         </View>
+                        <TouchableOpacity 
+                            style={{ marginTop: 15, backgroundColor: '#007AFF', padding: 12, borderRadius: 10, alignItems: 'center' }}
+                            onPress={() => navigation.navigate('TopPropertyAnalyticsScreen')}
+                        >
+                            <Text style={{ color: '#fff', fontSize: 14, fontFamily: 'Poppins-Medium' }}>View Top Properties Analytics</Text>
+                        </TouchableOpacity>
                     </View>
 
                     {/* Property Distribution */}

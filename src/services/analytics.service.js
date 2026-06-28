@@ -22,6 +22,11 @@ export const sendPropertyViewAnalytics = async (propertyId, durationSeconds) => 
     return response;
 };
 
+export const fetchTopPropertyAnalytics = async () => {
+    const response = await globalApiRequest(true, "GET", `/admin${admin.topProperties}`);
+    return response;
+};
+
 // {
 //   "success": true,
 //   "message": "Property analytics fetched successfully",
