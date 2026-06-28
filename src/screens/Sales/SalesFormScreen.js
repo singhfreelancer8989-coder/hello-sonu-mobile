@@ -21,7 +21,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Ionicons } from '@expo/vector-icons';
 
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { pickImage } from '../../utility/imagePicker';
 import images from '../../assets/images';
 import useAuth from '../../hooks/useAuth';
@@ -37,8 +37,17 @@ import { CITIES } from '../../constants/data.constant';
 
 const SalesFormScreen = () => {
   const navigation = useNavigation();
+  const route = useRoute();
   const dispatch = useDispatch();
   const { userData } = useAuth();
+
+  useEffect(() => {
+    if (route.params?.selectedLocation) {
+      setFormData(prev => ({ ...prev, latLong: route.params.selectedLocation }));
+      // Clear the param so it doesn't keep overriding
+      navigation.setParams({ selectedLocation: undefined });
+    }
+  }, [route.params?.selectedLocation]);
 
   useEffect(() => {
     if (userData?.id || userData?._id) {
@@ -86,6 +95,15 @@ const SalesFormScreen = () => {
   }, [userData]);
 
   const [uploading, setUploading] = useState(false);
+
+  // Listen for returning location from LocationPickerScreen
+  useEffect(() => {
+    if (route.params?.selectedLocation) {
+      setFormData(prev => ({ ...prev, latLong: route.params.selectedLocation }));
+      // Clear the param so it doesn't trigger again
+      navigation.setParams({ selectedLocation: undefined });
+    }
+  }, [route.params?.selectedLocation]);
 
   const handleImagePick = async () => {
     if (formData.images.length >= 4) {
@@ -327,12 +345,41 @@ const SalesFormScreen = () => {
     }
   };
 
-  // Cleanup effect using useFocusEffect to catch Tab Switching and Back Navigation
-  useFocusEffect(
-    useCallback(() => {
-      // Screen Focused
-      return () => {
-        // Screen Blurred (Tab switch, Back, or Navigate away)
+  const handleClearForm = () => {
+    Alert.alert(
+      "Clear Form",
+      "Are you sure you want to clear all data and remove uploaded images?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Clear",
+          style: "destructive",
+          onPress: async () => {
+            if (uploadedImagesSession.current.length > 0) {
+              setUploading(true);
+              const imagesToDelete = [...uploadedImagesSession.current];
+              uploadedImagesSession.current = [];
+              for (const key of imagesToDelete) {
+                try {
+                  await deleteImage(key);
+                  await removeOrphanedKey(key);
+                } catch (e) {
+                  console.error("Failed to delete image during clear:", e);
+                }
+              }
+              setUploading(false);
+            }
+            setFormData(getInitialFormState());
+          }
+        }
+      ]
+    );
+  };
+
+  // Cleanup effect using useEffect to catch unmounting (going back)
+  useEffect(() => {
+    return () => {
+        // Screen Unmounted (User went back or abandoned form completely)
         if (!isSubmitted.current && uploadedImagesSession.current.length > 0) {
           // console.log("[SalesForm] Screen blurred/unmounted without submission. Cleanup started.");
 
@@ -383,9 +430,8 @@ const SalesFormScreen = () => {
             coverImageKey: '',
           });
         }
-      };
-    }, [])
-  );
+    };
+  }, []);
 
   return (
     <SafeAreaView style={styles.root}>
@@ -552,7 +598,34 @@ const SalesFormScreen = () => {
 
         {/* LATITUDE & LONGITUDE */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Latitude & Longitude</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: hp('0.75%') }}>
+            <Text style={[styles.label, { marginBottom: 0 }]}>Latitude & Longitude</Text>
+            <TouchableOpacity 
+              style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#eef2ff', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6 }}
+              onPress={() => {
+                let initLat = null, initLng = null;
+                if (formData.latLong) {
+                  const parts = formData.latLong.split(',');
+                  if (parts.length === 2) {
+                    const parsedLat = parseFloat(parts[0].trim());
+                    const parsedLng = parseFloat(parts[1].trim());
+                    if (!isNaN(parsedLat) && !isNaN(parsedLng)) {
+                      initLat = parsedLat;
+                      initLng = parsedLng;
+                    }
+                  }
+                }
+                navigation.navigate('LocationPickerScreen', {
+                  returnScreen: 'SalesForm',
+                  initialLat: initLat,
+                  initialLng: initLng
+                });
+              }}
+            >
+              <Ionicons name="map-outline" size={16} color="#3a75cd" />
+              <Text style={{ marginLeft: 4, color: '#3a75cd', fontFamily: 'Poppins-Medium', fontSize: wp('3%') }}>Pick on Map</Text>
+            </TouchableOpacity>
+          </View>
           <TextInput
             style={styles.input}
             placeholder="Ex: 28.7041, 77.1025"
@@ -700,6 +773,15 @@ const SalesFormScreen = () => {
           ) : (
             <Text style={styles.submitText}>Submit</Text>
           )}
+        </TouchableOpacity>
+
+        {/* CLEAR FORM */}
+        <TouchableOpacity 
+          style={styles.clearButton} 
+          onPress={handleClearForm} 
+          disabled={uploading}
+        >
+          <Text style={styles.clearText}>Clear Form</Text>
         </TouchableOpacity>
       </ScrollView>
 
@@ -910,6 +992,20 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: wp('4%'),
     fontFamily: "Poppins-Bold",
+  },
+  clearButton: {
+    paddingVertical: hp('1.75%'),
+    alignItems: 'center',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#e74c3c',
+    marginTop: hp('1.5%'),
+    marginBottom: hp('3%'),
+  },
+  clearText: {
+    color: '#e74c3c',
+    fontFamily: "Poppins-Bold",
+    fontSize: wp('4%'),
   },
 
   /* MODAL */

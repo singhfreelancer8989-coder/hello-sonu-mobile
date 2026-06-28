@@ -49,7 +49,7 @@ export const fetchMyProperties = async (params = {}) => {
 export const getPropertyById = async (id) => {
     const url = `${property.list}/${id}`;
     const response = await globalApiRequest(true, "GET", url);
-    console.log("Property's cover Image:", response);
+    // console.log("Property's cover Image:", response);
     return response;
 };
 
@@ -117,7 +117,7 @@ export const updatePropertyCoverImage = async (propertyId, data) => {
 
 export const getNearbyProperties = async (data) => {
     const response = await globalApiRequest(true, "GET", `${location.nearby}/${data.longitude}/${data.latitude}`);
-    console.log("Nearby Properties:", response.data);
+    // console.log("Nearby Properties:", response.data);
     return response;
 };
 

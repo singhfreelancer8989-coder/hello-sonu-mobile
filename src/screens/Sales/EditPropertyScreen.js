@@ -39,14 +39,26 @@ const EditPropertyScreen = () => {
         return [];
     });
 
+    useEffect(() => {
+        if (route.params?.selectedLocation) {
+            const locStr = route.params.selectedLocation;
+            const lat = locStr.split(',')[0].trim();
+            const lng = locStr.split(',')[1].trim();
+            setFormData(prev => ({ 
+                ...prev, 
+                latitude: lat,
+                longitude: lng,
+                googleMapLink: `https://maps.google.com/?q=${lat},${lng}` 
+            }));
+            navigation.setParams({ selectedLocation: undefined });
+        }
+    }, [route.params?.selectedLocation]);
+
     // Initialize cover image state from existing property
     const [coverImageState, setCoverImageState] = useState({
         url: existingProperty?.coverImageUrl || existingProperty?.mainImage || '',
         key: existingProperty?.coverImageKey || existingProperty?.mainImageKey || ''
     });
-
-    const [uploading, setUploading] = useState(false);
-    const [deleting, setDeleting] = useState(false);
 
     const [formData, setFormData] = useState({
         propertyName: existingProperty?.propertyName || '',
@@ -66,6 +78,8 @@ const EditPropertyScreen = () => {
         mainVideoUrl: existingProperty?.mainVideoUrl || '',
         ownerName: existingProperty?.ownerName || '',
         ownerMobileNumber: existingProperty?.ownerMobileNumber || '',
+        latitude: existingProperty?.latitude || '',
+        longitude: existingProperty?.longitude || '',
     });
 
     const updateField = (key, value) => {
@@ -222,7 +236,9 @@ const EditPropertyScreen = () => {
                 description: formData.description,
                 mainVideoUrl: formData.mainVideoUrl,
                 ownerName: formData.ownerName,
-                ownerMobileNumber: formData.ownerMobileNumber
+                ownerMobileNumber: formData.ownerMobileNumber,
+                latitude: formData.latitude ? parseFloat(formData.latitude) : null,
+                longitude: formData.longitude ? parseFloat(formData.longitude) : null
             };
 
             // Composite Payload
@@ -232,9 +248,10 @@ const EditPropertyScreen = () => {
                 newImages: newImages,
             };
 
-            const coords = await extractCoordinates(payload.property.googleMapLink);
-            payload.property.latitude = coords.latitude;
-            payload.property.longitude = coords.longitude;
+            // Use explicitly picked coordinates
+            if (payload.property.latitude && payload.property.longitude) {
+                // Keep the explicitly set coordinates
+            }
 
             // console.log("Saving Changes Payload:", payload);
 
@@ -317,13 +334,11 @@ const EditPropertyScreen = () => {
         );
     };
 
-    // Cleanup effect using useFocusEffect to catch Tab Switching and Back Navigation
-    useFocusEffect(
-        useCallback(() => {
-            // Screen Focused
-            return () => {
-                // Screen Blurred (Tab switch, Back, or Navigate away)
-                if (!isSubmitted.current && uploadedImagesSession.current.length > 0) {
+    // Cleanup effect using useEffect to catch unmounting (going back)
+    useEffect(() => {
+        return () => {
+            // Screen Unmounted (User went back or abandoned form completely)
+            if (!isSubmitted.current && uploadedImagesSession.current.length > 0) {
                     // console.log("[EditProperty] Screen blurred/unmounted without submission. Cleanup started.");
 
                     const imagesToDelete = [...uploadedImagesSession.current];
@@ -344,8 +359,7 @@ const EditPropertyScreen = () => {
                     })();
                 }
             };
-        }, [])
-    );
+    }, []);
 
     if (!existingProperty) return null;
 
@@ -419,7 +433,43 @@ const EditPropertyScreen = () => {
                 </View>
 
                 <View style={styles.inputGroup}>
-                    <Text style={styles.label}>Google Map Link</Text>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: hp('0.75%') }}>
+                        <Text style={[styles.label, { marginBottom: 0 }]}>Google Map Link</Text>
+                        <TouchableOpacity 
+                            style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#eef2ff', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6 }}
+                            onPress={async () => {
+                                setExtractingLocation(true);
+                                let initLat = formData.latitude ? parseFloat(formData.latitude) : null;
+                                let initLng = formData.longitude ? parseFloat(formData.longitude) : null;
+                                
+                                console.log("[DEBUG] Passed to Picker -> Lat:", initLat, "Lng:", initLng);
+
+                                setExtractingLocation(false);
+
+                                if (!initLat || !initLng) {
+                                    Alert.alert(
+                                        "Location Not Found", 
+                                        "We couldn't determine the exact GPS coordinates for this older property. The map will start at your current location so you can manually place the pin."
+                                    );
+                                }
+
+                                navigation.navigate('LocationPickerScreen', {
+                                    returnScreen: 'EditPropertyScreen',
+                                    initialLat: initLat,
+                                    initialLng: initLng
+                                });
+                            }}
+                        >
+                            {extractingLocation ? (
+                                <ActivityIndicator size="small" color="#3a75cd" />
+                            ) : (
+                                <>
+                                    <Ionicons name="map-outline" size={16} color="#3a75cd" />
+                                    <Text style={{ marginLeft: 4, color: '#3a75cd', fontFamily: 'Poppins-Medium', fontSize: wp('3%') }}>Pick on Map</Text>
+                                </>
+                            )}
+                        </TouchableOpacity>
+                    </View>
                     <TextInput style={styles.input} value={formData.googleMapLink} onChangeText={v => updateField("googleMapLink", v)} placeholder="Paste Link" placeholderTextColor="#aaa" />
                 </View>
 
