@@ -4,9 +4,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import LeafletMap from '../../../components/LeafletMap/LeafletMap';
 import { getNearbyProperties } from '../../../services/property.service';
 import { useLocation } from '../../../hooks/useLocation';
+import { OLA_MAPS_API_KEY } from '@env';
 
 const MapScreen = () => {
   const navigation = useNavigation();
@@ -38,81 +39,89 @@ const MapScreen = () => {
     loadProperties();
   }, [location]);
 
-  const renderHeader = () => (
-    <View style={styles.headerContainer}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={24} color="#333" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Map at Hello Sonu</Text>
-        <View style={{ width: 24 }} />
-      </View>
-    </View>
-  );
+  // Removed solid header to allow full-screen map
 
   return (
     <SafeAreaView style={styles.root} edges={['top', 'left', 'right']}>
-      {renderHeader()}
-
       <View style={styles.mapContainer}>
-        {loading ? (
-          <View style={styles.centerContainer}>
-            <ActivityIndicator size="large" color="#007bff" />
-          </View>
-        ) : properties.length === 0 ? (
-          <View style={styles.centerContainer}>
-            <Text style={styles.emptyText}>No properties found with location data.</Text>
-            <TouchableOpacity style={styles.refreshButton} onPress={loadProperties}>
-              <Text style={styles.refreshButtonText}>Refresh</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <MapView
-            provider={PROVIDER_GOOGLE}
-            style={styles.map}
-            initialRegion={{
+        {/* The map itself */}
+        {(() => {
+          if (properties.length === 0 && !loading) return null; // Will show empty state overlay
+
+          const mapMarkers = properties.map((property) => ({
+            id: property._id || property.id,
+            latitude: property.latitude,
+            longitude: property.longitude,
+            title: property.propertyName || "Property",
+            price: property.price,
+            category: property.propertyCategory || "default",
+          }));
+
+          if (location && location.latitude && location.longitude) {
+            mapMarkers.push({
+              id: 'user_location',
               latitude: location.latitude,
               longitude: location.longitude,
-              latitudeDelta: 2,
-              longitudeDelta: 2,
-            }}
-          >
-            {/* User Current Location Marker */}
-            {location && location.latitude && location.longitude && (
-              <Marker
-                coordinate={{ latitude: location.latitude, longitude: location.longitude }}
-                title="Your Location"
-                pinColor="blue"
-              />
-            )}
+              title: 'Your Location',
+            });
+          }
 
-            {properties.map((property, index) => {
-              const { longitude, latitude } = property;
-              return (
-                <Marker
-                  key={property._id || property.id || index.toString()}
-                  coordinate={{ latitude, longitude }}
-                  title={property.propertyName || "Property"}
-                  description={property.price ? `₹${property.price}` : ""}
-                  onCalloutPress={() => {
-                    navigation.navigate('PropertyDetails', { propertyId: property._id || property.id });
-                  }}
-                />
-              );
-            })}
-          </MapView>
+          return (
+            <LeafletMap
+              mode="view"
+              markers={mapMarkers}
+              initialRegion={{
+                latitude: location?.latitude || 20.5937,
+                longitude: location?.longitude || 78.9629,
+                latitudeDelta: 2,
+                longitudeDelta: 2,
+              }}
+              olaMapsApiKey={OLA_MAPS_API_KEY}
+              onMarkerPress={(id) => {
+                if (id !== 'user_location') {
+                  navigation.navigate('PropertyDetails', { propertyId: id });
+                }
+              }}
+            />
+          );
+        })()}
+
+        {/* Floating Controls Overlay */}
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.floatingBackButton}>
+          <Ionicons name="chevron-back" size={26} color="#333" />
+        </TouchableOpacity>
+
+        <View style={styles.floatingTitlePill}>
+          <Text style={styles.floatingTitleText}>Nearby Properties</Text>
+        </View>
+
+        {/* Loading / Empty States overlaid transparently */}
+        {loading && (
+          <View style={styles.overlayContainer}>
+            <ActivityIndicator size="large" color="#3a75cd" />
+          </View>
         )}
 
-        {/* Floating Refresh Button over Map */}
-        {!loading && properties.length > 0 && (
-          <TouchableOpacity style={styles.floatingRefresh} onPress={loadProperties}>
-            <Ionicons name="refresh" size={24} color="#fff" />
+        {!loading && properties.length === 0 && (
+          <View style={styles.overlayContainer}>
+            <View style={styles.emptyCard}>
+              <Text style={styles.emptyText}>No properties found with location data.</Text>
+            </View>
+          </View>
+        )}
+
+        {/* Floating Refresh Pill over Map */}
+        {!loading && (
+          <TouchableOpacity style={styles.floatingRefreshPill} onPress={loadProperties}>
+            <Ionicons name="refresh" size={20} color="#fff" style={{ marginRight: 6 }} />
+            <Text style={styles.floatingRefreshText}>Search this Area</Text>
           </TouchableOpacity>
         )}
       </View>
     </SafeAreaView>
   );
 };
+
 
 export default MapScreen;
 
@@ -121,72 +130,92 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f8f9fa',
   },
-  headerContainer: {
+  mapContainer: {
+    flex: 1,
+    position: 'relative',
+    backgroundColor: '#e0e0e0',
+  },
+  floatingBackButton: {
+    position: 'absolute',
+    top: hp('1.5%'),
+    left: wp('4%'),
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: '#fff',
-    paddingBottom: 10,
-    elevation: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 8,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
     zIndex: 10,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: wp('4%'),
-    paddingVertical: hp('1.5%'),
+  floatingTitlePill: {
+    position: 'absolute',
+    top: hp('2%'),
+    alignSelf: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 20,
+    elevation: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    zIndex: 10,
   },
-  headerTitle: {
-    fontSize: wp('4.5%'),
+  floatingTitleText: {
+    fontSize: wp('4%'),
     color: '#333',
     fontFamily: 'Poppins-Bold',
   },
-  backButton: {
-    padding: 4,
-  },
-  mapContainer: {
-    flex: 1,
-  },
-  map: {
-    flex: 1,
-  },
-  centerContainer: {
-    flex: 1,
+  overlayContainer: {
+    ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    zIndex: 5,
+  },
+  emptyCard: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 12,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
   },
   emptyText: {
-    fontSize: wp('4%'),
-    color: '#888',
-    fontFamily: 'Poppins-Regular',
-    marginBottom: 10,
-  },
-  refreshButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    backgroundColor: '#007AFF',
-    borderRadius: 8,
-  },
-  refreshButtonText: {
-    color: '#fff',
+    fontSize: wp('3.5%'),
+    color: '#555',
     fontFamily: 'Poppins-Medium',
+    textAlign: 'center',
   },
-  floatingRefresh: {
+  floatingRefreshPill: {
     position: 'absolute',
-    bottom: hp('3%'),
-    right: wp('5%'),
-    backgroundColor: '#007AFF',
-    width: 50,
-    height: 50,
+    bottom: hp('4%'),
+    alignSelf: 'center',
+    flexDirection: 'row',
+    backgroundColor: '#3a75cd',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+    elevation: 10,
+    shadowColor: "#3a75cd",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    zIndex: 10,
+  },
+  floatingRefreshText: {
+    color: '#fff',
+    fontFamily: 'Poppins-Bold',
+    fontSize: wp('3.8%'),
   }
 });

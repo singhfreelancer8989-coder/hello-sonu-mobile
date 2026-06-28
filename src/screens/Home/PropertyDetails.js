@@ -387,17 +387,19 @@ const PropertyDetailsScreen = () => {
             {/* ========== META ========== */}
             <View style={styles.metaBox}>
                 {(property.length || property.lengthFt) && (
-                    <View style={styles.metaItem}>
+                    <View style={[styles.metaItem, { flexShrink: 1, marginRight: 10 }]}>
                         <FontAwesome5 name="ruler-combined" size={18} color="#555" />
-                        <Text style={styles.metaText}>
+                        <Text style={[styles.metaText, { flexShrink: 1 }]} numberOfLines={2}>
                             {property.width || property.widthFt} x {property.length || property.lengthFt}  ft
                         </Text>
                     </View>
                 )}
 
-                <View style={styles.metaItem}>
+                <View style={[styles.metaItem, { flexShrink: 1 }]}>
                     <MaterialIcons name="square-foot" size={20} color="#555" />
-                    <Text style={styles.metaText}>{property.size || property.flatSize}</Text>
+                    <Text style={[styles.metaText, { flexShrink: 1 }]} numberOfLines={2}>
+                        {[property.flatSize, property.size ? `${property.size} sqft` : null].filter(Boolean).join(' • ')}
+                    </Text>
                 </View>
             </View>
 
