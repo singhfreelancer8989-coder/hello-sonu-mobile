@@ -138,10 +138,10 @@ const UsersListScreen = () => {
                     {item.canCreateProperty && <MaterialIcons name="check-circle" size={16} color="#4CAF50" />}
                 </View>
                 {item.email ? <Text style={styles.userEmail}>{item.email}</Text> : null}
-                {(item.mobileNumber || item.mobile) ? (
-                    <Text style={styles.userPhone}>📞 {item.mobileNumber || item.mobile}</Text>
+                {(item.phone || item.mobileNumber || item.mobile) ? (
+                    <Text style={styles.userPhone}>📞 {item.phone || item.mobileNumber || item.mobile}</Text>
                 ) : null}
-                {!item.email && !item.mobileNumber && !item.mobile ? (
+                {!item.email && !item.phone && !item.mobileNumber && !item.mobile ? (
                     <Text style={styles.userEmail}>No contact info</Text>
                 ) : null}
                 <Text style={styles.userDate}>
