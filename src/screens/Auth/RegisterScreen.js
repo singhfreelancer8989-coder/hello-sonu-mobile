@@ -65,7 +65,7 @@ const RegisterScreen = ({ }) => {
       const userData = {
         first_name: firstName,
         last_name: lastName,
-        mobile,
+        phone: mobile,
         email,
         password
       };
@@ -107,7 +107,7 @@ const RegisterScreen = ({ }) => {
         const userData = {
           first_name: firstName,
           last_name: lastName,
-          mobile,
+          phone: mobile,
           email,
           password
         };
