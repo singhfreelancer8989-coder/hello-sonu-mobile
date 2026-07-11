@@ -22,10 +22,10 @@ const FILTER_CATEGORIES = [
 
 const BUDGET_OPTIONS = [
     { label: "Any Budget", value: "" },
-    { label: "10L+", value: "10L" },
-    { label: "25L+", value: "25L" },
-    { label: "50L+", value: "50L" },
-    { label: "1Cr+", value: "1Cr    " },
+    { label: "10L", value: "10L" },
+    { label: "25L", value: "25L" },
+    { label: "50L", value: "50L" },
+    { label: "1Cr", value: "1Cr" },
 ];
 
 const SIZE_OPTIONS = [
@@ -34,7 +34,7 @@ const SIZE_OPTIONS = [
     { label: "2 BHK", value: "2 BHK" },
     { label: "3 BHK", value: "3 BHK" },
     { label: "4 BHK", value: "4 BHK" },
-    { label: "5 BHK+", value: "5 BHK+" },
+    { label: "5 BHK", value: "5 BHK" },
 ];
 
 const PropertyListingScreen = () => {

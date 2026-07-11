@@ -65,9 +65,8 @@ const RegisterScreen = ({ }) => {
       const userData = {
         first_name: firstName,
         last_name: lastName,
-        // mobile,
+        mobile,
         email,
-        // city,
         password
       };
       await registerUser(userData);
@@ -108,9 +107,8 @@ const RegisterScreen = ({ }) => {
         const userData = {
           first_name: firstName,
           last_name: lastName,
-          // mobile,
+          mobile,
           email,
-          // city,
           password
         };
         await registerUser(userData);

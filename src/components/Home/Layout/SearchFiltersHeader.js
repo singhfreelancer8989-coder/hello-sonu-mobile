@@ -22,8 +22,8 @@ const propertyTypes = [
 ];
 
 /* OPTIONS */
-const budgets = ["10L+", "25L+", "50L+", "1Cr+"];
-const sizes = ["1 BHK", "2 BHK", "3 BHK", "4+ BHK"];
+const budgets = ["10L", "25L", "50L", "1Cr"];
+const sizes = ["1 BHK", "2 BHK", "3 BHK", "4 BHK"];
 
 /* THEME COLORS */
 const COLORS = {
