@@ -21,7 +21,7 @@ const UpdateProfileScreen = () => {
   const [firstName, setFirstName] = useState(userData.firstName);
   const [lastName, setLastName] = useState(userData.lastName);
   const [email, setEmail] = useState(userData.email);
-  const [phone, setPhone] = useState(userData.phone);
+  const [phone, setPhone] = useState(userData.phone || userData.mobile || userData.mobileNumber || "");
 
   const initials = `${firstName[0]}${lastName[0]}`.toUpperCase();
 

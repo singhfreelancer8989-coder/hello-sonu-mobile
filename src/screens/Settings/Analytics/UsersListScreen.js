@@ -137,7 +137,13 @@ const UsersListScreen = () => {
                     {item.role === 'admin' && <MaterialIcons name="admin-panel-settings" size={16} color="#FF9800" />}
                     {item.canCreateProperty && <MaterialIcons name="check-circle" size={16} color="#4CAF50" />}
                 </View>
-                <Text style={styles.userEmail}>{item.email || item.mobileNumber || 'No contact info'}</Text>
+                {item.email ? <Text style={styles.userEmail}>{item.email}</Text> : null}
+                {(item.mobileNumber || item.mobile) ? (
+                    <Text style={styles.userPhone}>📞 {item.mobileNumber || item.mobile}</Text>
+                ) : null}
+                {!item.email && !item.mobileNumber && !item.mobile ? (
+                    <Text style={styles.userEmail}>No contact info</Text>
+                ) : null}
                 <Text style={styles.userDate}>
                     {activeTab === 'deleted'
                         ? `Deleted: ${item.deletedAt ? new Date(item.deletedAt).toLocaleDateString() : 'N/A'}`
@@ -292,7 +298,13 @@ const styles = StyleSheet.create({
         fontSize: wp('3.2%'),
         color: '#757575',
         fontFamily: 'Poppins-Regular',
-        marginVertical: 2,
+        marginVertical: 1,
+    },
+    userPhone: {
+        fontSize: wp('3.2%'),
+        color: '#555',
+        fontFamily: 'Poppins-Regular',
+        marginVertical: 1,
     },
     userDate: {
         fontSize: wp('3%'),
