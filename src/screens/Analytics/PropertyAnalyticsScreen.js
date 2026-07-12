@@ -122,9 +122,9 @@ const PropertyAnalyticsScreen = ({ route, navigation }) => {
 
         try {
             const res = await fetchPropertyAnalytics(propertyId);
-            console.log('📊 RAW API Response:', JSON.stringify(res, null, 2));
+            // console.log('📊 RAW API Response:', JSON.stringify(res, null, 2));
             if (res && res.data) {
-                console.log('📊 Visitors:', JSON.stringify(res.data.visitors?.[0], null, 2));
+                // console.log('📊 Visitors:', JSON.stringify(res.data.visitors?.[0], null, 2));
                 setData(res.data);
             } else if (res && res.totalViews !== undefined) {
                 setData(res);

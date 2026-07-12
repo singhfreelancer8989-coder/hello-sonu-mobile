@@ -62,7 +62,7 @@ const LocationPickerScreen = () => {
           setSuggestions([]);
         }
       } catch (error) {
-        console.log('Search error:', error);
+        // console.log('Search error:', error);
       } finally {
         setSearching(false);
       }

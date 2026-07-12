@@ -28,7 +28,7 @@ const MapScreen = () => {
         setProperties([]);
       }
     } catch (error) {
-      console.log('Error fetching properties for map:', error);
+      // console.log('Error fetching properties for map:', error);
       setProperties([]);
     } finally {
       setLoading(false);

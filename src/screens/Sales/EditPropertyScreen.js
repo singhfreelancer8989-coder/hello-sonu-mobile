@@ -463,7 +463,7 @@ const EditPropertyScreen = () => {
                                 let initLat = formData.latitude ? parseFloat(formData.latitude) : null;
                                 let initLng = formData.longitude ? parseFloat(formData.longitude) : null;
                                 
-                                console.log("[DEBUG] Passed to Picker -> Lat:", initLat, "Lng:", initLng);
+                                // console.log("[DEBUG] Passed to Picker -> Lat:", initLat, "Lng:", initLng);
 
                                 setExtractingLocation(false);
 

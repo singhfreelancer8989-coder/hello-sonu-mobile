@@ -63,7 +63,7 @@ export async function registerForPushNotificationsAsync() {
         const token = tokenData.data;
         const deviceType = Platform.OS === "ios" ? "ios" : Platform.OS === "android" ? "android" : "unknown";
 
-        console.log("[NotificationUtility] Generated Token:", token, "Device Type:", deviceType);
+        // console.log("[NotificationUtility] Generated Token:", token, "Device Type:", deviceType);
         return { token, deviceType };
     } catch (error) {
         console.error("[NotificationUtility] Error generating push token:", error);

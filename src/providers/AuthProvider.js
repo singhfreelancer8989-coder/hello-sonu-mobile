@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }) => {
       // Adjust based on actual API response structure
       if (response && response.data) {
         // // console.log("inside if:", response);
-        console.log("inside if:", response);
+        // console.log("inside if:", response);
         await getUser(response.data);
         await secureStorage.storeToken(response.data);
         setUserToken(response.data);
