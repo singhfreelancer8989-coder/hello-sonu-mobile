@@ -64,7 +64,44 @@ const UpdateProfileScreen = () => {
       }
     } catch (error) {
       console.error("[UpdateProfileScreen] Save error:", error);
-      Alert.alert("Error", error.message || "Failed to update profile. Please try again.");
+      
+      let displayMessage = "Failed to update profile. Please try again.";
+      let isUniquenessError = false;
+
+      if (error.response?.data) {
+        const data = error.response.data;
+        if (data.message) {
+          displayMessage = data.message;
+        } else if (data.error) {
+          displayMessage = data.error;
+        } else if (data.errors && Array.isArray(data.errors)) {
+          displayMessage = data.errors.map(err => err.message || err).join("\n");
+        } else if (typeof data === "string") {
+          displayMessage = data;
+        }
+      } else if (error.message) {
+        displayMessage = error.message;
+      }
+
+      // Check if this looks like a uniqueness/conflict error
+      if (
+        error.response?.status === 409 || 
+        /unique|already|exists|in use|taken/i.test(displayMessage)
+      ) {
+        isUniquenessError = true;
+        if (/email/i.test(displayMessage)) {
+          displayMessage = "This email address is already registered with another account. Please use a different email.";
+        } else if (/phone|mobile|number/i.test(displayMessage)) {
+          displayMessage = "This phone number is already registered with another account. Please use a different phone number.";
+        } else {
+          displayMessage = "This email or phone number is already registered with another account.";
+        }
+      }
+
+      Alert.alert(
+        isUniquenessError ? "Already Registered" : "Error",
+        displayMessage
+      );
     } finally {
       setIsSaving(false);
     }
