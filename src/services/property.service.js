@@ -3,32 +3,32 @@ import { property, user, admin, location } from "../constants/endpoint.constant"
 import { extractCoordinates } from "../utility/location.utility";
 
 export const createProperty = async (data) => {
-    // console.log("Property Data before extraction:", data);
-
     // If latitude and longitude are already provided, bypass extraction
     if (data.latitude && data.longitude) {
         const response = await globalApiRequest(true, "POST", property.create, data);
         return response;
     }
 
-    // const coordinates = await extractCoordinates(data.googleMapLink);
-    // console.log("Extracted coordinates:", coordinates);
-    
-    // if (coordinates) {
-    //     // console.log("Extracted coordinates:", coordinates);
-    //     data.latitude = coordinates.latitude;
-    //     data.longitude = coordinates.longitude;
-    //     // console.log("Property Data after processing:", data);
-    //     const response = await globalApiRequest(true, "POST", property.create, data);
-    //     return response;
-    // } else {
-    //     console.error("Coordinate extraction failed for link:", data.googleMapLink);
-    //     // Throwing or returning error so handleSubmit can catch it
-    //     return { 
-    //         success: false, 
-    //         message: "Could not extract location from the Google Map link. Please ensure it is a valid link." 
-    //     };
+    // Otherwise, try to extract coordinates from the Google Map link
+    // if (data.googleMapLink) {
+    //     const coordinates = await extractCoordinates(data.googleMapLink);
+    //     if (coordinates) {
+    //         data.latitude = coordinates.latitude;
+    //         data.longitude = coordinates.longitude;
+    //         const response = await globalApiRequest(true, "POST", property.create, data);
+    //         return response;
+    //     } else {
+    //         console.error("Coordinate extraction failed for link:", data.googleMapLink);
+    //         return { 
+    //             success: false, 
+    //             message: "Could not extract location from the Google Map link. Please ensure it is a valid link." 
+    //         };
+    //     }
     // }
+
+    // Default fallback
+    const response = await globalApiRequest(true, "POST", property.create, data);
+    return response;
 };
 
 export const fetchProperties = async (params = {}) => {
