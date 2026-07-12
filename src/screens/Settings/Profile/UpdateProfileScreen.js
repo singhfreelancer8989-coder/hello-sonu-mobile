@@ -7,28 +7,67 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { MaterialIcons, Feather, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import useAuth from "../../../hooks/useAuth";
+import { globalApiRequest } from "../../../utility/api.utility";
+import { user as userEndpoints } from "../../../constants/endpoint.constant";
 
 const UpdateProfileScreen = () => {
   const navigation = useNavigation();
-  const { userData } = useAuth();
+  const { userData, updateProfileState } = useAuth();
 
-  // Dummy user data — replace with your backend/auth state
-  const [firstName, setFirstName] = useState(userData.firstName);
-  const [lastName, setLastName] = useState(userData.lastName);
-  const [email, setEmail] = useState(userData.email);
-  const [phone, setPhone] = useState(userData.phone || userData.mobile || userData.mobileNumber || "");
+  const [firstName, setFirstName] = useState(userData?.firstName || "");
+  const [lastName, setLastName] = useState(userData?.lastName || "");
+  const [email, setEmail] = useState(userData?.email || "");
+  const [phone, setPhone] = useState(userData?.phone || userData?.mobile || userData?.mobileNumber || "");
+  const [isSaving, setIsSaving] = useState(false);
 
-  const initials = `${firstName[0]}${lastName[0]}`.toUpperCase();
+  const initials = `${firstName ? firstName[0] : ""}${lastName ? lastName[0] : ""}`.toUpperCase() || "U";
 
-  const handleSave = () => {
-    // Perform API call or state update
-    Alert.alert("Profile Updated", "Your profile details have been saved.");
-    navigation.goBack();
+  const handleSave = async () => {
+    if (!firstName.trim() || !lastName.trim() || !email.trim() || !phone.trim()) {
+      Alert.alert("Validation Error", "All fields are required.");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const payload = {
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.trim(),
+      };
+
+      const response = await globalApiRequest(
+        true,
+        "PUT",
+        userEndpoints.profile,
+        payload
+      );
+
+      if (response) {
+        await updateProfileState({
+          firstName: payload.first_name,
+          lastName: payload.last_name,
+          email: payload.email,
+          phone: payload.phone,
+        });
+        Alert.alert("Success", "Profile updated successfully.");
+        navigation.goBack();
+      } else {
+        throw new Error("Failed to update profile");
+      }
+    } catch (error) {
+      console.error("[UpdateProfileScreen] Save error:", error);
+      Alert.alert("Error", error.message || "Failed to update profile. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -38,7 +77,7 @@ const UpdateProfileScreen = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back" size={24} color="#007AFF" />
         </TouchableOpacity>
-        <Text style={styles.title}>View Profile</Text>
+        <Text style={styles.title}>Update Profile</Text>
       </View>
 
       <ScrollView contentContainerStyle={{ padding: wp('4.5%') }}>
@@ -53,7 +92,7 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             value={firstName}
-            editable={false}
+            onChangeText={setFirstName}
             placeholder="Enter First Name"
           />
 
@@ -61,7 +100,7 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             value={lastName}
-            editable={false}
+            onChangeText={setLastName}
             placeholder="Enter Last Name"
           />
 
@@ -69,20 +108,31 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             value={email}
-            editable={false}
+            onChangeText={setEmail}
             placeholder="Enter Email"
             keyboardType="email-address"
+            autoCapitalize="none"
           />
 
           <Text style={styles.label}>Phone</Text>
           <TextInput
             style={styles.input}
             value={phone}
-            editable={false}
+            onChangeText={setPhone}
             placeholder="Enter Phone Number"
             keyboardType="phone-pad"
           />
 
+          <TouchableOpacity style={styles.saveBtn} onPress={handleSave} disabled={isSaving}>
+            {isSaving ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <>
+                <Feather name="save" size={20} color="#fff" />
+                <Text style={styles.saveBtnText}>Save Changes</Text>
+              </>
+            )}
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
@@ -148,7 +198,7 @@ const styles = StyleSheet.create({
     paddingVertical: hp('1.25%'),
     fontSize: wp('3.75%'), // 15
     color: "#222",
-    backgroundColor: "#F9F9F9",
+    backgroundColor: "#fff",
     fontFamily: "Poppins-Regular",
   },
 

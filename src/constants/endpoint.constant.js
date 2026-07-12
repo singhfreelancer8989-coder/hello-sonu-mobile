@@ -4,7 +4,8 @@ export const user = {
     forgotPassword: '/user/auth/forgot-password',
     resetPassword: '/user/auth/reset-password',
     changePassword: '/change-password',
-    savedProperties: '/user/saved-properties'
+    savedProperties: '/user/saved-properties',
+    profile: '/profile'
 }
 
 export const image = {
@@ -48,4 +49,9 @@ export const adminUsers = {
 
 export const location = {
     nearby: '/properties/nearby'
+}
+
+export const notification = {
+    registerToken: '/notifications/register-token',
+    removeToken: '/notifications/remove-token'
 }

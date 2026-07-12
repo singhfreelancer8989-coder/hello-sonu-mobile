@@ -1,5 +1,5 @@
 import { StyleSheet, StatusBar, View } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import AuthStack from './src/navigation/AuthStack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
@@ -13,10 +13,13 @@ import { deleteImage } from './src/services/imageUpload.service';
 import React, { useEffect } from 'react';
 
 import * as SplashScreen from 'expo-splash-screen';
-// import { extractCoordinates } from './src/utility/location.utility';
+import * as Notifications from 'expo-notifications';
+import { getPropertyById } from './src/services/property.service';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+export const navigationRef = createNavigationContainerRef();
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -53,10 +56,67 @@ export default function App() {
         });
       }
     };
-    // extractCoordinates(
-    //   "https://maps.app.goo.gl/CP6wz9gWrXpygEHbA?g_st=ac"
-    // ).then(console.log);
     cleanupOrphans();
+
+    // Foreground notification listener - custom formatting
+    const foregroundSubscription = Notifications.addNotificationReceivedListener(async (notification) => {
+      const { data } = notification.request.content;
+      const propertyId = data?.propertyId;
+      const isLocal = data?.isLocal;
+
+      if (propertyId && !isLocal) {
+        try {
+          let propertyName = data.propertyName || data.title || notification.request.content.title;
+          let description = data.description || data.body || notification.request.content.body;
+          let coverImage = data.coverImage || data.image;
+
+          // If detail fields are missing, fetch dynamically from DB
+          if (!propertyName || !description) {
+            const response = await getPropertyById(propertyId);
+            if (response && response.data) {
+              propertyName = response.data.title || response.data.propertyName || propertyName;
+              description = response.data.description || response.data.desc || description;
+              coverImage = response.data.coverImage || coverImage;
+            }
+          }
+
+          // Truncate description to 60 characters
+          const truncatedDesc = description
+            ? (description.length > 60 ? description.substring(0, 57) + "..." : description)
+            : "";
+
+          // Schedule local formatted notification with cover image attachment (if supported by OS/device)
+          await Notifications.scheduleNotificationAsync({
+            content: {
+              title: propertyName || "New Property Added!",
+              body: truncatedDesc,
+              data: { propertyId, isLocal: true },
+              attachments: coverImage ? [{ uri: coverImage }] : [],
+            },
+            trigger: null,
+          });
+        } catch (error) {
+          console.error("[App] Failed to handle foreground property notification:", error);
+        }
+      }
+    });
+
+    // Tap/Click response listener - navigate to details screen
+    const responseSubscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      const data = response.notification.request.content.data;
+      const propertyId = data?.propertyId;
+
+      if (propertyId) {
+        if (navigationRef.isReady()) {
+          navigationRef.navigate("PropertyDetails", { propertyId });
+        }
+      }
+    });
+
+    return () => {
+      foregroundSubscription.remove();
+      responseSubscription.remove();
+    };
   }, []);
 
   if (!fontsLoaded) {
@@ -72,7 +132,7 @@ export default function App() {
           {/* For Android + iOS, actual background support */}
           <StatusBar barStyle="dark-content" backgroundColor="#3a75cdff" />
           <View style={styles.root} onLayout={onLayoutRootView}>
-            <NavigationContainer>
+            <NavigationContainer ref={navigationRef}>
               <SafeAreaView style={styles.container}>
                 <AuthStack />
               </SafeAreaView>
