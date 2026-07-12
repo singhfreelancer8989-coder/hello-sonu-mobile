@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Alert, Keyboard, ActivityIndicator, Text } from 'react-native';
+import { View, StyleSheet, Alert, Keyboard, ActivityIndicator, Text, DeviceEventEmitter } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
@@ -126,28 +126,20 @@ const LocationPickerScreen = () => {
       return;
     }
     
-    // Fallback if callback is stripped by React Navigation
-    // Navigate back to the returning screen using nested routing
+    // For SalesForm (Menu tab), use nested navigate
     if (returnScreen === 'Menu' || returnScreen === 'SalesForm') {
       navigation.navigate('MainTabs', {
         screen: 'Menu',
         params: { selectedLocation: locString }
       });
-    } else if (returnScreen === 'EditProperty' || returnScreen === 'EditPropertyScreen') {
-      navigation.navigate('MainTabs', {
-        screen: 'SettingsStack', 
-        params: { 
-          screen: 'EditProperty', 
-          params: { selectedLocation: locString } 
-        }
-      });
-    } else if (returnScreen) {
-      navigation.navigate(returnScreen, {
-        selectedLocation: locString
-      });
-    } else {
-      navigation.goBack();
+      return;
     }
+    
+    // For EditPropertyScreen or any other caller:
+    // Emit an event with the location data, then just goBack().
+    // The caller listens for 'locationPicked' event — works from any tab/stack.
+    DeviceEventEmitter.emit('locationPicked', locString);
+    navigation.goBack();
   };
 
   return (

@@ -11,7 +11,8 @@ import {
     ActivityIndicator,
     Modal,
     FlatList,
-    TouchableWithoutFeedback
+    TouchableWithoutFeedback,
+    DeviceEventEmitter
 } from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -40,6 +41,21 @@ const EditPropertyScreen = () => {
     });
 
     useEffect(() => {
+        // 1. Listen via DeviceEventEmitter (New robust event approach)
+        const subscription = DeviceEventEmitter.addListener('locationPicked', (locStr) => {
+            if (locStr) {
+                const lat = locStr.split(',')[0].trim();
+                const lng = locStr.split(',')[1].trim();
+                setFormData(prev => ({ 
+                    ...prev, 
+                    latitude: lat,
+                    longitude: lng,
+                    googleMapLink: `https://maps.google.com/?q=${lat},${lng}` 
+                }));
+            }
+        });
+
+        // 2. Fallback via route.params (Old routing approach)
         if (route.params?.selectedLocation) {
             const locStr = route.params.selectedLocation;
             const lat = locStr.split(',')[0].trim();
@@ -52,6 +68,8 @@ const EditPropertyScreen = () => {
             }));
             navigation.setParams({ selectedLocation: undefined });
         }
+
+        return () => subscription.remove();
     }, [route.params?.selectedLocation]);
 
     // Initialize cover image state from existing property
@@ -88,6 +106,9 @@ const EditPropertyScreen = () => {
 
     const [deletedMediaIds, setDeletedMediaIds] = useState([]);
     const [newImages, setNewImages] = useState([]);
+    const [uploading, setUploading] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const [extractingLocation, setExtractingLocation] = useState(false);
 
     const uploadedImagesSession = useRef([]); // Track all images uploaded in this session
     const isSubmitted = useRef(false); // Track if form is successfully submitted
@@ -454,7 +475,7 @@ const EditPropertyScreen = () => {
                                 }
 
                                 navigation.navigate('LocationPickerScreen', {
-                                    returnScreen: 'EditPropertyScreen',
+                                    returnScreen: 'EditProperty',
                                     initialLat: initLat,
                                     initialLng: initLng
                                 });

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, Text, View, ScrollView, ActivityIndicator, useWindowDimensions, RefreshControl, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, ActivityIndicator, useWindowDimensions, RefreshControl, TouchableOpacity, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchPropertyAnalytics } from '../../services/analytics.service';
@@ -23,6 +23,12 @@ const VisitorItem = ({ visitor }) => {
     const userObj = visitor.user || visitor.User;
     const phone = userObj?.phone || userObj?.mobileNumber;
 
+    const handleCall = () => {
+        if (phone) {
+            Linking.openURL(`tel:${phone}`);
+        }
+    };
+
     return (
         <View style={styles.visitorCard}>
             <View style={styles.visitorHeader}>
@@ -38,14 +44,21 @@ const VisitorItem = ({ visitor }) => {
             </View>
             <View style={styles.contactInfo}>
                 {phone && (
-                    <Text style={styles.contactText}>
-                        <Ionicons name="call-outline" size={14} /> {phone}
-                    </Text>
+                    <TouchableOpacity style={styles.contactRow} onPress={handleCall} activeOpacity={0.7}>
+                        <View style={styles.contactIconCircle}>
+                            <Ionicons name="call" size={14} color="#fff" />
+                        </View>
+                        <Text style={styles.contactPhone}>{phone}</Text>
+                        <Ionicons name="open-outline" size={12} color="#4834d4" style={{ marginLeft: 4 }} />
+                    </TouchableOpacity>
                 )}
                 {userObj?.email && (
-                    <Text style={styles.contactText}>
-                        <Ionicons name="mail-outline" size={14} /> {userObj.email}
-                    </Text>
+                    <View style={styles.contactRow}>
+                        <View style={[styles.contactIconCircle, { backgroundColor: '#e67e22' }]}>
+                            <Ionicons name="mail" size={14} color="#fff" />
+                        </View>
+                        <Text style={styles.contactEmail}>{userObj.email}</Text>
+                    </View>
                 )}
             </View>
             {visitor.views && visitor.views.length > 0 && (
@@ -109,7 +122,9 @@ const PropertyAnalyticsScreen = ({ route, navigation }) => {
 
         try {
             const res = await fetchPropertyAnalytics(propertyId);
+            console.log('📊 RAW API Response:', JSON.stringify(res, null, 2));
             if (res && res.data) {
+                console.log('📊 Visitors:', JSON.stringify(res.data.visitors?.[0], null, 2));
                 setData(res.data);
             } else if (res && res.totalViews !== undefined) {
                 setData(res);
@@ -250,7 +265,10 @@ const styles = StyleSheet.create({
     durationBadge: { backgroundColor: '#4834d4', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
     durationText: { color: '#fff', fontSize: 12, fontWeight: 'bold', marginLeft: 4 },
     contactInfo: { borderTopWidth: 1, borderTopColor: '#eee', paddingTop: 12 },
-    contactText: { fontSize: 13, color: '#7f8c8d', marginBottom: 4 },
+    contactRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
+    contactIconCircle: { width: 28, height: 28, borderRadius: 14, backgroundColor: '#4834d4', justifyContent: 'center', alignItems: 'center', marginRight: 10 },
+    contactPhone: { fontSize: 14, fontWeight: '600', color: '#4834d4', letterSpacing: 0.3 },
+    contactEmail: { fontSize: 13, color: '#555' },
     emptyStateContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32, backgroundColor: '#f8f9fa' },
     iconCircle: { width: 120, height: 120, borderRadius: 60, backgroundColor: '#ebe8fc', justifyContent: 'center', alignItems: 'center', marginBottom: 24, shadowColor: '#4834d4', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 4 },
     emptyStateTitle: { fontSize: 22, fontWeight: 'bold', color: '#2c3e50', marginBottom: 12 },
